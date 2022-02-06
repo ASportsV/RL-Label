@@ -1,0 +1,115 @@
+{"Objects":
+[
+    
+    {
+        "Text": "Andrew Bogut",
+        "Value": 12,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Andre Iguodala",
+        "Value": 9,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Draymond Green",
+        "Value": 23,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Stephen Curry",
+        "Value": 30,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Brandon Rush",
+        "Value": 4,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Ian Clark",
+        "Value": 21,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Shaun Livingston",
+        "Value": 34,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Festus Ezeli",
+        "Value": 31,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Leandro Barbosa",
+        "Value": 19,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Marreese Speights",
+        "Value": 5,
+        "Team": "GSW"
+    },
+    {
+        "Text": "James Michael McAdoo",
+        "Value": 20,
+        "Team": "GSW"
+    },
+    {
+        "Text": "Jae Crowder",
+        "Value": 99,
+        "Team": "BOS"
+    },
+    {
+        "Text": "Amir Johnson",
+        "Value": 90,
+        "Team": "BOS"
+    },
+    {
+        "Text": "Jared Sullinger",
+        "Value": 7,
+        "Team": "BOS"
+    },
+    {
+        "Text": "Isaiah Thomas",
+        "Value": 4,
+        "Team": "BOS"
+    },
+    {
+        "Text": "Avery Bradley",
+        "Value": 0,
+        "Team": "BOS"
+    },
+    {
+        "Text": "Kelly Olynyk",
+        "Value": 41,
+        "Team": "BOS"
+    },
+    {
+        "Text": "Evan Turner",
+        "Value": 11,
+        "Team": "BOS"
+    },
+    {
+        "Text": "James Young",
+        "Value": 13,
+        "Team": "BOS"
+    },
+    {
+        "Text": "David Lee",
+        "Value": 42,
+        "Team": "BOS"
+    },
+    {
+        "Text": "Jonas Jerebko",
+        "Value": 8,
+        "Team": "BOS"
+    },
+    {
+        "Text": "ball",
+        "Value": 0,
+        "Team": "ball"
+    }
+]
+}
