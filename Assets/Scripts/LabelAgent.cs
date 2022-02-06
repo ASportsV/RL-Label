@@ -121,12 +121,14 @@ public class LabelAgent : Agent
         Vector3 goalVelInCam = sceneCamera.transform.InverseTransformVector(player.GetComponent<Rigidbody>().velocity);
         var distPos = goalPosInCam - selfPosInCam;
         var distVel = goalVelInCam - selfVelInCam;
-        sensor.AddObservation(distPos);
-        sensor.AddObservation(distVel);
+        // sensor.AddObservation(distVel);
+        sensor.AddObservation(selfPosInCam);
+        sensor.AddObservation(selfVelInCam);
         sensor.AddObservation(selfExtentInCam);
+        sensor.AddObservation(distPos.y);
 
         GameObject[] others = this.transform.parent.GetComponentsInChildren<Transform>()
-                .Where(x => (x.CompareTag("agent") || x.CompareTag("player")) && !GameObject.ReferenceEquals(x.gameObject, gameObject) && !GameObject.ReferenceEquals(x.gameObject, player))
+                .Where(x => (x.CompareTag("agent")) && !GameObject.ReferenceEquals(x.gameObject, gameObject))
                 // distance filter
                 //.Where(x => Vector3.Distance(x.transform.localPosition, gameObject.transform.localPosition) < 5.0f)
                 // should filter based on viewport space
@@ -314,7 +316,7 @@ public class LabelAgent : Agent
         float maxDistance = Mathf.Infinity;
         int layerMask = 1 << 15;
         IEnumerable<RaycastHit> m_Hit = Physics.BoxCastAll(origin, halfExtent, direction, rotation, maxDistance, layerMask)
-                .Where(h => !GameObject.ReferenceEquals(gameObject, h.collider.gameObject) && !GameObject.ReferenceEquals(player, h.collider.gameObject));
+                .Where(h => h.collider.CompareTag("agent") && !GameObject.ReferenceEquals(gameObject, h.collider.gameObject)); // && !GameObject.ReferenceEquals(player, h.collider.gameObject));
 
         bool tooClose = m_Hit.Any(hit =>
         {
