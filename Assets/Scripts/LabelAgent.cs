@@ -99,7 +99,8 @@ public class LabelAgent : Agent
         var playerPos = player.transform.localPosition;
         var playerVel = player.GetComponent<Rigidbody>().velocity;
         this.transform.localPosition = new Vector3(playerPos.x, minY, playerPos.z);
-        rBody.velocity = new Vector3(playerVel.x * Random.value, 0, playerVel.z * Random.value);
+        // rBody.velocity = new Vector3(playerVel.x * Random.value, 0, playerVel.z * Random.value);
+        rBody.velocity = playerVel;
     }
 
     /*-----------------Overservation-----------------------*/
@@ -221,17 +222,20 @@ public class LabelAgent : Agent
         }
 
         // Actions, size = 3
-        controlSignal = Vector3.zero;
-        controlSignal.x = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
-        controlSignal.y = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
-        controlSignal.z = Mathf.Clamp(actionBuffers.ContinuousActions[2], -1f, 1f);
+        // controlSignal = Vector3.zero;
+        // controlSignal.x = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
+        // controlSignal.y = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
+        // controlSignal.z = Mathf.Clamp(actionBuffers.ContinuousActions[2], -1f, 1f);
+        float y = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * 5f;
 
         // actions
-        Vector3 acc = Vector3.zero;
-        acc.x = maxAcc.x * controlSignal.x;
-        acc.y = maxAcc.y * controlSignal.y;
-        acc.z = maxAcc.z * controlSignal.z;
-        rBody.AddForce(acc, ForceMode.Acceleration);
+        // Vector3 acc = Vector3.zero;
+        // acc.x = maxAcc.x * controlSignal.x;
+        // acc.y = maxAcc.y * controlSignal.y;
+        // acc.z = maxAcc.z * controlSignal.z;
+        // rBody.AddForce(acc, ForceMode.Acceleration);
+        Vector3 playerVel = player.GetComponent<Rigidbody>().velocity;
+        rBody.velocity = new Vector3(playerVel.x, y, playerVel.z);
 
         // should clamp velocity in y
         float nextY = transform.localPosition.y + rBody.velocity.y * Time.fixedDeltaTime;
@@ -245,12 +249,9 @@ public class LabelAgent : Agent
         this.transform.LookAt(sceneCamera);
     }
 
-
+    /*-----------------------Reward-----------------------*/
     float rewDist(float dist, float maxDist)
     {
-        // liner
-        //(maxDist - dist) / (maxDist * 10f); // [0 ~ 0.1]
-
         //return the value on a declining sigmoid shaped curve that decays from 1 to 0
         //This reward will approach 1 if it matches perfectly and approach zero as it deviates
         return Mathf.Pow(1 - Mathf.Pow(dist / maxDist, 1.4f), 2) / 10.0f;
@@ -278,11 +279,10 @@ public class LabelAgent : Agent
         return -0.05f + Mathf.Pow(1 - Mathf.Pow(d, 1.4f), 2) / 20.0f; // [0, -0.05]
     }
 
-    /*-----------------------Reward-----------------------*/
     void UpdateReward(int academyStepCount)
     {
         var t = player.transform;
-        var playerBOdy = player.GetComponent<Rigidbody>();
+        var playerBody = player.GetComponent<Rigidbody>();
         Vector3 goalPos = new Vector3(t.localPosition.x, minY, t.localPosition.z);
         float dist = Vector3.Distance(goalPos, this.transform.localPosition);
 
@@ -292,20 +292,18 @@ public class LabelAgent : Agent
             return;
         }
 
-        float distThres = 1.0f;
-        if (dist < distThres)
+
+
+        float distThres = 3.0f;
+        if (dist >= distThres)
         {
-            // reward velocity
-            float rewDVec = this.rewVel(rBody.velocity, playerBOdy.velocity);
-
-            // reward dist
-            float rewDist = this.rewDist(dist, distThres);
-
-            // single direction penatly
-            // dist = 0.25 --->[-0.1, 0.1]
-            // dist = 0 ---> [0, 0.2]
-            //if (dist > lastDist) rewDist += (lastDist - dist) / (distThres * 10f);
-            //lastDist = dist;
+            SetReward(-1.0f);
+            EndEpisode();
+        }
+        else
+        {
+            float rewDist = -0.1f + this.rewDist(dist, distThres);
+            if (0 - rewDist < 0.001) rewDist = 0.1f;
 
             Vector3 origin = sceneCamera.transform.position;
             Vector3 halfExtent = rTransform.rect.size * 0.5f;
@@ -314,7 +312,7 @@ public class LabelAgent : Agent
             float maxDistance = Mathf.Infinity;
             int layerMask = 1 << 15;
             IEnumerable<RaycastHit> m_Hit = Physics.BoxCastAll(origin, halfExtent, direction, rotation, maxDistance, layerMask)
-                .Where(h => !GameObject.ReferenceEquals(gameObject, h.collider.gameObject) && !GameObject.ReferenceEquals(player, h.collider.gameObject));
+                    .Where(h => !GameObject.ReferenceEquals(gameObject, h.collider.gameObject) && !GameObject.ReferenceEquals(player, h.collider.gameObject));
 
             float rewOcclusion = 0f;
             foreach (RaycastHit hit in m_Hit)
@@ -332,22 +330,59 @@ public class LabelAgent : Agent
                     ? (occludeDist - minDistToPlayer) / normalizeDistToPlayer
                     : (occludeDist - minDistToAgent) / normalizeDistToAgent;
                 normalizeDist -= 1.0f; // [-1, 0]
-                // calculate rewards
+                                       // calculate rewards
                 rewOcclusion += normalizeDist;
             }
-            rewOcclusion /= 10f; // [-0.1, 0] * 18
+            // rewOcclusion /= 10f; // [-0.1, 0] * 18
 
-            //float rewOcclusion = -(m_Hit.Count() / (9.0f * 10f)); // hardcode for now, 9 other players
+            SetReward(rewDist + rewOcclusion);
+        }
 
-            //AddReward(rewDist + rewOcclusion);
-            AddReward(rewDist + rewDVec + rewOcclusion);
-            //AddReward(rewDist + rewDVec);
-        }
-        else
-        {
-            SetReward(-1.0f);
-            EndEpisode();
-        }
+ 
+        // if (dist < distThres)
+        // {
+        //     // reward velocity
+        //     float rewDVec = 0; // this.rewVel(rBody.velocity, playerBody.velocity);
+
+        //     // reward dist
+        //     float rewDist = 0; // this.rewDist(dist, distThres);
+
+        //     // single direction penatly
+        //     // dist = 0.25 --->[-0.1, 0.1]
+        //     // dist = 0 ---> [0, 0.2]
+        //     //if (dist > lastDist) rewDist += (lastDist - dist) / (distThres * 10f);
+        //     //lastDist = dist;
+
+        
+        //     float rewOcclusion = 0f;
+        //     foreach (RaycastHit hit in m_Hit)
+        //     {
+        //         Bounds hitBounds = hit.collider.bounds;
+        //         // get the hit point
+        //         Vector3 hitPoint = hit.point;
+        //         // get the center point of the hit plane
+        //         Vector3 intersectionPoint = origin + Vector3.Project(hitPoint - origin, direction);
+        //         // cal the distance from the intersect point to the center
+        //         float occludeDist = Vector3.Distance(intersectionPoint, hit.collider.bounds.center);
+
+        //         // normalize
+        //         float normalizeDist = hit.collider.CompareTag("player")
+        //             ? (occludeDist - minDistToPlayer) / normalizeDistToPlayer
+        //             : (occludeDist - minDistToAgent) / normalizeDistToAgent;
+        //         normalizeDist -= 1.0f; // [-1, 0]
+        //         // calculate rewards
+        //         rewOcclusion += normalizeDist;
+        //     }
+        //     rewOcclusion /= 10f; // [-0.1, 0] * 18
+
+        //     //AddReward(rewDist + rewOcclusion);
+        //     AddReward(rewDist + rewDVec + rewOcclusion);
+        // }
+        // else
+        // {
+        //     SetReward(-1.0f);
+        //     EndEpisode();
+        // }
     }
 
     /*-----------------Debug-----------------------*/
@@ -420,7 +455,6 @@ public class LabelAgent : Agent
         continuousActionsOut[0] = Input.GetAxis("Horizontal");
         continuousActionsOut[1] = Input.GetAxis("Vertical");
     }
-
 
     private float boundsSize(Bounds a)
     {
