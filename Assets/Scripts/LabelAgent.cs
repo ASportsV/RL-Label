@@ -316,7 +316,7 @@ public class LabelAgent : Agent
         IEnumerable<RaycastHit> m_Hit = Physics.BoxCastAll(origin, halfExtent, direction, rotation, maxDistance, layerMask)
                 .Where(h => !GameObject.ReferenceEquals(gameObject, h.collider.gameObject) && !GameObject.ReferenceEquals(player, h.collider.gameObject));
 
-        bool tooCloser = m_Hit.Any(hit =>
+        bool tooClose = m_Hit.Any(hit =>
         {
             Bounds hitBounds = hit.collider.bounds;
             // get the hit point
@@ -335,7 +335,7 @@ public class LabelAgent : Agent
         });
 
         float distThres = 3.0f;
-        if (dist >= distThres || tooCloser)
+        if (dist >= distThres || tooClose)
         {
             SetReward(-1.0f);
             EndEpisode();
@@ -345,30 +345,7 @@ public class LabelAgent : Agent
             float rewDist = -0.1f + this.rewDist(dist, distThres);
 
             float rewScale = -0.1f + this.rewScale(this.transform.localScale.x);
-            //if (0 - rewDist < 0.001) rewDist = 0.1f;
 
-            //float rewOcclusion = 0f;
-            //foreach (RaycastHit hit in m_Hit)
-            //{
-            //    Bounds hitBounds = hit.collider.bounds;
-            //    // get the hit point
-            //    Vector3 hitPoint = hit.point;
-            //    // get the center point of the hit plane
-            //    Vector3 intersectionPoint = origin + Vector3.Project(hitPoint - origin, direction);
-            //    // cal the distance from the intersect point to the center
-            //    float occludeDist = Vector3.Distance(intersectionPoint, hit.collider.bounds.center);
-
-            //    // normalize
-            //    float normalizeDist = hit.collider.CompareTag("player")
-            //        ? (occludeDist - minDistToPlayer) / normalizeDistToPlayer
-            //        : (occludeDist - minDistToAgent) / normalizeDistToAgent;
-            //    normalizeDist -= 1.0f; // [-1, 0]
-            //                           // calculate rewards
-            //    rewOcclusion += normalizeDist;
-            //}
-            //rewOcclusion /= 10f; // [-0.1, 0] * 18
-
-            //SetReward(rewDist + rewOcclusion);
             SetReward(0.1f + rewDist + rewScale);
         }
 
