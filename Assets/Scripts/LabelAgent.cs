@@ -226,7 +226,7 @@ public class LabelAgent : Agent
         // controlSignal.x = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
         // controlSignal.y = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
         // controlSignal.z = Mathf.Clamp(actionBuffers.ContinuousActions[2], -1f, 1f);
-        float y = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * 5f;
+        float y = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * 2f;
 
         // actions
         // Vector3 acc = Vector3.zero;
