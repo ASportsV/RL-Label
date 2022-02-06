@@ -73,3 +73,4 @@ node_modules/
 .DS_Store
 /Assets/ML-Agents/Timers/*
 /csharp_timers.json
+Assets/Goalkeeper Idle.fbx*
