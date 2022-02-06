@@ -98,8 +98,9 @@ public class LabelAgent : Agent
 
         var playerPos = player.transform.localPosition;
         var playerVel = player.GetComponent<Rigidbody>().velocity;
-        this.transform.localPosition = new Vector3(playerPos.x, minY, playerPos.z);
-        rBody.velocity = new Vector3(playerVel.x * Random.value, 0, playerVel.z * Random.value);
+        this.transform.localPosition = new Vector3(playerPos.x, minY + 1.5f * Random.value, playerPos.z);
+        // rBody.velocity = new Vector3(playerVel.x * Random.value, 0, playerVel.z * Random.value);
+        rBody.velocity = playerVel;
     }
 
     /*-----------------Overservation-----------------------*/
@@ -127,7 +128,8 @@ public class LabelAgent : Agent
         GameObject[] others = this.transform.parent.GetComponentsInChildren<Transform>()
                 .Where(x => (x.CompareTag("agent") || x.CompareTag("player")) && !GameObject.ReferenceEquals(x.gameObject, gameObject) && !GameObject.ReferenceEquals(x.gameObject, player))
                 // distance filter
-                .Where(x => Vector3.Distance(x.transform.localPosition, gameObject.transform.localPosition) < 5.0f)
+                //.Where(x => Vector3.Distance(x.transform.localPosition, gameObject.transform.localPosition) < 5.0f)
+                // should filter based on viewport space
                 .Select(x => x.gameObject)
                 .ToArray();
 
@@ -221,17 +223,28 @@ public class LabelAgent : Agent
         }
 
         // Actions, size = 3
-        controlSignal = Vector3.zero;
-        controlSignal.x = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
-        controlSignal.y = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
-        controlSignal.z = Mathf.Clamp(actionBuffers.ContinuousActions[2], -1f, 1f);
+        // controlSignal = Vector3.zero;
+        // controlSignal.x = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
+        // controlSignal.y = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
+        // controlSignal.z = Mathf.Clamp(actionBuffers.ContinuousActions[2], -1f, 1f);
+        float y = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * 2f;
+
+        int scaleSize = actionBuffers.DiscreteActions[0];
+        float newScale = Mathf.Clamp(scaleSize == 1
+                ? this.transform.localScale.x + 0.05f
+                : scaleSize == 2
+                ? this.transform.localScale.x - 0.05f
+                : this.transform.localScale.x, 0.1f, 1f);
+
 
         // actions
-        Vector3 acc = Vector3.zero;
-        acc.x = maxAcc.x * controlSignal.x;
-        acc.y = maxAcc.y * controlSignal.y;
-        acc.z = maxAcc.z * controlSignal.z;
-        rBody.AddForce(acc, ForceMode.Acceleration);
+        // Vector3 acc = Vector3.zero;
+        // acc.x = maxAcc.x * controlSignal.x;
+        // acc.y = maxAcc.y * controlSignal.y;
+        // acc.z = maxAcc.z * controlSignal.z;
+        // rBody.AddForce(acc, ForceMode.Acceleration);
+        Vector3 playerVel = player.GetComponent<Rigidbody>().velocity;
+        rBody.velocity = new Vector3(playerVel.x, y, playerVel.z);
 
         // should clamp velocity in y
         float nextY = transform.localPosition.y + rBody.velocity.y * Time.fixedDeltaTime;
@@ -243,14 +256,12 @@ public class LabelAgent : Agent
         }
 
         this.transform.LookAt(sceneCamera);
+        this.transform.localScale = new Vector3(newScale, newScale, newScale);
     }
 
-
+    /*-----------------------Reward-----------------------*/
     float rewDist(float dist, float maxDist)
     {
-        // liner
-        //(maxDist - dist) / (maxDist * 10f); // [0 ~ 0.1]
-
         //return the value on a declining sigmoid shaped curve that decays from 1 to 0
         //This reward will approach 1 if it matches perfectly and approach zero as it deviates
         return Mathf.Pow(1 - Mathf.Pow(dist / maxDist, 1.4f), 2) / 10.0f;
@@ -278,11 +289,15 @@ public class LabelAgent : Agent
         return -0.05f + Mathf.Pow(1 - Mathf.Pow(d, 1.4f), 2) / 20.0f; // [0, -0.05]
     }
 
-    /*-----------------------Reward-----------------------*/
+    float rewScale(float scale)
+    {
+        return 0.1f / (1f + Mathf.Pow((scale / (1f - scale)), -2)); // [0, 0.1]
+    }
+
     void UpdateReward(int academyStepCount)
     {
         var t = player.transform;
-        var playerBOdy = player.GetComponent<Rigidbody>();
+        var playerBody = player.GetComponent<Rigidbody>();
         Vector3 goalPos = new Vector3(t.localPosition.x, minY, t.localPosition.z);
         float dist = Vector3.Distance(goalPos, this.transform.localPosition);
 
@@ -292,62 +307,116 @@ public class LabelAgent : Agent
             return;
         }
 
-        float distThres = 1.0f;
-        if (dist < distThres)
-        {
-            // reward velocity
-            float rewDVec = this.rewVel(rBody.velocity, playerBOdy.velocity);
-
-            // reward dist
-            float rewDist = this.rewDist(dist, distThres);
-
-            // single direction penatly
-            // dist = 0.25 --->[-0.1, 0.1]
-            // dist = 0 ---> [0, 0.2]
-            //if (dist > lastDist) rewDist += (lastDist - dist) / (distThres * 10f);
-            //lastDist = dist;
-
-            Vector3 origin = sceneCamera.transform.position;
-            Vector3 halfExtent = rTransform.rect.size * 0.5f;
-            Vector3 direction = -gameObject.transform.forward;
-            Quaternion rotation = Quaternion.LookRotation(direction);
-            float maxDistance = Mathf.Infinity;
-            int layerMask = 1 << 15;
-            IEnumerable<RaycastHit> m_Hit = Physics.BoxCastAll(origin, halfExtent, direction, rotation, maxDistance, layerMask)
+        Vector3 origin = sceneCamera.transform.position;
+        Vector3 halfExtent = this.GetExtentInWorld();
+        Vector3 direction = -gameObject.transform.forward;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        float maxDistance = Mathf.Infinity;
+        int layerMask = 1 << 15;
+        IEnumerable<RaycastHit> m_Hit = Physics.BoxCastAll(origin, halfExtent, direction, rotation, maxDistance, layerMask)
                 .Where(h => !GameObject.ReferenceEquals(gameObject, h.collider.gameObject) && !GameObject.ReferenceEquals(player, h.collider.gameObject));
 
-            float rewOcclusion = 0f;
-            foreach (RaycastHit hit in m_Hit)
-            {
-                Bounds hitBounds = hit.collider.bounds;
-                // get the hit point
-                Vector3 hitPoint = hit.point;
-                // get the center point of the hit plane
-                Vector3 intersectionPoint = origin + Vector3.Project(hitPoint - origin, direction);
-                // cal the distance from the intersect point to the center
-                float occludeDist = Vector3.Distance(intersectionPoint, hit.collider.bounds.center);
+        bool tooCloser = m_Hit.Any(hit =>
+        {
+            Bounds hitBounds = hit.collider.bounds;
+            // get the hit point
+            Vector3 hitPoint = hit.point;
+            // get the center point of the hit plane
+            Vector3 intersectionPoint = origin + Vector3.Project(hitPoint - origin, direction);
+            // cal the distance from the intersect point to the center
+            float occludeDist = Vector3.Distance(intersectionPoint, hit.collider.bounds.center);
 
-                // normalize
-                float normalizeDist = hit.collider.CompareTag("player")
-                    ? (occludeDist - minDistToPlayer) / normalizeDistToPlayer
-                    : (occludeDist - minDistToAgent) / normalizeDistToAgent;
-                normalizeDist -= 1.0f; // [-1, 0]
-                // calculate rewards
-                rewOcclusion += normalizeDist;
-            }
-            rewOcclusion /= 10f; // [-0.1, 0] * 18
+            // normalize
+            float normalizeDist = hit.collider.CompareTag("player")
+                ? (occludeDist - minDistToPlayer) / normalizeDistToPlayer
+                : (occludeDist - minDistToAgent) / normalizeDistToAgent;
 
-            //float rewOcclusion = -(m_Hit.Count() / (9.0f * 10f)); // hardcode for now, 9 other players
+            return normalizeDist < 0.3f;
+        });
 
-            //AddReward(rewDist + rewOcclusion);
-            AddReward(rewDist + rewDVec + rewOcclusion);
-            //AddReward(rewDist + rewDVec);
-        }
-        else
+        float distThres = 3.0f;
+        if (dist >= distThres || tooCloser)
         {
             SetReward(-1.0f);
             EndEpisode();
         }
+        else
+        {
+            float rewDist = -0.1f + this.rewDist(dist, distThres);
+
+            float rewScale = -0.1f + this.rewScale(this.transform.localScale.x);
+            //if (0 - rewDist < 0.001) rewDist = 0.1f;
+
+            //float rewOcclusion = 0f;
+            //foreach (RaycastHit hit in m_Hit)
+            //{
+            //    Bounds hitBounds = hit.collider.bounds;
+            //    // get the hit point
+            //    Vector3 hitPoint = hit.point;
+            //    // get the center point of the hit plane
+            //    Vector3 intersectionPoint = origin + Vector3.Project(hitPoint - origin, direction);
+            //    // cal the distance from the intersect point to the center
+            //    float occludeDist = Vector3.Distance(intersectionPoint, hit.collider.bounds.center);
+
+            //    // normalize
+            //    float normalizeDist = hit.collider.CompareTag("player")
+            //        ? (occludeDist - minDistToPlayer) / normalizeDistToPlayer
+            //        : (occludeDist - minDistToAgent) / normalizeDistToAgent;
+            //    normalizeDist -= 1.0f; // [-1, 0]
+            //                           // calculate rewards
+            //    rewOcclusion += normalizeDist;
+            //}
+            //rewOcclusion /= 10f; // [-0.1, 0] * 18
+
+            //SetReward(rewDist + rewOcclusion);
+            SetReward(0.1f + rewDist + rewScale);
+        }
+
+ 
+        // if (dist < distThres)
+        // {
+        //     // reward velocity
+        //     float rewDVec = 0; // this.rewVel(rBody.velocity, playerBody.velocity);
+
+        //     // reward dist
+        //     float rewDist = 0; // this.rewDist(dist, distThres);
+
+        //     // single direction penatly
+        //     // dist = 0.25 --->[-0.1, 0.1]
+        //     // dist = 0 ---> [0, 0.2]
+        //     //if (dist > lastDist) rewDist += (lastDist - dist) / (distThres * 10f);
+        //     //lastDist = dist;
+
+        
+        //     float rewOcclusion = 0f;
+        //     foreach (RaycastHit hit in m_Hit)
+        //     {
+        //         Bounds hitBounds = hit.collider.bounds;
+        //         // get the hit point
+        //         Vector3 hitPoint = hit.point;
+        //         // get the center point of the hit plane
+        //         Vector3 intersectionPoint = origin + Vector3.Project(hitPoint - origin, direction);
+        //         // cal the distance from the intersect point to the center
+        //         float occludeDist = Vector3.Distance(intersectionPoint, hit.collider.bounds.center);
+
+        //         // normalize
+        //         float normalizeDist = hit.collider.CompareTag("player")
+        //             ? (occludeDist - minDistToPlayer) / normalizeDistToPlayer
+        //             : (occludeDist - minDistToAgent) / normalizeDistToAgent;
+        //         normalizeDist -= 1.0f; // [-1, 0]
+        //         // calculate rewards
+        //         rewOcclusion += normalizeDist;
+        //     }
+        //     rewOcclusion /= 10f; // [-0.1, 0] * 18
+
+        //     //AddReward(rewDist + rewOcclusion);
+        //     AddReward(rewDist + rewDVec + rewOcclusion);
+        // }
+        // else
+        // {
+        //     SetReward(-1.0f);
+        //     EndEpisode();
+        // }
     }
 
     /*-----------------Debug-----------------------*/
@@ -421,7 +490,6 @@ public class LabelAgent : Agent
         continuousActionsOut[1] = Input.GetAxis("Vertical");
     }
 
-
     private float boundsSize(Bounds a)
     {
         float xLeft = a.min.x;
@@ -479,7 +547,8 @@ public class LabelAgent : Agent
 
     public Vector3 GetExtentInWorld()
     {
-        return new Vector3(rTransform.rect.size.x, rTransform.rect.size.y, 0);
+        float scale = this.transform.localScale.x;
+        return new Vector3(rTransform.rect.size.x * scale, rTransform.rect.size.y * scale, 0.0001f);
     }
 
     public Vector3 GetExtentInViewport()
