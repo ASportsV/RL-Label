@@ -308,7 +308,7 @@ public class LabelAgent : Agent
         }
 
         Vector3 origin = sceneCamera.transform.position;
-        Vector3 halfExtent = this.GetExtentInWorld();
+        Vector3 halfExtent = this.GetExtentInWorld() * 0.5f;
         Vector3 direction = -gameObject.transform.forward;
         Quaternion rotation = Quaternion.LookRotation(direction);
         float maxDistance = Mathf.Infinity;
