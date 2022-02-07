@@ -115,6 +115,7 @@ public class LabelAgent : Agent
         Vector3 selfPosInCam = sceneCamera.transform.InverseTransformPoint(this.transform.position);
         Vector3 selfVelInCam = sceneCamera.transform.InverseTransformVector(rBody.velocity);
         Vector3 selfExtentInCam = this.GetExtentInWorld();
+        Vector3 selfRotation = this.transform.forward;
 
         var t = player.transform;
         Vector3 goalPosInCam = sceneCamera.transform.InverseTransformPoint(t.position);
@@ -125,6 +126,7 @@ public class LabelAgent : Agent
         sensor.AddObservation(selfPosInCam);
         sensor.AddObservation(selfVelInCam);
         sensor.AddObservation(selfExtentInCam);
+        sensor.AddObservation(selfRotation);
         sensor.AddObservation(distPos.y);
 
         GameObject[] others = this.transform.parent.GetComponentsInChildren<Transform>()
