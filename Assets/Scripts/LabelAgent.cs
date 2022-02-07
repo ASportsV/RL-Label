@@ -115,6 +115,7 @@ public class LabelAgent : Agent
         Vector3 selfPosInCam = sceneCamera.transform.InverseTransformPoint(this.transform.position);
         Vector3 selfVelInCam = sceneCamera.transform.InverseTransformVector(rBody.velocity);
         Vector3 selfExtentInCam = this.GetExtentInWorld();
+        Vector3 selfRotation = this.transform.forward;
 
         var t = player.transform;
         Vector3 goalPosInCam = sceneCamera.transform.InverseTransformPoint(t.position);
@@ -122,9 +123,13 @@ public class LabelAgent : Agent
         var distPos = goalPosInCam - selfPosInCam;
         var distVel = goalVelInCam - selfVelInCam;
         // sensor.AddObservation(distVel);
-        sensor.AddObservation(selfPosInCam);
+        sensor.AddObservation(selfPosInCam.x / 28f); // normalize
+        sensor.AddObservation(selfPosInCam.y / 11f);
+        sensor.AddObservation(selfPosInCam.z / 10f);
+
         sensor.AddObservation(selfVelInCam);
         sensor.AddObservation(selfExtentInCam);
+        sensor.AddObservation(selfRotation);
         sensor.AddObservation(distPos.y);
 
         GameObject[] others = this.transform.parent.GetComponentsInChildren<Transform>()
@@ -144,9 +149,13 @@ public class LabelAgent : Agent
                 : other.GetComponent<EnvObj>().GetExtentInWorld();
             var relativePos = posInCam - selfPosInCam;
             var relativeVel = velInCam - selfVelInCam;
+            Vector3 rotation = other.transform.forward;
 
             List<float> obs = new List<float>();
-            foreach (var vec in new[] { relativePos, relativeVel, extentInCam })
+            obs.Add(relativePos.x / 28f);
+            obs.Add(relativePos.y / 11f);
+            obs.Add(relativePos.z / 10f);
+            foreach (var vec in new[] { relativeVel, extentInCam, rotation })
             {
                 obs.Add(vec.x);
                 obs.Add(vec.y);
@@ -296,6 +305,7 @@ public class LabelAgent : Agent
         return 0.1f / (1f + Mathf.Pow((scale / (1f - scale)), -2)); // [0, 0.1]
     }
 
+    float yDistThres = 3.0f;
     void UpdateReward(int academyStepCount)
     {
         var t = player.transform;
@@ -336,19 +346,20 @@ public class LabelAgent : Agent
             return normalizeDist < 0.3f;
         });
 
-        float distThres = 3.0f;
-        if (dist >= distThres || tooClose)
+        if (dist >= yDistThres || tooClose)
         {
             SetReward(-1.0f);
             EndEpisode();
         }
         else
         {
-            float rewDist = -0.1f + this.rewDist(dist, distThres);
+            float rewDist = -0.1f + this.rewDist(dist, yDistThres);
+            rewDist /= 50f;
 
             float rewScale = -0.1f + this.rewScale(this.transform.localScale.x);
+            rewScale /= 50f;
 
-            SetReward(0.1f + rewDist + rewScale);
+            SetReward(0.01f + rewDist + rewScale);
         }
 
  

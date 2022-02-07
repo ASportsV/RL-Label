@@ -983,7 +983,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 10
+    VectorObservationSize: 13
     NumStackedVectorObservations: 2
     m_ActionSpec:
       m_NumContinuousActions: 1
@@ -1030,7 +1030,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SensorName: BufferSensor
-  m_ObservableSize: 9
+  m_ObservableSize: 12
   m_MaxNumObservables: 9
 --- !u!65 &1226740937066477278
 BoxCollider:
