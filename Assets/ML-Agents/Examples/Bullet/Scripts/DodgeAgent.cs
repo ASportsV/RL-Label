@@ -5,6 +5,8 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using System.Collections.Generic;
+using System.Linq;
 
 public class DodgeAgent : Agent
 {
@@ -75,6 +77,8 @@ public class DodgeAgent : Agent
         m_AgentRb.velocity = Vector3.zero;
         m_AgentRb.angularVelocity = Vector3.zero;
 
+        label.localPosition = new Vector3(transform.localPosition.x, minY, transform.localPosition.z);
+
         SetResetParameters();
     }
 
@@ -97,7 +101,7 @@ public class DodgeAgent : Agent
 
             var randomPosZ = Random.Range(-areaBounds.extents.z * m_BulletSettings.spawnAreaMarginMultiplier,
                 areaBounds.extents.z * m_BulletSettings.spawnAreaMarginMultiplier);
-            randomSpawnPos = ground.transform.position + new Vector3(randomPosX, 1f, randomPosZ);
+            randomSpawnPos = ground.transform.position + new Vector3(randomPosX, 0.5f, randomPosZ);
             if (Physics.CheckBox(randomSpawnPos, new Vector3(2.5f, 0.01f, 2.5f)) == false)
             {
                 foundNewSpawnLocation = true;
@@ -167,6 +171,42 @@ public class DodgeAgent : Agent
 
     }
 
+    float minY = 1.2f;
+    private void FixedUpdate()
+    {
+        label.localPosition = new Vector3(transform.localPosition.x, minY, transform.localPosition.z);
+        label.LookAt(sceneCamera);
+
+        Vector3 origin = sceneCamera.transform.position;
+        Vector3 halfExtent = this.GetExtentInWorld() * 0.5f;
+        Vector3 direction = -label.transform.forward;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        float maxDistance = Mathf.Infinity;
+        int layerMask = 1 << 15;
+        IEnumerable<RaycastHit> m_Hit = Physics.BoxCastAll(origin, halfExtent, direction, rotation, maxDistance, layerMask)
+                .Where(h => !GameObject.ReferenceEquals(gameObject, h.collider.gameObject) && !GameObject.ReferenceEquals(label.gameObject, h.collider.gameObject));
+
+        foreach(var hit in m_Hit)
+        {
+            print("Hit " + hit.collider.name);
+        }
+
+        if(m_Hit.Count() > 0)
+        {
+            SetReward(0f);
+            EndEpisode();
+            UnityEngine.Debug.Log("Ded");
+        }
+    }
+
+    public Vector3 GetExtentInWorld()
+    {
+        float scale = label.localScale.x;
+        RectTransform rTransform = label.GetComponentInChildren<RectTransform>();
+        return new Vector3(rTransform.rect.size.x * scale, rTransform.rect.size.y * scale, 0.0001f);
+    }
+
+
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var continuousActionsOut = actionsOut.ContinuousActions;
@@ -202,7 +242,8 @@ public class DodgeAgent : Agent
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("bullet") || collision.gameObject.CompareTag("wall"))
+        //if (collision.gameObject.CompareTag("bullet") || collision.gameObject.CompareTag("wall"))
+        if (collision.gameObject.CompareTag("wall"))
         {
             SetReward(0f);
             EndEpisode();
