@@ -15,7 +15,7 @@ public class LabelAgent : Agent
     public GameObject debugBBox;
     public GameObject buttonPrefab;
     private GameObject debugButton;
-    bool debug = false;
+    bool debug = true;
     bool isCasting = false;
 
 
@@ -235,7 +235,6 @@ public class LabelAgent : Agent
 
         // should clamp velocity in y
         float nextY = transform.localPosition.y + rBody.velocity.y * Time.fixedDeltaTime;
-
         if (nextY <= minY)
         {
             rBody.velocity = new Vector3(rBody.velocity.x, 0f, rBody.velocity.z);
@@ -292,6 +291,7 @@ public class LabelAgent : Agent
             return;
         }
 
+
         float distThres = 1.0f;
         if (dist < distThres)
         {
@@ -308,7 +308,7 @@ public class LabelAgent : Agent
             //lastDist = dist;
 
             Vector3 origin = sceneCamera.transform.position;
-            Vector3 halfExtent = rTransform.rect.size * 0.5f;
+            Vector3 halfExtent = this.GetExtentInWorld() * 0.5f;
             Vector3 direction = -gameObject.transform.forward;
             Quaternion rotation = Quaternion.LookRotation(direction);
             float maxDistance = Mathf.Infinity;
@@ -335,9 +335,7 @@ public class LabelAgent : Agent
                 // calculate rewards
                 rewOcclusion += normalizeDist;
             }
-            rewOcclusion /= 10f; // [-0.1, 0] * 18
-
-            //float rewOcclusion = -(m_Hit.Count() / (9.0f * 10f)); // hardcode for now, 9 other players
+            rewOcclusion /= 5f; // [-0.1, 0] * 18
 
             //AddReward(rewDist + rewOcclusion);
             AddReward(rewDist + rewDVec + rewOcclusion);
@@ -393,21 +391,44 @@ public class LabelAgent : Agent
         if (isCasting)
         {
             Vector3 origin = sceneCamera.transform.position;
-            Vector3 halfExtent = rt.rect.size * 0.5f;
+            Vector3 halfExtent = this.GetExtentInWorld() * 0.5f;
             Vector3 direction = -gameObject.transform.forward;
             Quaternion rotation = Quaternion.LookRotation(direction);
             float maxDistance = 10000;
             DrawBoxCastBox(origin, halfExtent, direction, rotation, maxDistance, new Color(1.0f, 0f, 0f));
             int layerMask = 1 << 15;
 
-            IEnumerable<RaycastHit> m_Hit = Physics.BoxCastAll(origin, halfExtent, direction, rotation, maxDistance, layerMask).Where(h => !GameObject.ReferenceEquals(gameObject, h.collider.gameObject));
+            IEnumerable<RaycastHit> m_Hit = Physics.BoxCastAll(origin, halfExtent, direction, rotation, maxDistance, layerMask)
+                .Where(h => !GameObject.ReferenceEquals(gameObject, h.collider.gameObject) && !GameObject.ReferenceEquals(player, h.collider.gameObject));
+
             if (m_Hit.Count() > 0)
             {
                 foreach (RaycastHit hit in m_Hit)
                 {
+  
+                    Bounds hitBounds = hit.collider.bounds;
+                    // get the hit point
+                    Vector3 hitPoint = hit.point;
+                    // get the center point of the hit plane
+                    Vector3 intersectionPoint = origin + Vector3.Project(hitPoint - origin, direction);
+
+
+                    // cal the distance from the intersect point to the center
+                    float occludeDist = Vector3.Distance(intersectionPoint, hit.collider.bounds.center);
+
+                    // normalize
+                    float normalizeDist = hit.collider.CompareTag("player")
+                        ? (occludeDist - minDistToPlayer) / normalizeDistToPlayer
+                        : (occludeDist - minDistToAgent) / normalizeDistToAgent;
+
+
+                    Debug.DrawLine(intersectionPoint, hit.collider.bounds.center, new Color(0f, 0f, 1f));
                     Debug.Log("Hit : " + hit.collider.name + ", at point: " + hit.point.ToString());
+                    Debug.Log("NormalizeDist: " + normalizeDist);
+                    Debug.Log("========================\n");
                     Gizmos.color = new Color(0.0f, 0.0f, 0.0f, 0.5f);
                     Gizmos.DrawSphere(hit.point, 0.1f);
+
                 }
             }
 
@@ -479,7 +500,8 @@ public class LabelAgent : Agent
 
     public Vector3 GetExtentInWorld()
     {
-        return new Vector3(rTransform.rect.size.x, rTransform.rect.size.y, 0);
+        float scale = this.transform.localScale.x;
+        return new Vector3(rTransform.rect.size.x * scale, rTransform.rect.size.y * scale, 0.0001f);
     }
 
     public Vector3 GetExtentInViewport()
