@@ -24,14 +24,7 @@ public class DodgeAgent : Agent
 
     BulletSettings m_BulletSettings;
 
-
     Rigidbody m_AgentRb;  //cached on initialization
-    Material m_GroundMaterial; //cached on Awake()
-
-    /// <summary>
-    /// We will be changing the ground material based on success/failue
-    /// </summary>
-    Renderer m_GroundRenderer;
 
     EnvironmentParameters m_ResetParams;
 
@@ -40,6 +33,7 @@ public class DodgeAgent : Agent
     void Awake()
     {
         m_BulletSettings = FindObjectOfType<BulletSettings>();
+        Academy.Instance.AgentPreStep += UpdateReward;
     }
 
     public override void Initialize()
@@ -51,14 +45,9 @@ public class DodgeAgent : Agent
         // Cache the block rigidbody
         // Get the ground's bounds
         areaBounds = ground.GetComponent<Collider>().bounds;
-        // Get the ground renderer so we can change the material when a goal is scored
-        m_GroundRenderer = ground.GetComponent<Renderer>();
-        // Starting material
-        m_GroundMaterial = m_GroundRenderer.material;
 
         m_ResetParams = Academy.Instance.EnvironmentParameters;
 
-        SetResetParameters();
     }
 
     /// <summary>
@@ -67,20 +56,9 @@ public class DodgeAgent : Agent
     /// </summary>
     public override void OnEpisodeBegin()
     {
-        // var rotation = Random.Range(0, 4);
-        // var rotationAngle = rotation * 90f;
-        // area.transform.Rotate(new Vector3(0f, rotationAngle, 0f));
-
         transform.position = GetRandomSpawnPos();//
         m_AgentRb.velocity = Vector3.zero;
         m_AgentRb.angularVelocity = Vector3.zero;
-
-        SetResetParameters();
-    }
-
-    void SetResetParameters()
-    {
-        //SetGroundMaterialFriction();
     }
 
     /// <summary>
@@ -97,7 +75,7 @@ public class DodgeAgent : Agent
 
             var randomPosZ = Random.Range(-areaBounds.extents.z * m_BulletSettings.spawnAreaMarginMultiplier,
                 areaBounds.extents.z * m_BulletSettings.spawnAreaMarginMultiplier);
-            randomSpawnPos = ground.transform.position + new Vector3(randomPosX, 1f, randomPosZ);
+            randomSpawnPos = ground.transform.position + new Vector3(randomPosX, 0.6f, randomPosZ);
             if (Physics.CheckBox(randomSpawnPos, new Vector3(2.5f, 0.01f, 2.5f)) == false)
             {
                 foundNewSpawnLocation = true;
@@ -112,17 +90,11 @@ public class DodgeAgent : Agent
         sensor.AddObservation((transform.position.x - area.transform.position.x) / 10f);
         sensor.AddObservation((transform.position.z - area.transform.position.z) / 10f);
 
-
         // Collect observation about the 20 closest Bullets
         var bullets = transform.parent.GetComponentsInChildren<Bullet>();
         // Sort by closest :
         System.Array.Sort(bullets, (a, b) => (Vector3.Distance(a.transform.position, transform.position)).CompareTo(Vector3.Distance(b.transform.position, transform.position)));
         int numBulletAdded = 0;
-
-        // foreach (Bullet b in bullets)
-        // {
-        //     b.transform.localScale = new Vector3(1, 1, 1);
-        // }
 
         foreach (Bullet b in bullets)
         {
@@ -152,19 +124,21 @@ public class DodgeAgent : Agent
     {
         var forwardForce = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
         var lateralForce = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
-        var rotationForce = 0.0f;// Mathf.Clamp(actionBuffers.ContinuousActions[2], -1f, 1f);
+        
+        Vector3 dirToGo = new Vector3(forwardForce, 0, lateralForce);
+        m_AgentRb.AddForce(dirToGo * m_BulletSettings.agentRunSpeed, ForceMode.VelocityChange);
+    }
 
-        //Vector3 dirToGo = transform.forward * forwardForce + transform.right * lateralForce;
-        Vector3 rotateDir = transform.up * rotationForce;
+    private void UpdateReward(int academyStepCount)
+    {
 
-        transform.Rotate(rotateDir, Time.fixedDeltaTime * 200f);
-        Vector3 dirToGo = new Vector3(1, 0, 0) * forwardForce + new Vector3(0, 0, 1) * lateralForce;
-        m_AgentRb.AddForce(dirToGo * m_BulletSettings.agentRunSpeed,
-            ForceMode.VelocityChange);
+        if (academyStepCount == 0)
+        {
+            return;
+        }
         //Vector3 dirToCenter = new Vector3((transform.position.x - area.transform.position.x) / 10f, 0f, (transform.position.z - area.transform.position.z) / 10f);
         //AddReward(.001f / (dirToCenter.magnitude + .0000001f));
         AddReward(.001f);
-
     }
 
     public override void Heuristic(in ActionBuffers actionsOut)
@@ -204,7 +178,7 @@ public class DodgeAgent : Agent
     {
         if (collision.gameObject.CompareTag("bullet") || collision.gameObject.CompareTag("wall"))
         {
-            SetReward(0f);
+            SetReward(-1f);
             EndEpisode();
             UnityEngine.Debug.Log("Ded");
         }
