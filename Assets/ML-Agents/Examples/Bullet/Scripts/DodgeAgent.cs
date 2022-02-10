@@ -5,6 +5,8 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using System.Collections.Generic;
+using System.Linq;
 
 public class DodgeAgent : Agent
 {
@@ -24,7 +26,14 @@ public class DodgeAgent : Agent
 
     BulletSettings m_BulletSettings;
 
+
     Rigidbody m_AgentRb;  //cached on initialization
+    Material m_GroundMaterial; //cached on Awake()
+
+    /// <summary>
+    /// We will be changing the ground material based on success/failue
+    /// </summary>
+    Renderer m_GroundRenderer;
 
     EnvironmentParameters m_ResetParams;
 
@@ -33,7 +42,6 @@ public class DodgeAgent : Agent
     void Awake()
     {
         m_BulletSettings = FindObjectOfType<BulletSettings>();
-        Academy.Instance.AgentPreStep += UpdateReward;
     }
 
     public override void Initialize()
@@ -45,9 +53,14 @@ public class DodgeAgent : Agent
         // Cache the block rigidbody
         // Get the ground's bounds
         areaBounds = ground.GetComponent<Collider>().bounds;
+        // Get the ground renderer so we can change the material when a goal is scored
+        m_GroundRenderer = ground.GetComponent<Renderer>();
+        // Starting material
+        m_GroundMaterial = m_GroundRenderer.material;
 
         m_ResetParams = Academy.Instance.EnvironmentParameters;
 
+        SetResetParameters();
     }
 
     /// <summary>
@@ -56,9 +69,22 @@ public class DodgeAgent : Agent
     /// </summary>
     public override void OnEpisodeBegin()
     {
+        // var rotation = Random.Range(0, 4);
+        // var rotationAngle = rotation * 90f;
+        // area.transform.Rotate(new Vector3(0f, rotationAngle, 0f));
+
         transform.position = GetRandomSpawnPos();//
         m_AgentRb.velocity = Vector3.zero;
         m_AgentRb.angularVelocity = Vector3.zero;
+
+        label.localPosition = new Vector3(transform.localPosition.x, minY, transform.localPosition.z);
+
+        SetResetParameters();
+    }
+
+    void SetResetParameters()
+    {
+        //SetGroundMaterialFriction();
     }
 
     /// <summary>
@@ -75,7 +101,7 @@ public class DodgeAgent : Agent
 
             var randomPosZ = Random.Range(-areaBounds.extents.z * m_BulletSettings.spawnAreaMarginMultiplier,
                 areaBounds.extents.z * m_BulletSettings.spawnAreaMarginMultiplier);
-            randomSpawnPos = ground.transform.position + new Vector3(randomPosX, 0.6f, randomPosZ);
+            randomSpawnPos = ground.transform.position + new Vector3(randomPosX, 0.5f, randomPosZ);
             if (Physics.CheckBox(randomSpawnPos, new Vector3(2.5f, 0.01f, 2.5f)) == false)
             {
                 foundNewSpawnLocation = true;
@@ -124,22 +150,55 @@ public class DodgeAgent : Agent
     {
         var forwardForce = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
         var lateralForce = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
-        
-        Vector3 dirToGo = new Vector3(forwardForce, 0, lateralForce);
-        m_AgentRb.AddForce(dirToGo * m_BulletSettings.agentRunSpeed, ForceMode.VelocityChange);
-    }
+        var rotationForce = 0.0f;// Mathf.Clamp(actionBuffers.ContinuousActions[2], -1f, 1f);
 
-    private void UpdateReward(int academyStepCount)
-    {
+        //Vector3 dirToGo = transform.forward * forwardForce + transform.right * lateralForce;
+        Vector3 rotateDir = transform.up * rotationForce;
 
-        if (academyStepCount == 0)
-        {
-            return;
-        }
+        transform.Rotate(rotateDir, Time.fixedDeltaTime * 200f);
+        Vector3 dirToGo = new Vector3(1, 0, 0) * forwardForce + new Vector3(0, 0, 1) * lateralForce;
+        m_AgentRb.AddForce(dirToGo * m_BulletSettings.agentRunSpeed,
+            ForceMode.VelocityChange);
         //Vector3 dirToCenter = new Vector3((transform.position.x - area.transform.position.x) / 10f, 0f, (transform.position.z - area.transform.position.z) / 10f);
         //AddReward(.001f / (dirToCenter.magnitude + .0000001f));
         AddReward(.001f);
     }
+
+    float minY = 1.2f;
+    private void FixedUpdate()
+    {
+        label.localPosition = new Vector3(transform.localPosition.x, minY, transform.localPosition.z);
+        label.LookAt(sceneCamera);
+
+        Vector3 origin = sceneCamera.transform.position;
+        Vector3 halfExtent = this.GetExtentInWorld() * 0.5f;
+        Vector3 direction = -label.transform.forward;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        float maxDistance = Mathf.Infinity;
+        int layerMask = 1 << 15;
+        IEnumerable<RaycastHit> m_Hit = Physics.BoxCastAll(origin, halfExtent, direction, rotation, maxDistance, layerMask)
+                .Where(h => !GameObject.ReferenceEquals(gameObject, h.collider.gameObject) && !GameObject.ReferenceEquals(label.gameObject, h.collider.gameObject));
+
+        foreach(var hit in m_Hit)
+        {
+            print("Hit " + hit.collider.name);
+        }
+
+        if(m_Hit.Count() > 0)
+        {
+            SetReward(0f);
+            EndEpisode();
+            UnityEngine.Debug.Log("Ded");
+        }
+    }
+
+    public Vector3 GetExtentInWorld()
+    {
+        float scale = label.localScale.x;
+        RectTransform rTransform = label.GetComponentInChildren<RectTransform>();
+        return new Vector3(rTransform.rect.size.x * scale, rTransform.rect.size.y * scale, 0.0001f);
+    }
+
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
@@ -176,7 +235,8 @@ public class DodgeAgent : Agent
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("bullet") || collision.gameObject.CompareTag("wall"))
+        //if (collision.gameObject.CompareTag("bullet") || collision.gameObject.CompareTag("wall"))
+        if (collision.gameObject.CompareTag("wall"))
         {
             SetReward(-1f);
             EndEpisode();
