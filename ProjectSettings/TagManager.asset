@@ -6,6 +6,10 @@ TagManager:
   tags:
   - agent
   - player
+  - ground
+  - wall
+  - bullet
+  - player_agent
   layers:
   - Default
   - TransparentFX
@@ -22,8 +26,8 @@ TagManager:
   - 
   - 
   - 
-  - player_and_agent
-  - Training1
+  - player
+  - player_agent
   - 
   - 
   - 

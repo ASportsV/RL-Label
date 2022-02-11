@@ -53,7 +53,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 7
+    VectorObservationSize: 10
     NumStackedVectorObservations: 2
     m_ActionSpec:
       m_NumContinuousActions: 1
@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SensorName: BufferSensor
-  m_ObservableSize: 10
+  m_ObservableSize: 4
   m_MaxNumObservables: 20
 --- !u!65 &5986779066727933445
 BoxCollider:
@@ -113,7 +113,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.8, y: 0.6, z: 0.001}
+  m_Size: {x: 0.8, y: 0.8, z: 0.001}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-919999409695548631
 MonoBehaviour:
@@ -160,10 +160,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SensorName: RayPerceptionSensor
   m_DetectableTags:
-  - agent
+  - player
   m_RaysPerDirection: 0
   m_MaxRayDegrees: 0
-  m_SphereCastRadius: 0.3
+  m_SphereCastRadius: 0.4
   m_RayLength: 40
   m_RayLayerMask:
     serializedVersion: 2
@@ -1271,10 +1271,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SensorName: RayPerceptionSensor
   m_DetectableTags:
-  - agent
+  - player
   m_RaysPerDirection: 0
   m_MaxRayDegrees: 0
-  m_SphereCastRadius: 0.3
+  m_SphereCastRadius: 0.4
   m_RayLength: 40
   m_RayLayerMask:
     serializedVersion: 2
@@ -1330,7 +1330,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0.8, y: 0.6}
+  m_SizeDelta: {x: 1, y: 0.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &7352855847109485388
 Canvas:

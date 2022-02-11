@@ -9,15 +9,18 @@ public class ARLabelSettings : MonoBehaviour
     public enum PlayerMovingModeType
     {
         FixedSpeed,
-        FixedTime
+        RandomSpeed,
     }
 
     public int numOfPlayers;
-    public PlayerMovingModeType playerMovingMode = PlayerMovingModeType.FixedSpeed;
-    public float playerSpeed;
-    public float playerMovingTime;
-    public float waitAfterReached;
+    public int numOfAgents;
 
+    public PlayerMovingModeType playerMovingMode = PlayerMovingModeType.FixedSpeed;
+    public int MaxSteps;
+    public float playerSpeed => Mathf.Ceil(2 * Mathf.Sqrt(courtX * courtX + courtZ * courtZ) / ((float)(MaxSteps - 100) * Time.fixedDeltaTime));
+
+    //public float playerMovingTime;
+    //public float waitAfterReached;
     public bool syncPlayerMoving = true;
 
 

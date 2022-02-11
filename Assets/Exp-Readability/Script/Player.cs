@@ -10,32 +10,22 @@ public class Player : MonoBehaviour
     PlayerGroupControl m_PlayerGroupControl;
 
     Rigidbody m_Rbody;  //cached on initialization
-
-    //public int currentDestIdx;
-    //Vector3[] destinations;
-    //Vector3 currentDest
-    //{
-    //    get {
-    //        return destinations[currentDestIdx]; 
-    //    }
-    //}
-    int reachedTime = 0;
     Vector3 destination;
-
-
-    public bool isMoving = true;
+    public int step = 0;
+    int reachedTime = 0;
 
     private void Awake()
     {
         m_ARLabelSettings = FindObjectOfType<ARLabelSettings>();
         m_PlayerGroupControl = FindObjectOfType<PlayerGroupControl>();
+        m_Rbody = GetComponent<Rigidbody>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        m_Rbody = GetComponent<Rigidbody>();
-        Reset();
+        if(this.CompareTag("player"))
+            Reset();
     }
 
     public void Reset()
@@ -55,7 +45,7 @@ public class Player : MonoBehaviour
         {
             var randomPosX = Random.Range(-m_ARLabelSettings.courtX, -m_ARLabelSettings.courtX * 0.5f);
             var randomPosZ = Random.Range(-m_ARLabelSettings.courtZ, m_ARLabelSettings.courtZ);
-            randomSpawnPos = new Vector3(randomPosX, 0.6f, randomPosZ);
+            randomSpawnPos = new Vector3(randomPosX, 0.5f, randomPosZ);
             foundNewSpawnLocation = true;
 
             //if (Physics.CheckBox(randomSpawnPos, new Vector3(2.5f, 0.01f, 2.5f)) == false)
@@ -69,15 +59,18 @@ public class Player : MonoBehaviour
 
     public Vector3 GetRandomDestinations()
     {
+        // if obstacle 1, else diagonose
+        float xFactor = gameObject.CompareTag("player") ? 1f : 0f;
+
         var randomPosX = reachedTime % 2 == 1
             ? Random.Range(-m_ARLabelSettings.courtX, -m_ARLabelSettings.courtX * 0.5f)
             : Random.Range(m_ARLabelSettings.courtX * 0.5f, m_ARLabelSettings.courtX);
 
         var randomPosZ = reachedTime % 2 == 1
-            ? Random.Range(-m_ARLabelSettings.courtZ, 0)
-            : Random.Range(0, m_ARLabelSettings.courtZ);
+            ? Random.Range(-m_ARLabelSettings.courtZ, m_ARLabelSettings.courtZ * xFactor)
+            : Random.Range(-xFactor * m_ARLabelSettings.courtZ, m_ARLabelSettings.courtZ);
 
-        Vector3 destination = new Vector3(randomPosX, 0.6f, randomPosZ);
+        Vector3 destination = new Vector3(randomPosX, 0.5f, randomPosZ);
         return destination;
     }
 
@@ -91,52 +84,48 @@ public class Player : MonoBehaviour
         if (m_ARLabelSettings.playerMovingMode == ARLabelSettings.PlayerMovingModeType.FixedSpeed)
         {
             m_Rbody.velocity = this.transform.forward * m_ARLabelSettings.playerSpeed;
-        }
-        else if(m_ARLabelSettings.playerMovingMode == ARLabelSettings.PlayerMovingModeType.FixedTime)
+        } 
+        else if(m_ARLabelSettings.playerMovingMode == ARLabelSettings.PlayerMovingModeType.RandomSpeed)
         {
-            // fixed time
-            m_Rbody.velocity = this.transform.forward * (Vector3.Distance(this.transform.localPosition, destination) / m_ARLabelSettings.playerMovingTime);
+            float[] speedRatio = { 1f, 0.8f, 0.5f, 0.3f, 0.1f };
+            m_Rbody.velocity = this.transform.forward * speedRatio[Random.Range(0, speedRatio.Length)] * m_ARLabelSettings.playerSpeed;
         }
 
-        isMoving = true;
+        step = 0;
     }
 
-
-    float waitedTime = 0f;
     private void FixedUpdate()
     {
-        // if reach the destination, move to the next
-        if(Vector3.Distance(this.transform.localPosition, destination)< 0.1)
+
+        //// if reach the destination, move to the next
+        if (Vector3.Distance(this.transform.localPosition, destination) < 0.1)
         {
-            if(m_ARLabelSettings.syncPlayerMoving && !m_PlayerGroupControl.AllPlayerReached())
+            ++reachedTime;
+            if (m_ARLabelSettings.syncPlayerMoving)
             {
                 // wait
                 m_Rbody.velocity = Vector3.zero;
-                waitedTime += Time.fixedDeltaTime;
-                if(waitedTime >= m_ARLabelSettings.waitAfterReached)
-                {
-                    isMoving = false;
-                    m_PlayerGroupControl.AddReachNum();
-                    waitedTime = 0f;
-                }
+                if (step >= m_ARLabelSettings.MaxSteps) UpdateDestination();
             }
             else
             {
-                ++reachedTime;
-
-                // if reach the end, reset
-                if(m_ARLabelSettings.numOfDestinations != -1 && reachedTime >= m_ARLabelSettings.numOfDestinations)
-                {
-                    Reset();
-                    return;
-                }
-
-                // update forward
+                // directly update
                 UpdateDestination();
-                m_PlayerGroupControl.MinusReachNum();
-
             }
-        } 
+        }
+
+        ++step;
+        //if (step >= m_ARLabelSettings.MaxSteps)
+        //{
+
+        //    //// if reach the end, reset
+        //    //if (m_ARLabelSettings.numOfDestinations != -1 && reachedTime >= m_ARLabelSettings.numOfDestinations)
+        //    //{
+        //    //    Reset();
+        //    //    return;
+        //    //}
+        //    UpdateDestination();
+        //}
 
     }
 }
