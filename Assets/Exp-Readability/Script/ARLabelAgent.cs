@@ -88,7 +88,7 @@ public class ARLabelAgent : Agent
         sensor.AddObservation(transform.localScale.x);
 
         GameObject[] others = this.transform.parent.GetComponentsInChildren<Transform>()
-            .Where(x => x.CompareTag("player") && !GameObject.ReferenceEquals(x.gameObject, gameObject))
+            .Where(x => x.CompareTag("player"))
             // distance filter
             //.Where(x => Vector3.Distance(x.transform.localPosition, gameObject.transform.localPosition) < 5.0f)
             // should filter based on viewport space
@@ -126,7 +126,6 @@ public class ARLabelAgent : Agent
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
 
-
         float accChange = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * maxYspeed;
         Vector3 playerVel = player.GetComponent<Rigidbody>().velocity;
         m_Rbody.velocity = playerVel;
@@ -160,35 +159,35 @@ public class ARLabelAgent : Agent
         this.transform.localScale = new Vector3(newScale, newScale, newScale);
         // update radius
         Vector3 extent = this.GetExtentInWorld();
-        forwardRaycast.SphereCastRadius = Mathf.Min(extent.x, extent.z) * 0.5f;
-        backwardRaycast.SphereCastRadius = forwardRaycast.SphereCastRadius;
+        // forwardRaycast.SphereCastRadius = Mathf.Min(extent.x, extent.z) * 0.5f;
+        backwardRaycast.SphereCastRadius = Mathf.Min(extent.x, extent.z) * 0.5f;
     }
 
     /*-----------------------Reward-----------------------*/
-    float rewDist(float dist, float maxDist)
+    float postiveShape(float x, float maxX = 1.0f)
     {
-        //return the value on a declining sigmoid shaped curve that decays from 1 to 0
-        //This reward will approach 1 if it matches perfectly and approach zero as it deviates
-        return Mathf.Pow(1 - Mathf.Pow(dist / maxDist, 1.4f), 2);
+        x = x / maxX;
+        return  1f / (1f + Mathf.Pow((x / (1f - x)), -2));
     }
 
-    float rewScale(float scale)
+    float negativeShape(float x, float maxX = 1.0f)
     {
-        return 1f / (1f + Mathf.Pow((scale / (1f - scale)), -2)); // [0, 0.1]
-    }
-
-    float rewSpeed(float speed, float maxSpeed)
-    {
-        return Mathf.Pow(1 - Mathf.Pow(speed / maxSpeed, 1.5f), 2); // [0, 1] x [0.1, 0]
+        x = x / maxX;
+        return Mathf.Pow(1 - Mathf.Pow(x, 1.5f), 2);
     }
 
     float rewOcclude(bool fastReject = false)
     {
         // return [0, 0.1, 0.2]
-
+        float rewOcclude = 0;
         Vector3 origin = transform.position;
         Vector3 size = this.GetExtentInWorld();
         float radius = Mathf.Min(size.x, size.y) * 0.5f;
+        if(radius < 0.1f) // smaller than the bounding box of the agent
+        {
+            return rewOcclude;
+        }
+
         //Quaternion rotation = Quaternion.LookRotation(direction);
         float maxDistance = Mathf.Infinity;
         int layerMask = 1 << LayerMask.NameToLayer("player");
@@ -196,7 +195,7 @@ public class ARLabelAgent : Agent
         // occluded by others
         Vector3 direction = transform.forward;
         RaycastHit m_Hit;
-        float rewOcclude = 0;
+
         //if (Physics.SphereCast(origin, radius, direction, out m_Hit, maxDistance, layerMask))
         //{
         //    ////Bounds hitBounds = m_Hit.collider.bounds;
@@ -223,6 +222,7 @@ public class ARLabelAgent : Agent
         //}
 
         // occlude others
+        
         direction = -transform.forward;
         if (Physics.SphereCast(origin, radius, direction, out m_Hit, maxDistance, layerMask))
         {
@@ -266,10 +266,10 @@ public class ARLabelAgent : Agent
             float dist = Mathf.Max(this.transform.localPosition.y - minY, 0); // Vector3.Distance(goalPos, this.transform.localPosition);
             float selfSize = transform.localScale.x;
             
-            float rewScale = this.rewScale(selfSize);
+            float rewScale = this.postiveShape(selfSize);
             //float rewDist = -0.1f + 0.1f * this.rewDist(dist, yDistThres);
             //rewDist /= 50f; // [0, 0.002]
-            float rewDist = this.rewDist(dist, yDistThres);
+            float rewDist = this.negativeShape(dist, yDistThres);
 
             SetReward(0.01f * rewScale * rewDist);
         }
