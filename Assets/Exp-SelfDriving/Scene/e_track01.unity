@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657892, g: 0.4964128, b: 0.5748173, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -171,7 +171,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -195,14 +195,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &14313344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,7 +221,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -310,7 +310,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -334,14 +334,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &41484256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -360,7 +360,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -449,8 +449,8 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
-  m_InferenceDevice: 0
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
+  m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: Track01
   TeamId: 0
@@ -473,14 +473,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &273261134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -499,7 +499,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -555,17 +555,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 0a240112040a59d43b0f93b09adbe531,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.8718058
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0a240112040a59d43b0f93b09adbe531,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.8718058
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0a240112040a59d43b0f93b09adbe531,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.8718058
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0a240112040a59d43b0f93b09adbe531,
         type: 3}
@@ -580,7 +580,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 0a240112040a59d43b0f93b09adbe531,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -14.802
+      value: -12.450092
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0a240112040a59d43b0f93b09adbe531,
         type: 3}
@@ -986,7 +986,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -1010,14 +1010,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &493291659
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1036,7 +1036,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -1362,7 +1362,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -1386,14 +1386,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &883051857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1412,7 +1412,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -1580,7 +1580,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -1604,14 +1604,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &948598704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1630,7 +1630,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -1995,7 +1995,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -2019,14 +2019,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &1167705761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2045,7 +2045,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -2213,7 +2213,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -2237,14 +2237,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &1200515160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2263,7 +2263,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -2431,7 +2431,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -2455,14 +2455,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &1314217869
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2481,7 +2481,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -2728,7 +2728,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -2752,14 +2752,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &1610501692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2778,7 +2778,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -2867,7 +2867,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -2891,14 +2891,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &1650701071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2917,7 +2917,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -3085,7 +3085,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -3109,14 +3109,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &1690932300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3135,7 +3135,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -3303,7 +3303,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -3327,14 +3327,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &1748740083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3353,7 +3353,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -3442,7 +3442,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -3466,14 +3466,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &1771410634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3492,7 +3492,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -3865,7 +3865,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
@@ -3921,7 +3921,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -4022,7 +4022,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: a782268ebe8020f4b99cdf97a2abb6d4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 723cb41453c00dc40a3195f3ebe3cd62, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: Track01
@@ -4046,14 +4046,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 0
+  doEpisodes: 1
 --- !u!114 &2043682469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4072,7 +4072,7 @@ MonoBehaviour:
   - BarrierWhite
   - BarrierYellow
   m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
+  m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
   m_RayLength: 20
   m_RayLayerMask:
