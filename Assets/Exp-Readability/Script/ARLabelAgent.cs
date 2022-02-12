@@ -11,6 +11,7 @@ public class ARLabelAgent : Agent
 
     ARLabelSettings m_ARLabelSettings;
     Transform cam;
+    Camera sceneCam;
     RectTransform rTransform;
     BufferSensorComponent bsensor;
     RayPerceptionSensorComponent3D forwardRaycast;
@@ -51,6 +52,7 @@ public class ARLabelAgent : Agent
     private void Start()
     {
         cam = this.transform.parent.parent.Find("Camera");
+        sceneCam = cam.GetComponent<Camera>();
 
         Vector3 extent = this.GetExtentInWorld();
         maxDistToAgent = Mathf.Min(extent.x, extent.y);
@@ -117,113 +119,10 @@ public class ARLabelAgent : Agent
         }
     }
 
-
-    void CalBounds(Vector3[] BBox, string tag = "")
+    void OBIn3DCamSpaceSimple(VectorSensor sensor)
     {
-        Vector3[] anchors = new Vector3[] {
-            new Vector3(-m_ARLabelSettings.courtX, 0.5f, -m_ARLabelSettings.courtZ),
-            new Vector3(0, 0.5f, -m_ARLabelSettings.courtZ),
-            new Vector3(m_ARLabelSettings.courtX, 0.5f, -m_ARLabelSettings.courtZ),
-
-            new Vector3(m_ARLabelSettings.courtX, 0.5f, 0),
-            new Vector3(m_ARLabelSettings.courtX, 0.5f, m_ARLabelSettings.courtZ),
-
-            new Vector3(0, 0.5f, m_ARLabelSettings.courtZ),
-            new Vector3(-m_ARLabelSettings.courtX, 0.5f, m_ARLabelSettings.courtZ),
-
-            new Vector3(-m_ARLabelSettings.courtX, 0.5f, 0)
-        };
-
-
-        Vector3 min = Vector3.zero;
-        Vector3 max = Vector3.zero;
-        // player extent
-        foreach (var anchor in anchors)
-        {
-            // cam lookat
-            cam.LookAt(anchor);
-            // iterate through the bbox points
-            Vector3 localMin = Vector3.zero;
-            Vector3 localMax = Vector3.zero;
-            foreach (var endPoint in BBox)
-            {
-                var pointInCam = cam.InverseTransformPoint(endPoint);
-
-                min = new Vector3(Mathf.Min(min.x, pointInCam.x), Mathf.Min(min.y, pointInCam.y), Mathf.Min(min.z, pointInCam.z));
-                max = new Vector3(Mathf.Max(max.x, pointInCam.x), Mathf.Max(max.y, pointInCam.y), Mathf.Max(max.z, pointInCam.z));
-
-                localMin = new Vector3(Mathf.Min(localMin.x, pointInCam.x), Mathf.Min(localMin.y, pointInCam.y), Mathf.Min(localMin.z, pointInCam.z));
-                localMax = new Vector3(Mathf.Max(localMax.x, pointInCam.x), Mathf.Max(localMax.y, pointInCam.y), Mathf.Max(localMax.z, pointInCam.z));
-                print(tag + "LocalMin: " + localMin.ToString() + ", LocalMax: " + localMax.ToString() + ", extent: " + (localMax - localMin).ToString());
-            }
-
-
-        }
-        print(tag + "Min: " + min.ToString() + ", Max: " + max.ToString() + ", extent: " + (max - min).ToString());
-    }
-
-    void CamSpaceNormalize()
-    {
-
-        Vector3[] playerBBox = new Vector3[] {
-            new Vector3(-m_ARLabelSettings.courtX, 0.5f, m_ARLabelSettings.courtZ),
-            new Vector3(-m_ARLabelSettings.courtX, 0.5f, -m_ARLabelSettings.courtZ),
-            new Vector3(m_ARLabelSettings.courtX, 0.5f, m_ARLabelSettings.courtZ),
-            new Vector3(m_ARLabelSettings.courtX, 0.5f, -m_ARLabelSettings.courtZ)
-        };
-        CalBounds(playerBBox, "players");
-
-        Vector3[] labelLowBBox = new Vector3[] {
-            new Vector3(-m_ARLabelSettings.courtX, minY, m_ARLabelSettings.courtZ),
-            new Vector3(-m_ARLabelSettings.courtX, minY, -m_ARLabelSettings.courtZ),
-            new Vector3(m_ARLabelSettings.courtX, minY, m_ARLabelSettings.courtZ),
-            new Vector3(m_ARLabelSettings.courtX, minY, -m_ARLabelSettings.courtZ)
-        };
-        CalBounds(labelLowBBox, "LLabels");
-
-        Vector3[] labelHighBBox = new Vector3[] {
-            new Vector3(-m_ARLabelSettings.courtX, minY + yDistThres, m_ARLabelSettings.courtZ),
-            new Vector3(-m_ARLabelSettings.courtX, minY + yDistThres, -m_ARLabelSettings.courtZ),
-            new Vector3(m_ARLabelSettings.courtX, minY + yDistThres, m_ARLabelSettings.courtZ),
-            new Vector3(m_ARLabelSettings.courtX, minY + yDistThres, -m_ARLabelSettings.courtZ)
-        };
-        CalBounds(labelHighBBox, "HLabels");
-
-        //// convert to cam space
-        //Vector3 camTL = cam.InverseTransformPoint(topLeft);
-        //Vector3 camBL = cam.InverseTransformPoint(bottomLeft);
-        //Vector3 camTR = cam.InverseTransformPoint(topRight);
-        //Vector3 camBR = cam.InverseTransformPoint(bottomRight);
-
-        //Vector3 camExtent = new Vector3(camBR.x - camBL.x, Mathf.Abs(camBR.y - camTR.y), Mathf.Abs(camBR.z - camTR.z)) * 0.5f;
-
-        //Vector3[] camSpeedXYZ = new Vector3[] {
-        //    cam.InverseTransformVector(new Vector3(m_ARLabelSettings.playerSpeed, 0, 0)),
-        //    cam.InverseTransformVector(new Vector3(0, maxYspeed, 0)),
-        //    cam.InverseTransformVector(new Vector3(0, 0, m_ARLabelSettings.playerSpeed))
-        //};
-        //Vector3 camSpeed = new Vector3(
-        //    camSpeedXYZ.Sum(v => Mathf.Abs(v.x)),
-        //    camSpeedXYZ.Sum(v => Mathf.Abs(v.y)),
-        //    camSpeedXYZ.Sum(v => Mathf.Abs(v.z))
-        //);
-
-
-        //print("Normalize first:" + cam.InverseTransformVector(1f, 0f, 1f).ToString());
-        //Vector3 nMax = cam.InverseTransformVector(new Vector3(m_ARLabelSettings.courtX, 0f, m_ARLabelSettings.courtZ));
-        //print("Normalize later:" + new Vector3(nMax.x / camExtent.x, nMax.y / camExtent.y, nMax.z / camExtent.z).ToString()); 
-
-        //print("Cam extent:" + camExtent.ToString());
-        //print("Cam speed:" + camSpeed.ToString());
-
-        //return camExtent;
-    }
-
-    void OBIn3DCamSpace(VectorSensor sensor)
-    {
-
-        Vector3 selfPos = cam.InverseTransformPoint(transform.position); // transform.localPosition;
-        Vector3 selfVel = cam.InverseTransformVector(m_Rbody.velocity);  // m_Rbody.velocity;
+        Vector3 selfPos = transform.localPosition;
+        Vector3 selfVel = m_Rbody.velocity;
 
         sensor.AddObservation(selfPos.x / m_ARLabelSettings.courtX);
         sensor.AddObservation((selfPos.y - minY) / yDistThres);
@@ -234,12 +133,10 @@ public class ARLabelAgent : Agent
         sensor.AddObservation(selfVel.z / m_ARLabelSettings.playerSpeed);
         sensor.AddObservation(transform.forward);
         sensor.AddObservation(transform.localScale.x);
+        sensor.AddObservation(cam.forward);
 
         GameObject[] others = this.transform.parent.GetComponentsInChildren<Transform>()
             .Where(x => x.CompareTag("player"))
-            // distance filter
-            //.Where(x => Vector3.Distance(x.transform.localPosition, gameObject.transform.localPosition) < 5.0f)
-            // should filter based on viewport space
             .Select(x => x.gameObject)
             .ToArray();
 
@@ -248,18 +145,11 @@ public class ARLabelAgent : Agent
             List<float> obs = new List<float>();
             Vector3 relativePos = other.transform.localPosition - selfPos;
             obs.Add(relativePos.x / m_ARLabelSettings.courtX);
-            //obs.Add(relativePos.y / yDistThres);
             obs.Add(relativePos.z / m_ARLabelSettings.courtZ);
 
             Vector3 relativeVel = other.GetComponent<Rigidbody>().velocity - selfVel;
             obs.Add(relativeVel.x / m_ARLabelSettings.playerSpeed);
-            //obs.Add(relativeVel.y / maxYspeed);
             obs.Add(relativeVel.z / m_ARLabelSettings.playerSpeed);
-
-            //obs.Add(other.transform.forward.x);
-            //obs.Add(other.transform.forward.y);
-            //obs.Add(other.transform.forward.z);
-            //obs.Add(other.transform.localScale.x);
 
             bsensor.AppendObservation(obs.ToArray());
         }
@@ -267,8 +157,8 @@ public class ARLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        CamSpaceNormalize();
-        this.OBIn3DWorldSpace(sensor);
+
+        this.OBIn3DCamSpaceSimple(sensor);
     }
 
     /*-----------------------Action-----------------------*/
@@ -333,6 +223,12 @@ public class ARLabelAgent : Agent
         Vector3 size = this.GetExtentInWorld();
         float radius = Mathf.Min(size.x, size.y) * 0.5f;
         if(radius < 0.1f) // smaller than the bounding box of the agent
+        {
+            return rewOcclude;
+        }
+
+        Vector3 screenPoint = sceneCam.WorldToViewportPoint(transform.position);
+        if (screenPoint.z < 0 || screenPoint.x < 0 || screenPoint.x > 1 || screenPoint.y < 0 || screenPoint.y > 1)
         {
             return rewOcclude;
         }
