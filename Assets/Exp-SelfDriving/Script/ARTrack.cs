@@ -1,11 +1,13 @@
 using UnityEngine;
+using System.Linq;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
+using Unity.MLAgents.Sensors;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(MeshCollider))]
 [RequireComponent(typeof(DecisionRequester))]
-public class NNTrack : Agent
+public class ARTrack : Agent
 {
     [System.Serializable]
     public class RewardInfo
@@ -14,6 +16,9 @@ public class NNTrack : Agent
         public float mult_barrier = -0.8f; 
         public float mult_car = -0.5f; 
     }
+
+
+    BufferSensorComponent m_BufferSensor;
 
     public float Movespeed = 30;
     public float Turnspeed = 100;
@@ -26,6 +31,9 @@ public class NNTrack : Agent
 
     public override void Initialize()
     {
+
+        m_BufferSensor = GetComponent<BufferSensorComponent>();
+
         rb = this.GetComponent<Rigidbody>();
         rb.drag = 1;
         rb.angularDrag = 5;
@@ -44,6 +52,33 @@ public class NNTrack : Agent
         this.transform.position = recall_position;
         this.transform.rotation = recall_rotation;
     }
+
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        var others = transform.parent.GetComponentsInChildren<ARTrack>()
+            .Where(c => !GameObject.ReferenceEquals(c.gameObject, gameObject) && 
+                Vector3.Distance(c.transform.localPosition, transform.localPosition) < 80); // the same distance of the raycast sensor
+            //.OrderBy(c => Vector3.Distance(c.transform.localPosition, transform.localPosition));
+            
+        //System.Array.Sort(others, (a, b) => (Vector3.Distance(a.transform.local, transform.position)).CompareTo(Vector3.Distance(b.transform.position, transform.position)));
+        int numBulletAdded = 0;
+        foreach(var car in others)
+        {
+            if (numBulletAdded >= 10) break;
+            Rigidbody otherRB = car.GetComponent<Rigidbody>();
+            Vector3 relativeVel = otherRB.velocity - rb.velocity;
+            Vector3 relativePos = otherRB.transform.localPosition - transform.localPosition;
+
+            float[] obs = {
+                relativePos.x / 80f,
+                relativePos.y / 80f,
+                relativeVel.x / Movespeed,
+                relativeVel.z / Movespeed
+            };
+            m_BufferSensor.AppendObservation(obs);
+        }
+    }
+
     public override void OnActionReceived(ActionBuffers actions)
     {
         //decisionrequestor component needed
@@ -62,10 +97,10 @@ public class NNTrack : Agent
             case 0:
                 break;
             case 1:
-                rb.AddRelativeForce(Vector3.back * Movespeed * Time.deltaTime, ForceMode.VelocityChange); //back
+                rb.AddRelativeForce(Vector3.back * Movespeed * Time.fixedDeltaTime, ForceMode.VelocityChange); //back
                 break;
             case 2:
-                rb.AddRelativeForce(Vector3.forward * Movespeed * Time.deltaTime, ForceMode.VelocityChange); //forward
+                rb.AddRelativeForce(Vector3.forward * Movespeed * Time.fixedDeltaTime, ForceMode.VelocityChange); //forward
                 AddReward(mag * rwd.mult_forward);
                 break;
         }
