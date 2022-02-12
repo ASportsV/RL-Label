@@ -66,8 +66,8 @@ public class ARTrack : Agent
         {
             if (numBulletAdded >= 10) break;
             Rigidbody otherRB = car.GetComponent<Rigidbody>();
-            Vector3 relativeVel = otherRB.velocity - rb.velocity;
             Vector3 relativePos = otherRB.transform.localPosition - transform.localPosition;
+            Vector3 relativeVel = otherRB.velocity - rb.velocity;
 
             float[] obs = {
                 relativePos.x / 80f,
