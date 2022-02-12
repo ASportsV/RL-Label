@@ -39,7 +39,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6325157885823419376}
-  - {fileID: 7395113951469863744}
+  - {fileID: 1351472067072073521}
   - {fileID: 7546728704184528486}
   - {fileID: 1404856417348877198}
   m_Father: {fileID: 0}
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_RaysPerDirection: 3
   m_MaxRayDegrees: 80
   m_SphereCastRadius: 0.5
-  m_RayLength: 20
+  m_RayLength: 25
   m_RayLayerMask:
     serializedVersion: 2
     m_Bits: 64
@@ -555,22 +555,32 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!1001 &7853393756661258495
+--- !u!1001 &1773574211785491598
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 2716648220310192184}
     m_Modifications:
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_BehaviorName
+      value: CarLabel
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_BrainParameters.NumStackedVectorObservations
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 78729819680227589, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
       propertyPath: m_Name
       value: ARLabel
-      objectReference: {fileID: 0}
-    - target: {fileID: 78729819680227589, guid: 8d97d6d001cdd9943ae031f76f614d63,
-        type: 3}
-      propertyPath: m_TagString
-      value: Label
       objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
@@ -590,12 +600,12 @@ PrefabInstance:
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.844
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.077355295
       objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
@@ -605,7 +615,7 @@ PrefabInstance:
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
@@ -615,7 +625,7 @@ PrefabInstance:
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
@@ -632,23 +642,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7865552096013063794, guid: 8d97d6d001cdd9943ae031f76f614d63,
+    - target: {fileID: 6173345226260835586, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      propertyPath: m_SensorName
+      value: CarLabelRayPerceptionSensor
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 6863877820660453592, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
-    - {fileID: 6173345226260835586, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
-    - {fileID: 7278368080911663354, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
-    - {fileID: -919999409695548631, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
-    - {fileID: 6861740193128462264, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
-    - {fileID: 5986779066727933445, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
-    - {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
+    - target: {fileID: 6173345226260835586, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_DetectableTags.Array.data[0]
+      value: Label
+      objectReference: {fileID: 0}
+    - target: {fileID: 7278368080911663354, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_SensorName
+      value: CarLabelBufferSensor
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
---- !u!4 &7395113951469863744 stripped
+--- !u!4 &1351472067072073521 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
     type: 3}
-  m_PrefabInstance: {fileID: 7853393756661258495}
+  m_PrefabInstance: {fileID: 1773574211785491598}
   m_PrefabAsset: {fileID: 0}

@@ -17,21 +17,26 @@ public class ARTrack : Agent
         public float mult_car = -0.5f; 
     }
 
-
+    CarLabelSettings m_ARLabelSettings;
     BufferSensorComponent m_BufferSensor;
 
     public float Movespeed = 30;
     public float Turnspeed = 100;
     public RewardInfo rwd = new RewardInfo();
-    public bool doEpisodes = true;
+
     private Rigidbody rb = null;   
     private Vector3 recall_position;
     private Quaternion recall_rotation;
     private Bounds bnd;
 
+    private void Awake()
+    {
+        m_ARLabelSettings = FindObjectOfType<CarLabelSettings>();
+    }
+
     public override void Initialize()
     {
-
+        MaxStep = m_ARLabelSettings.MaxSteps;
         m_BufferSensor = GetComponent<BufferSensorComponent>();
 
         rb = this.GetComponent<Rigidbody>();
@@ -55,9 +60,10 @@ public class ARTrack : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
+        float distanceThres = 30f;
         var others = transform.parent.GetComponentsInChildren<ARTrack>()
             .Where(c => !GameObject.ReferenceEquals(c.gameObject, gameObject) && 
-                Vector3.Distance(c.transform.localPosition, transform.localPosition) < 80); // the same distance of the raycast sensor
+                Vector3.Distance(c.transform.localPosition, transform.localPosition) < distanceThres); // the same distance of the raycast sensor
             //.OrderBy(c => Vector3.Distance(c.transform.localPosition, transform.localPosition));
             
         //System.Array.Sort(others, (a, b) => (Vector3.Distance(a.transform.local, transform.position)).CompareTo(Vector3.Distance(b.transform.position, transform.position)));
@@ -70,8 +76,8 @@ public class ARTrack : Agent
             Vector3 relativeVel = otherRB.velocity - rb.velocity;
 
             float[] obs = {
-                relativePos.x / 80f,
-                relativePos.y / 80f,
+                relativePos.x / distanceThres,
+                relativePos.z / distanceThres,
                 relativeVel.x / Movespeed,
                 relativeVel.z / Movespeed
             };
@@ -144,13 +150,13 @@ public class ARTrack : Agent
             || collision.gameObject.CompareTag("BarrierYellow") == true)
         {
             AddReward(mag * rwd.mult_barrier);
-            if (doEpisodes == true)
+            if (m_ARLabelSettings.doEpisodes == true)
                 EndEpisode();
         }
         else if (collision.gameObject.CompareTag("Car") == true)
         {
             AddReward(mag * rwd.mult_car);
-            if (doEpisodes == true)
+            if (m_ARLabelSettings.doEpisodes == true)
                 EndEpisode();
         }
     }
