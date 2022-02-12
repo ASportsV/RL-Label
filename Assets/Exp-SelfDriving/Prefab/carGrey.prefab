@@ -178,7 +178,6 @@ MonoBehaviour:
     mult_forward: 0.001
     mult_barrier: -0.8
     mult_car: -0.2
-  doEpisodes: 1
 --- !u!114 &2466213742131744871
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,7 +205,7 @@ MonoBehaviour:
   m_BehaviorType: 0
   m_BehaviorName: Track01
   TeamId: 0
-  m_UseChildSensors: 1
+  m_UseChildSensors: 0
   m_UseChildActuators: 1
   m_DeterministicInference: 0
   m_ObservableAttributeHandling: 0
