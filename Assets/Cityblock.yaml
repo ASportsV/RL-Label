@@ -1,0 +1,12 @@
+behaviors:
+  Cityblock:
+    trainer_type: ppo    
+    network_settings:
+      hidden_units: 1024
+      num_layers: 3
+    reward_signals:
+      extrinsic:
+        network_settings:
+          hidden_units: 1024
+          num_layers: 3
+    max_steps: 1100000
