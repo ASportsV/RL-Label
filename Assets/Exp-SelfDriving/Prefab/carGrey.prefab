@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 2466213742131744871}
   - component: {fileID: 2466213742131744868}
   - component: {fileID: 6110618051861579539}
+  - component: {fileID: 176320034408695276}
   m_Layer: 6
   m_Name: carGrey
   m_TagString: Car
@@ -38,8 +39,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6325157885823419376}
-  - {fileID: 7546728704184528486}
   - {fileID: 7395113951469863744}
+  - {fileID: 7546728704184528486}
   - {fileID: 1404856417348877198}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -238,6 +239,19 @@ MonoBehaviour:
   m_SensorName: BufferSensor
   m_ObservableSize: 4
   m_MaxNumObservables: 10
+--- !u!114 &176320034408695276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3384641509435972226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fee65b780957f94782341246599eb96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myCar: 0
 --- !u!1 &3819224186129042396
 GameObject:
   m_ObjectHideFlags: 0
@@ -248,9 +262,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6325157885823419376}
   - component: {fileID: 8472448019108599888}
-  m_Layer: 6
+  m_Layer: 15
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: Driver
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -345,7 +359,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2716648220310192184}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2452800081359406233
 MeshFilter:
@@ -553,10 +567,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: ARLabel
       objectReference: {fileID: 0}
+    - target: {fileID: 78729819680227589, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_TagString
+      value: Label
+      objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}

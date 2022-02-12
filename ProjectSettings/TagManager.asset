@@ -10,6 +10,16 @@ TagManager:
   - wall
   - bullet
   - player_agent
+  - BarrierWhite
+  - BarrierYellow
+  - Gravel
+  - Road
+  - Win
+  - Lose
+  - Car
+  - Grass
+  - Driver
+  - Label
   layers:
   - Default
   - TransparentFX
@@ -17,7 +27,7 @@ TagManager:
   - 
   - Water
   - UI
-  - AR_UI
+  - Driving
   - 
   - 
   - 
@@ -26,8 +36,8 @@ TagManager:
   - 
   - 
   - 
-  - player
-  - player_agent
+  - ARLabel
+  - 
   - 
   - 
   - 
