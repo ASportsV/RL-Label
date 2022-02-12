@@ -115,17 +115,6 @@ public class Player : MonoBehaviour
         }
 
         ++step;
-        //if (step >= m_ARLabelSettings.MaxSteps)
-        //{
-
-        //    //// if reach the end, reset
-        //    //if (m_ARLabelSettings.numOfDestinations != -1 && reachedTime >= m_ARLabelSettings.numOfDestinations)
-        //    //{
-        //    //    Reset();
-        //    //    return;
-        //    //}
-        //    UpdateDestination();
-        //}
-
+ 
     }
 }
