@@ -2,8 +2,8 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 
-//[RequireComponent(typeof(Rigidbody))]
-//[RequireComponent(typeof(MeshCollider))]
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(MeshCollider))]
 [RequireComponent(typeof(DecisionRequester))]
 public class NNTrack : Agent
 {
