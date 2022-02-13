@@ -7,7 +7,7 @@ using Unity.MLAgents.Sensors;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(MeshCollider))]
 [RequireComponent(typeof(DecisionRequester))]
-public class ARTrack : Agent
+public class ARCar : Agent
 {
     [System.Serializable]
     public class RewardInfo
@@ -61,16 +61,15 @@ public class ARTrack : Agent
     public override void CollectObservations(VectorSensor sensor)
     {
         float distanceThres = 30f;
-        var others = transform.parent.GetComponentsInChildren<ARTrack>()
+        var others = transform.parent.GetComponentsInChildren<ARCar>()
             .Where(c => !GameObject.ReferenceEquals(c.gameObject, gameObject) && 
                 Vector3.Distance(c.transform.localPosition, transform.localPosition) < distanceThres); // the same distance of the raycast sensor
-            //.OrderBy(c => Vector3.Distance(c.transform.localPosition, transform.localPosition));
             
-        //System.Array.Sort(others, (a, b) => (Vector3.Distance(a.transform.local, transform.position)).CompareTo(Vector3.Distance(b.transform.position, transform.position)));
-        int numBulletAdded = 0;
+        int numCarAdded = 0;
         foreach(var car in others)
         {
-            if (numBulletAdded >= 10) break;
+            if (numCarAdded >= 10) break;
+            
             Rigidbody otherRB = car.GetComponent<Rigidbody>();
             Vector3 relativePos = otherRB.transform.localPosition - transform.localPosition;
             Vector3 relativeVel = otherRB.velocity - rb.velocity;
@@ -82,6 +81,8 @@ public class ARTrack : Agent
                 relativeVel.z / Movespeed
             };
             m_BufferSensor.AppendObservation(obs);
+            
+            ++numCarAdded;
         }
     }
 
