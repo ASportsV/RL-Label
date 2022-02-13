@@ -53,7 +53,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BrainParameters:
     VectorObservationSize: 8
-    NumStackedVectorObservations: 3
+    NumStackedVectorObservations: 4
     m_ActionSpec:
       m_NumContinuousActions: 1
       BranchSizes: 03000000
@@ -1245,13 +1245,13 @@ MonoBehaviour:
   m_DetectableTags:
   - player
   m_RaysPerDirection: 2
-  m_MaxRayDegrees: 30
+  m_MaxRayDegrees: 40
   m_SphereCastRadius: 0.4
   m_RayLength: 20
   m_RayLayerMask:
     serializedVersion: 2
     m_Bits: 4294901640
-  m_ObservationStacks: 3
+  m_ObservationStacks: 4
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 1}
   m_StartVerticalOffset: 0
