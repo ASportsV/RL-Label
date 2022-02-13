@@ -18,14 +18,6 @@ TagManager:
   - Water
   - UI
   - AR_UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
   - player
   - player_agent
   - 
@@ -35,8 +27,16 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - byLabel0
+  - byLabel1
+  - byLabel2
+  - byLabel3
+  - byLabel4
+  - byLabel5
+  - byLabel6
+  - byLabel7
+  - byLabel8
+  - byLabel9
   - 
   - 
   - 
