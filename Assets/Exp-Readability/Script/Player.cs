@@ -87,7 +87,7 @@ public class Player : MonoBehaviour
         } 
         else if(m_ARLabelSettings.playerMovingMode == ARLabelSettings.PlayerMovingModeType.RandomSpeed)
         {
-            float[] speedRatio = { 1f, 0.8f, 0.5f, 0.3f, 0.1f };
+            float[] speedRatio = gameObject.CompareTag("player") ? new float[] { 1f, 0.8f, 0.5f, 0.3f, 0.1f } : new float[] {0.8f};
             m_Rbody.velocity = this.transform.forward * speedRatio[Random.Range(0, speedRatio.Length)] * m_ARLabelSettings.playerSpeed;
         }
 

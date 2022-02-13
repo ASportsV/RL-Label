@@ -81,9 +81,9 @@ public class ARLabelAgent : Agent
         sensor.AddObservation((selfPos.y - minY) / yDistThres);
         sensor.AddObservation(selfPos.z / m_ARLabelSettings.courtZ);
 
-        sensor.AddObservation(selfVel.x / m_ARLabelSettings.playerSpeed);
+        // sensor.AddObservation(selfVel.x / m_ARLabelSettings.playerSpeed);
         sensor.AddObservation(selfVel.y / maxYspeed);
-        sensor.AddObservation(selfVel.z / m_ARLabelSettings.playerSpeed);
+        // sensor.AddObservation(selfVel.z / m_ARLabelSettings.playerSpeed);
         sensor.AddObservation(transform.forward);
         sensor.AddObservation(transform.localScale.x);
 
@@ -125,12 +125,24 @@ public class ARLabelAgent : Agent
     /*-----------------------Action-----------------------*/
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
+        int scaleSize = actionBuffers.DiscreteActions[0];
+        float newScale = Mathf.Clamp(scaleSize == 1
+                ? this.transform.localScale.x + 0.05f
+                : scaleSize == 2
+                ? this.transform.localScale.x - 0.05f
+                : this.transform.localScale.x, 0.1f, 1f);
+
+        this.transform.localScale = new Vector3(newScale, newScale, newScale);
+        // update radius
+        Vector3 extent = this.GetExtentInWorld();
+        // forwardRaycast.SphereCastRadius = Mathf.Min(extent.x, extent.z) * 0.5f;
+        backwardRaycast.SphereCastRadius = Mathf.Min(extent.x, extent.z) * 0.5f;
+
 
         float accChange = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * maxYspeed;
         Vector3 playerVel = player.GetComponent<Rigidbody>().velocity;
         m_Rbody.velocity = playerVel;
         float nextYVel = m_Rbody.velocity.y + accChange;
-        
         // should clamp velocity in y
         float nextY = transform.localPosition.y + nextYVel * Time.fixedDeltaTime;
         if (nextY <= minY)
@@ -147,20 +159,8 @@ public class ARLabelAgent : Agent
         {
             m_Rbody.AddForce(new Vector3(0f, accChange, 0f), ForceMode.VelocityChange);
         }
+
         transform.LookAt(cam.transform);
-
-        int scaleSize = actionBuffers.DiscreteActions[0];
-        float newScale = Mathf.Clamp(scaleSize == 1
-                ? this.transform.localScale.x + 0.05f
-                : scaleSize == 2
-                ? this.transform.localScale.x - 0.05f
-                : this.transform.localScale.x, 0.1f, 1f);
-
-        this.transform.localScale = new Vector3(newScale, newScale, newScale);
-        // update radius
-        Vector3 extent = this.GetExtentInWorld();
-        // forwardRaycast.SphereCastRadius = Mathf.Min(extent.x, extent.z) * 0.5f;
-        backwardRaycast.SphereCastRadius = Mathf.Min(extent.x, extent.z) * 0.5f;
     }
 
     /*-----------------------Reward-----------------------*/

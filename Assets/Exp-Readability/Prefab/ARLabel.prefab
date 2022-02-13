@@ -52,14 +52,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 10
-    NumStackedVectorObservations: 2
+    VectorObservationSize: 8
+    NumStackedVectorObservations: 3
     m_ActionSpec:
       m_NumContinuousActions: 1
       BranchSizes: 03000000
     VectorActionSize: 
     VectorActionDescriptions: []
-    VectorActionSpaceType: 1
+    VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 0}
   m_InferenceDevice: 2
@@ -1244,14 +1244,14 @@ MonoBehaviour:
   m_SensorName: RayPerceptionSensor
   m_DetectableTags:
   - player
-  m_RaysPerDirection: 0
-  m_MaxRayDegrees: 0
+  m_RaysPerDirection: 2
+  m_MaxRayDegrees: 30
   m_SphereCastRadius: 0.4
-  m_RayLength: 40
+  m_RayLength: 20
   m_RayLayerMask:
     serializedVersion: 2
     m_Bits: 4294901640
-  m_ObservationStacks: 1
+  m_ObservationStacks: 3
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 1}
   m_StartVerticalOffset: 0
