@@ -53,7 +53,7 @@ public class CarLabelAgent : Agent
     private void Start()
     {
         // find 
-        cam = transform.parent.parent.Find("MyCar").GetComponentInChildren<Camera>();
+        cam = transform.parent.parent.Find("FollowMyCarCamera").GetComponent<Camera>();
 
         //Vector3 extent = this.GetExtentInWorld();
         //maxDistToAgent = Mathf.Min(extent.x, extent.y);

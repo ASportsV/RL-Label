@@ -10,7 +10,7 @@ public class MyCar : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        this.transform.Find("Camera").gameObject.SetActive(myCar);
+        //this.transform.Find("Camera").gameObject.SetActive(myCar);
         this.transform.Find("ARLabel").gameObject.SetActive(!myCar);
     }
 

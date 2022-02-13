@@ -172,10 +172,12 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 5000
+  MaxMovespeed: 30
   Movespeed: 30
   Turnspeed: 100
   rwd:
     mult_forward: 0.001
+    mult_turn: -0.0001
     mult_barrier: -0.8
     mult_car: -0.2
 --- !u!114 &2466213742131744871
@@ -261,13 +263,14 @@ GameObject:
   m_Component:
   - component: {fileID: 6325157885823419376}
   - component: {fileID: 8472448019108599888}
+  - component: {fileID: 4326038924778199833}
   m_Layer: 15
   m_Name: Camera
   m_TagString: Driver
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6325157885823419376
 Transform:
   m_ObjectHideFlags: 0
@@ -326,6 +329,23 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &4326038924778199833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3819224186129042396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe215c76030889549a7526b74e1fc4db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  filterOn: 1
+  filterFrequency: 1
+  filterMinCutoff: 0.9
+  filterBeta: 0.0005
+  filterDcutoff: 1
 --- !u!1 &4005678509789057165
 GameObject:
   m_ObjectHideFlags: 0
