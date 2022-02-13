@@ -12,7 +12,8 @@ public class ARCar : Agent
     [System.Serializable]
     public class RewardInfo
     {                                           
-        public float mult_forward = 0.001f; 
+        public float mult_forward = 0.001f;
+        public float mult_turn = -0.0001f;
         public float mult_barrier = -0.8f; 
         public float mult_car = -0.5f; 
     }
@@ -20,7 +21,8 @@ public class ARCar : Agent
     CarLabelSettings m_ARLabelSettings;
     BufferSensorComponent m_BufferSensor;
 
-    public float Movespeed = 30;
+    public float MaxMovespeed = 30;
+    public float Movespeed;
     public float Turnspeed = 100;
     public RewardInfo rwd = new RewardInfo();
 
@@ -31,6 +33,8 @@ public class ARCar : Agent
 
     private void Awake()
     {
+        //float[] speedFraction = { 1.0f, 0.9f, 0.8f };
+        Movespeed = MaxMovespeed * (Random.value * 0.1f + 0.9f);
         m_ARLabelSettings = FindObjectOfType<CarLabelSettings>();
     }
 
@@ -77,8 +81,8 @@ public class ARCar : Agent
             float[] obs = {
                 relativePos.x / distanceThres,
                 relativePos.z / distanceThres,
-                relativeVel.x / Movespeed,
-                relativeVel.z / Movespeed
+                relativeVel.x / MaxMovespeed,
+                relativeVel.z / MaxMovespeed
             };
             m_BufferSensor.AppendObservation(obs);
             
@@ -118,9 +122,11 @@ public class ARCar : Agent
                 break;
             case 1:
                 this.transform.Rotate(Vector3.up, -Turnspeed * Time.deltaTime); //left
+                AddReward(rwd.mult_turn);
                 break;
             case 2:
                 this.transform.Rotate(Vector3.up, Turnspeed * Time.deltaTime); //right
+                AddReward(rwd.mult_turn);
                 break;
         }
     }
