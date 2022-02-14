@@ -263,7 +263,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6325157885823419376}
   - component: {fileID: 8472448019108599888}
-  - component: {fileID: 4326038924778199833}
   m_Layer: 15
   m_Name: Camera
   m_TagString: Driver
@@ -329,23 +328,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!114 &4326038924778199833
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3819224186129042396}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe215c76030889549a7526b74e1fc4db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  filterOn: 1
-  filterFrequency: 1
-  filterMinCutoff: 0.9
-  filterBeta: 0.0005
-  filterDcutoff: 1
 --- !u!1 &4005678509789057165
 GameObject:
   m_ObjectHideFlags: 0
@@ -624,7 +606,7 @@ PrefabInstance:
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.7
+      value: 1.604931
       objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
@@ -689,3 +671,23 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1773574211785491598}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1840481326386496907 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 78729819680227589, guid: 8d97d6d001cdd9943ae031f76f614d63,
+    type: 3}
+  m_PrefabInstance: {fileID: 1773574211785491598}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4553209330528479268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1840481326386496907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee8134d3d87072342a0625e2955a8100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  start: {fileID: 1351472067072073521}
+  end: {fileID: 2716648220310192184}
