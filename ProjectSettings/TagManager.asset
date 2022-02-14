@@ -4,12 +4,12 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - agent
   - player
   - ground
   - wall
   - bullet
   - player_agent
+  - label
   layers:
   - Default
   - TransparentFX
@@ -19,7 +19,7 @@ TagManager:
   - UI
   - AR_UI
   - player
-  - player_agent
+  - label
   - 
   - 
   - 
