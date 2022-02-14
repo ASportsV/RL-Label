@@ -60,16 +60,16 @@ public class RVOLabelAgent : Agent
     {
         Vector3 selfPos = transform.position;
         Vector3 selfVel = velocity;
-        Vector3 localPosition = selfPos - court.position;
 
+        Vector3 localPosition = selfPos - court.position;
         sensor.AddObservation(localPosition.x / m_RVOSettings.courtX);
         //sensor.AddObservation((selfPos.y - minY) / yDistThres);
         sensor.AddObservation(localPosition.z / m_RVOSettings.courtZ);
         
         Vector3 distToGoal = selfPos - player.transform.position;
-        sensor.AddObservation(distToGoal / m_RVOSettings.courtX);
+        sensor.AddObservation(distToGoal.x / m_RVOSettings.courtX);
         //sensor.AddObservation(distToGoal / yDistThres);
-        sensor.AddObservation(distToGoal / m_RVOSettings.courtZ);
+        sensor.AddObservation(distToGoal.z / m_RVOSettings.courtZ);
 
         sensor.AddObservation(transform.forward);
 

@@ -74,7 +74,7 @@ public class RVOplayer : MonoBehaviour
 
         /* Perturb a little to avoid deadlocks due to perfect symmetry. */
         float angle = (float)m_random.NextDouble() * 2.0f * (float)Math.PI;
-        float dist = (float)m_random.NextDouble() * 0.01f;
+        float dist = (float)m_random.NextDouble() * 0.1f;
 
         Simulator.Instance.setAgentPrefVelocity(sid, Simulator.Instance.getAgentPrefVelocity(sid) +
                                                      dist *
