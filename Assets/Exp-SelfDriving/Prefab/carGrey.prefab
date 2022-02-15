@@ -202,9 +202,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: ee8505976a094f3428531b05162397b2, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 4ea8818ee7ec6fe4ca25a2a99db8c752, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 0
+  m_BehaviorType: 2
   m_BehaviorName: Track01
   TeamId: 0
   m_UseChildSensors: 0
@@ -580,7 +580,42 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
         type: 3}
+      propertyPath: m_BrainParameters.VectorActionSpaceType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_BrainParameters.VectorActionSize.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
       propertyPath: m_BrainParameters.NumStackedVectorObservations
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_BrainParameters.VectorActionSize.Array.data[0]
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_BrainParameters.VectorActionSize.Array.data[1]
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_BrainParameters.m_ActionSpec.BranchSizes.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_BrainParameters.m_ActionSpec.m_NumContinuousActions
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 8d97d6d001cdd9943ae031f76f614d63,
+        type: 3}
+      propertyPath: m_BrainParameters.m_ActionSpec.BranchSizes.Array.data[1]
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 78729819680227589, guid: 8d97d6d001cdd9943ae031f76f614d63,
@@ -663,7 +698,8 @@ PrefabInstance:
       propertyPath: m_SensorName
       value: CarLabelBufferSensor
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6253952882549952240, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 8d97d6d001cdd9943ae031f76f614d63, type: 3}
 --- !u!4 &1351472067072073521 stripped
 Transform:
@@ -689,5 +725,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee8134d3d87072342a0625e2955a8100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  start: {fileID: 1351472067072073521}
   end: {fileID: 2716648220310192184}

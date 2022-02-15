@@ -22,7 +22,7 @@ public class CarLabelAgent : Agent
     float yDistThres = 10.0f;
     float maxYspeed = 3f;
 
-    Rigidbody m_Rbody;  //cached on initialization
+    //Rigidbody m_Rbody;  //cached on initialization
 
     // Start is called before the first frame update
     private void Awake()
@@ -35,7 +35,7 @@ public class CarLabelAgent : Agent
     {
         MaxStep = m_ARLabelSettings.MaxSteps;
         
-        m_Rbody = GetComponent<Rigidbody>();
+        //m_Rbody = GetComponent<Rigidbody>();
         bsensor = GetComponent<BufferSensorComponent>();
         rTransform = GetComponentInChildren<RectTransform>();
         raycastSensor = GetComponent<RayPerceptionSensorComponent3D>();
@@ -68,7 +68,7 @@ public class CarLabelAgent : Agent
     public override void OnEpisodeBegin()
     {
         this.transform.localPosition = new Vector3(0, minY, 0);
-        m_Rbody.velocity = Vector3.zero;
+        //m_Rbody.velocity = Vector3.zero;
     }
 
     /** ------------------ Observation ---------------------**/
@@ -115,40 +115,57 @@ public class CarLabelAgent : Agent
     /*-----------------------Action-----------------------*/
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        // update x, z position
-        transform.localPosition = new Vector3(0f, transform.localPosition.y, 0f);
-        float accChange = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * maxYspeed;
-        float nextYVel = m_Rbody.velocity.y + accChange;
+        var moveZ = actionBuffers.DiscreteActions[0] == 1
+            ? +0.2f
+            : actionBuffers.DiscreteActions[0] == 2
+            ? -0.2f
+            : 0;
 
-        // should clamp velocity in y
-        float nextY = transform.localPosition.y + nextYVel * Time.fixedDeltaTime;
-        if (nextY <= minY)
-        {
-            m_Rbody.velocity = new Vector3(m_Rbody.velocity.x, 0f, m_Rbody.velocity.z);
-            transform.localPosition = new Vector3(transform.localPosition.x, minY, transform.localPosition.z);
-        }
-        else if (nextY >= (minY + yDistThres))
-        {
-            m_Rbody.velocity = new Vector3(m_Rbody.velocity.x, 0f, m_Rbody.velocity.z);
-            transform.localPosition = new Vector3(transform.localPosition.x, minY + yDistThres, transform.localPosition.z);
-        }
-        else
-        {
-            m_Rbody.AddForce(new Vector3(0f, accChange, 0f), ForceMode.VelocityChange);
-        }
+        float newZ = Mathf.Clamp(transform.localPosition.z + moveZ, -3f, 0f);
+
+        var moveX = actionBuffers.DiscreteActions[1] == 1
+            ? +0.2f
+            : actionBuffers.DiscreteActions[1] == 2
+            ? -0.2f
+            : 0;
+        float newX = Mathf.Clamp(transform.localPosition.x + moveX, -3f, 3f);
+
+        transform.localPosition = new Vector3(newX, minY, newZ);
+
+        //// update x, z position
+        //transform.localPosition = new Vector3(0f, transform.localPosition.y, 0f);
+        //float accChange = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * maxYspeed;
+        //float nextYVel = m_Rbody.velocity.y + accChange;
+
+        //// should clamp velocity in y
+        //float nextY = transform.localPosition.y + nextYVel * Time.fixedDeltaTime;
+        //if (nextY <= minY)
+        //{
+        //    m_Rbody.velocity = new Vector3(m_Rbody.velocity.x, 0f, m_Rbody.velocity.z);
+        //    transform.localPosition = new Vector3(transform.localPosition.x, minY, transform.localPosition.z);
+        //}
+        //else if (nextY >= (minY + yDistThres))
+        //{
+        //    m_Rbody.velocity = new Vector3(m_Rbody.velocity.x, 0f, m_Rbody.velocity.z);
+        //    transform.localPosition = new Vector3(transform.localPosition.x, minY + yDistThres, transform.localPosition.z);
+        //}
+        //else
+        //{
+        //    m_Rbody.AddForce(new Vector3(0f, accChange, 0f), ForceMode.VelocityChange);
+        //}
         transform.LookAt(cam.transform);
 
-        int scaleSize = actionBuffers.DiscreteActions[0];
-        float newScale = Mathf.Clamp(scaleSize == 1
-                ? this.transform.localScale.x + 0.05f
-                : scaleSize == 2
-                ? this.transform.localScale.x - 0.05f
-                : this.transform.localScale.x, 0.1f, 1f);
+        //int scaleSize = actionBuffers.DiscreteActions[0];
+        //float newScale = Mathf.Clamp(scaleSize == 1
+        //        ? this.transform.localScale.x + 0.05f
+        //        : scaleSize == 2
+        //        ? this.transform.localScale.x - 0.05f
+        //        : this.transform.localScale.x, 0.1f, 1f);
 
-        this.transform.localScale = new Vector3(newScale, newScale, newScale);
-        // update radius
-        Vector3 extent = this.GetExtentInWorld();
-        raycastSensor.SphereCastRadius = Mathf.Min(extent.x, extent.z) * 0.5f;
+        //this.transform.localScale = new Vector3(newScale, newScale, newScale);
+        //// update radius
+        //Vector3 extent = this.GetExtentInWorld();
+        //raycastSensor.SphereCastRadius = Mathf.Min(extent.x, extent.z) * 0.5f;
     }
 
     /*-----------------------Reward-----------------------*/
@@ -240,18 +257,26 @@ public class CarLabelAgent : Agent
     {
         var discreteActionsOut = actionsOut.DiscreteActions;
         discreteActionsOut[0] = 0;
-        ////forward
-        //if (Input.GetKey(KeyCode.W))
-        //{
-        //    discreteActionsOut[0] = 1;
-        //}
-        //if (Input.GetKey(KeyCode.S))
-        //{
-        //    discreteActionsOut[0] = 2;
-        //}
+        //forward
+        if (Input.GetKey(KeyCode.W))
+        {
+            discreteActionsOut[0] = 1;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            discreteActionsOut[0] = 2;
+        }
 
-        var continuousActionsOut = actionsOut.ContinuousActions;
-        continuousActionsOut[0] = 0; // -Input.GetAxis("Horizontal");
+
+        discreteActionsOut[1] = 0;
+        if (Input.GetKey(KeyCode.A))
+        {
+            discreteActionsOut[1] = 1;
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            discreteActionsOut[1] = 2;
+        }
     }
 
 
