@@ -43,27 +43,26 @@ public class RVOPlayerGroup : MonoBehaviour
         }
     }
 
-    public Vector3 GetRandomSpawnPos()
+    public Vector3 GetRandomSpawnPos(int idx)
     {
         var randomSpawnPos = Vector3.zero;
-        float radius = Mathf.Min(m_RVOSettings.courtX * 0.9f, m_RVOSettings.courtZ * 0.9f);
+        float radius = Mathf.Min(m_RVOSettings.courtX * 0.95f, m_RVOSettings.courtZ * 0.95f);
         float variance = 1.0f;
        
-        var angle = Random.value * Mathf.PI * 2;
+        var angle = (idx + Random.value) * Mathf.PI * 2 / m_RVOSettings.numOfPlayer;
         var randomPosX = Mathf.Cos(angle) * radius;
         var randomPosZ = Mathf.Sin(angle) * radius;
         randomPosX += Random.value * variance;
         randomPosZ += Random.value * variance;
 
         randomSpawnPos = new Vector3(randomPosX, 0.5f, randomPosZ);
-            
   
         return randomSpawnPos;
     }
 
     public void CreatePlayerLabel(int idx)
     {
-        Vector3 rndPos = GetRandomSpawnPos();
+        Vector3 rndPos = GetRandomSpawnPos(idx);
         int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
         if (sid >= 0)
         {
@@ -85,7 +84,7 @@ public class RVOPlayerGroup : MonoBehaviour
 
             Transform label = playerObj.gameObject.transform.Find("label");
             label.name = idx + "_label";
-            Text name = label.Find("Player_info/Name").GetComponent<Text>();
+            Text name = label.Find("panel/Player_info/Name").GetComponent<Text>();
             name.text = label.name;
 
             RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
@@ -94,36 +93,36 @@ public class RVOPlayerGroup : MonoBehaviour
             agent.cam = cam;
         }
     }
-    public void CreateLabel()
-    {
-        Vector3 rndPos = GetRandomSpawnPos();
-        int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
-        if(sid >= 0)
-        {
-            //var worldPos = transform.TransformPoint(rndPos);
+    //public void CreateLabel()
+    //{
+    //    Vector3 rndPos = GetRandomSpawnPos();
+    //    int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
+    //    if(sid >= 0)
+    //    {
+    //        //var worldPos = transform.TransformPoint(rndPos);
 
-            GameObject playerObj = Instantiate(player_prefab, rndPos, Quaternion.identity);
-            playerObj.transform.SetParent(gameObject.transform, false);
-            playerObj.tag = "player_agent";
-            playerObj.layer = LayerMask.NameToLayer("player_agent");
+    //        GameObject playerObj = Instantiate(player_prefab, rndPos, Quaternion.identity);
+    //        playerObj.transform.SetParent(gameObject.transform, false);
+    //        playerObj.tag = "player_agent";
+    //        playerObj.layer = LayerMask.NameToLayer("player_agent");
 
-            Color color = new Color(69 / 255f, 154 / 255f, 224 / 255f);
-            var cubeRenderer = playerObj.GetComponent<Renderer>();
-            cubeRenderer.material.SetColor("_Color", color);
-            RVOplayer player = playerObj.GetComponent<RVOplayer>();
+    //        Color color = new Color(69 / 255f, 154 / 255f, 224 / 255f);
+    //        var cubeRenderer = playerObj.GetComponent<Renderer>();
+    //        cubeRenderer.material.SetColor("_Color", color);
+    //        RVOplayer player = playerObj.GetComponent<RVOplayer>();
 
-            player.sid = sid;
-            m_playerMap.Add(sid, player);
+    //        player.sid = sid;
+    //        m_playerMap.Add(sid, player);
 
-            GameObject arLabel = Instantiate(label_prefab, new Vector3(rndPos.x, 1.4f, rndPos.z), Quaternion.identity);
-            arLabel.transform.SetParent(gameObject.transform, false);
-            arLabel.name = "label_" + player.name;
-            arLabel.tag = "agent";
+    //        GameObject arLabel = Instantiate(label_prefab, new Vector3(rndPos.x, 1.4f, rndPos.z), Quaternion.identity);
+    //        arLabel.transform.SetParent(gameObject.transform, false);
+    //        arLabel.name = "label_" + player.name;
+    //        arLabel.tag = "agent";
 
-            RVOLabelAgent agent = arLabel.GetComponent<RVOLabelAgent>();
-            agent.PlayerLabel = player;
-        }
-    }
+    //        RVOLabelAgent agent = arLabel.GetComponent<RVOLabelAgent>();
+    //        agent.PlayerLabel = player;
+    //    }
+    //}
 
     // Update is called once per frame
     private void FixedUpdate()

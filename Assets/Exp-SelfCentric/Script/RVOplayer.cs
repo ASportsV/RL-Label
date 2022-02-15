@@ -20,7 +20,6 @@ public class RVOplayer : MonoBehaviour
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
-        m_Rbody = GetComponent<Rigidbody>();
         player = transform.Find("player");
     }
 
@@ -40,34 +39,35 @@ public class RVOplayer : MonoBehaviour
 
     public bool reached()
     {
-        return Vector3.Distance(transform.localPosition, destination) < 0.2f;
+        return Vector3.Distance(transform.localPosition, destination) < 0.1f;
     }
 
     public void resetDestination()
     {
-        float rx = UnityEngine.Random.value * 1f - 0.4f;
-        float rz = UnityEngine.Random.value * 1f - 0.4f;
-        destination = new Vector3(-(transform.localPosition.x + rx), transform.localPosition.y, -(transform.localPosition.z+rz));
+        float rx = UnityEngine.Random.value * 1f - 0.5f;
+        float rz = UnityEngine.Random.value * 1f - 0.5f;
+        destination = new Vector3(-destination.x + rx, destination.y, -destination.z + rz);
     }
 
     // Update is called once per frame
     private void FixedUpdate()
     {
-        //if(Vector3.Distance(transform.localPosition, destination) < 0.1f)
-        //{
-        //    destination = new Vector3(-transform.localPosition.x, transform.localPosition.y, -transform.localPosition.z);
-        //}
+        if (Vector3.Distance(transform.localPosition, destination) < 0.1f)
+        {
+            destination = new Vector3(-transform.localPosition.x, transform.localPosition.y, -transform.localPosition.z);
+        }
 
         if (sid >= 0)
         {
             Vector2 pos = Simulator.Instance.getAgentPosition(sid);
             Vector2 vel = Simulator.Instance.getAgentPrefVelocity(sid);
             transform.localPosition = new Vector3(pos.x(), transform.localPosition.y, pos.y());
+
             if (Math.Abs(vel.x()) > 0.01f && Math.Abs(vel.y()) > 0.01f)
                 transform.forward = new Vector3(vel.x(), 0, vel.y()).normalized;
         }
 
-
+        // update prefVel
         Vector2 goalVector = new Vector2(destination.x, destination.z) - Simulator.Instance.getAgentPosition(sid);// GameMainManager.Instance.mousePosition - Simulator.Instance.getAgentPosition(sid);
         if (RVOMath.absSq(goalVector) > m_RVOSettings.playerSpeed)
         {
@@ -78,7 +78,7 @@ public class RVOplayer : MonoBehaviour
 
         /* Perturb a little to avoid deadlocks due to perfect symmetry. */
         float angle = (float)m_random.NextDouble() * 2.0f * (float)Math.PI;
-        float dist = (float)m_random.NextDouble() * 0.1f;
+        float dist = (float)m_random.NextDouble() * 0.001f;
 
         Simulator.Instance.setAgentPrefVelocity(sid, Simulator.Instance.getAgentPrefVelocity(sid) +
                                                      dist *

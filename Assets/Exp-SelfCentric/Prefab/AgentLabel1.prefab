@@ -59,8 +59,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: 5429f4cbcf1eec448a27133e6ffd410c,
-        type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_BehaviorName
@@ -266,7 +265,8 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6861740193128462264, guid: 98b591507de72954099c958f0452b9fd, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 98b591507de72954099c958f0452b9fd, type: 3}
 --- !u!4 &4015864275688061341 stripped
 Transform:
@@ -399,6 +399,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3933635731914576204}
     m_Modifications:
+    - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7822932160195070186, guid: ff8546d662b540648afc0b45b953f89c,
         type: 3}
       propertyPath: m_Layer

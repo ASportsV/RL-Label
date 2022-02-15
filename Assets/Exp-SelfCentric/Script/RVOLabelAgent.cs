@@ -14,7 +14,7 @@ public class RVOLabelAgent : Agent
     public RVOplayer PlayerLabel;
     public Camera cam;
     public Transform court;
-    Rigidbody m_Rbody;
+    //Rigidbody m_Rbody;
     RectTransform rTransform;
 
     // sensor
@@ -38,7 +38,7 @@ public class RVOLabelAgent : Agent
 
     public override void Initialize()
     {
-        m_Rbody = GetComponent<Rigidbody>();
+        //m_Rbody = GetComponent<Rigidbody>();
         rTransform = GetComponentInChildren<RectTransform>();
         MaxStep = m_RVOSettings.MaxSteps;
         bSensor = GetComponent<BufferSensorComponent>();
@@ -47,8 +47,9 @@ public class RVOLabelAgent : Agent
     public override void OnEpisodeBegin()
     {
         PlayerLabel.resetDestination();
-        this.transform.localPosition = new Vector3(0f, minY, 0f);
-        m_Rbody.velocity = Vector3.zero;
+        transform.localPosition = new Vector3(0f, minY, 0f);
+        transform.forward = PlayerLabel.transform.forward;
+        //m_Rbody.velocity = Vector3.zero;
     }
 
     Vector3 velocity => PlayerLabel.velocity;
@@ -76,7 +77,7 @@ public class RVOLabelAgent : Agent
 
         foreach (Transform other in transform.parent.parent)
         {
-            if (GameObject.ReferenceEquals(other.gameObject, transform.parent)) continue;
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
             foreach(Transform child in other)
             {
                 List<float> obs = new List<float>();
@@ -101,6 +102,7 @@ public class RVOLabelAgent : Agent
                         : child.GetComponent<RVOLabelAgent>().velocity;
 
                 Vector3 relativeVel = vel - selfVel;
+                //print("Relative vel " + child.name + "_" + transform.name + ": " + relativeVel.magnitude);
                 obs.Add(relativeVel.x / (2 * m_RVOSettings.playerSpeed));
                 //obs.Add(relativeVel.y / maxYspeed);
                 obs.Add(relativeVel.z / (2 * m_RVOSettings.playerSpeed));
@@ -116,38 +118,64 @@ public class RVOLabelAgent : Agent
     }
 
     /*-----------------------Action-----------------------*/
+    float xzDistThres = 3.0f;
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        //var continuousActions = actionBuffers.ContinuousActions;
-        //var forward = Mathf.Clamp(continuousActions[0], -1f, 1f);
-        //var right = Mathf.Clamp(continuousActions[1], -1f, 1f);
-        //var up = Mathf.Clamp(continuousActions[2], -1f, 1f);
 
-        //var dirToGo = new Vector3(right, up, forward);
         var moveZ = actionBuffers.DiscreteActions[0] == 1
             ? +0.02f
             : actionBuffers.DiscreteActions[0] == 2
             ? -0.02f
             : 0;
+        if(moveZ != 0)
+        {
+            AddReward(-0.001f);
+            Vector3 localDir = Quaternion.Inverse(transform.rotation) * (PlayerLabel.transform.position - transform.position);
+            bool isForward = localDir.z > 0;
 
-        float newZ = Mathf.Clamp(transform.localPosition.z + moveZ, -3f, 0f);
+            transform.position += transform.forward * moveZ;
+            Vector3 target = new Vector3(PlayerLabel.transform.position.x, transform.position.y, PlayerLabel.transform.position.z);
+            float distToTarget = Vector3.Distance(transform.position, target);
+            if(distToTarget >= xzDistThres)
+            {
+                transform.position = target - transform.forward * (xzDistThres - 0.001f);
+            }
+            if(!isForward)
+            {
+                transform.position = target;
+            }
+        }
 
-        var moveX = actionBuffers.DiscreteActions[1] == 1
-            ? +0.02f
-            : actionBuffers.DiscreteActions[1] == 2
-            ? -0.02f
-            : 0;
-        float newX = Mathf.Clamp(transform.localPosition.x + moveX, -3f, 3f);
 
-
+        ///
         var moveY = actionBuffers.DiscreteActions[2] == 1
             ? +0.02f
-            : actionBuffers.DiscreteActions[1] == 2
+            : actionBuffers.DiscreteActions[2] == 2
             ? -0.02f
             : 0;
-        float newY = Mathf.Clamp(transform.localPosition.y + moveY, minY, minY + yDistThres);
+        if(moveY != 0)
+        {
+            AddReward(-0.001f);
+            float newY = Mathf.Clamp(transform.localPosition.y + moveY, minY, minY + yDistThres);
+            transform.localPosition = new Vector3(transform.localPosition.x, newY, transform.localPosition.z);
+        }
 
-        transform.localPosition = new Vector3(newX, newY, newZ);
+
+        // rotation
+        var rotateY = actionBuffers.DiscreteActions[1] == 1
+            ? +2f
+            : actionBuffers.DiscreteActions[1] == 2
+            ? -2f
+            : 0;
+        if(rotateY != 0)
+        {
+            AddReward(-0.001f);
+            var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
+            if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
+            rotateY = Mathf.Clamp(angle + rotateY, -150f, -30f) - angle;
+            transform.RotateAround(PlayerLabel.player.position, PlayerLabel.player.up, rotateY);
+        }
+
     }
 
     /*-----------------------Reward-----------------------*/
@@ -192,7 +220,7 @@ public class RVOLabelAgent : Agent
 
         if(PlayerLabel.reached())
         {
-            SetReward(1.0f);
+            //SetReward(1.0f);
             EndEpisode();
             return;
         }
@@ -238,22 +266,21 @@ public class RVOLabelAgent : Agent
         // no occlusion
         if(rew == 0)
         {
-            float dist = Vector2.Distance(
+            float dist = Vector3.Distance(
                 transform.position,
                 new Vector3(PlayerLabel.transform.position.x, minY, PlayerLabel.transform.position.z)
             );
 
             // [0, 0.01]
             //float rewDist = this.negativeShape(dist, 4.24f); // 3 * sqrt2
-            float rewDist = this.negativeShape(dist, 5.2f);
-            rewDist /= 100;
+            float rewDist = this.negativeShape(dist, 4.24f);
+            rewDist /= 10;
             rew += rewDist;
         }
         AddReward(rew);
 
         PlayerLabel.player.gameObject.layer = LayerMask.NameToLayer("player");
-
-        transform.LookAt(cam.transform);
+        transform.Find("panel").LookAt(cam.transform);
     }
 
     public Vector3 GetExtentInWorld()
@@ -285,6 +312,16 @@ public class RVOLabelAgent : Agent
         if (Input.GetKey(KeyCode.D))
         {
             discreteActionsOut[1] = 2;
+        }
+
+        discreteActionsOut[2] = 0;
+        if (Input.GetKey(KeyCode.Q))
+        {
+            discreteActionsOut[2] = 1;
+        }
+        if (Input.GetKey(KeyCode.E))
+        {
+            discreteActionsOut[2] = 2;
         }
 
         //var continuousActionsOut = actionsOut.ContinuousActions;
