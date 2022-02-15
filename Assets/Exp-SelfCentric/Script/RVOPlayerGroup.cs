@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using RVO;
 using UnityEngine;
+using UnityEngine.UI;
 using Vector2 = RVO.Vector2;
 
 public class RVOPlayerGroup : MonoBehaviour
@@ -38,7 +39,7 @@ public class RVOPlayerGroup : MonoBehaviour
 
         for(int i = 0; i < m_RVOSettings.numOfPlayer; ++i)
         {
-            CreatePlayerLabel();
+            CreatePlayerLabel(i);
         }
     }
 
@@ -60,7 +61,7 @@ public class RVOPlayerGroup : MonoBehaviour
         return randomSpawnPos;
     }
 
-    public void CreatePlayerLabel()
+    public void CreatePlayerLabel(int idx)
     {
         Vector3 rndPos = GetRandomSpawnPos();
         int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
@@ -70,6 +71,7 @@ public class RVOPlayerGroup : MonoBehaviour
 
             GameObject playerObj = Instantiate(playerLabel_prefab, rndPos, Quaternion.identity);
             playerObj.transform.SetParent(gameObject.transform, false);
+            playerObj.name = idx + "_PlayerLabel";
             //playerObj.tag = "player_agent";
             //playerObj.layer = LayerMask.NameToLayer("player_agent");
 
@@ -80,6 +82,11 @@ public class RVOPlayerGroup : MonoBehaviour
 
             player.sid = sid;
             m_playerMap.Add(sid, player);
+
+            Transform label = playerObj.gameObject.transform.Find("label");
+            label.name = idx + "_label";
+            Text name = label.Find("Player_info/Name").GetComponent<Text>();
+            name.text = label.name;
 
             RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
             agent.PlayerLabel = player;

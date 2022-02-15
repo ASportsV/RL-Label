@@ -19,7 +19,8 @@ public class RVOLine : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        line.SetPosition(0, transform.position);
+        Vector3 start = new Vector3(transform.position.x, transform.position.y - 0.4f, transform.position.z);
+        line.SetPosition(0, start);
         line.SetPosition(1, end.position);
     }
 }

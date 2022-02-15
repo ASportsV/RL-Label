@@ -57,6 +57,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 5022602860645237092, guid: 5429f4cbcf1eec448a27133e6ffd410c,
+        type: 3}
+    - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
       propertyPath: m_BehaviorName
       value: RVOLabel
       objectReference: {fileID: 0}
@@ -204,6 +210,36 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RaysPerDirection
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6578939852754277790, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 91.4935
+      objectReference: {fileID: 0}
+    - target: {fileID: 6578939852754277790, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 24.2041
+      objectReference: {fileID: 0}
+    - target: {fileID: 6578939852754277790, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.0001
+      objectReference: {fileID: 0}
+    - target: {fileID: 6578939852754277790, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.1247
+      objectReference: {fileID: 0}
+    - target: {fileID: 6578939852754277791, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_FontData.m_FontSize
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 6578939852754277791, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_FontData.m_Alignment
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7278368080911663354, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
