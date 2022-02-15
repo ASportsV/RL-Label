@@ -61,14 +61,15 @@ public class RVOLabelAgent : Agent
         Vector3 selfVel = velocity;
 
         Vector3 localPosition = selfPos - court.position;
-        // 4 + 3
+        
+        // 2 + 3 + 3
         sensor.AddObservation(localPosition.x / m_RVOSettings.courtX);
-        //sensor.AddObservation((selfPos.y - minY) / yDistThres);
         sensor.AddObservation(localPosition.z / m_RVOSettings.courtZ);
         
         Vector3 distToGoal = selfPos - PlayerLabel.transform.position;
+        float distY = localPosition.y - minY;
         sensor.AddObservation(distToGoal.x / m_RVOSettings.courtX);
-        //sensor.AddObservation(distToGoal / yDistThres);
+        sensor.AddObservation(distY / yDistThres);
         sensor.AddObservation(distToGoal.z / m_RVOSettings.courtZ);
 
         sensor.AddObservation(transform.forward);
@@ -79,7 +80,7 @@ public class RVOLabelAgent : Agent
             foreach(Transform child in other)
             {
                 List<float> obs = new List<float>();
-                // 2 + 4
+                // 2 + 2 + 2
                 if(child.CompareTag("player"))
                 {
                     obs.Add(1); obs.Add(0);
@@ -138,7 +139,15 @@ public class RVOLabelAgent : Agent
             : 0;
         float newX = Mathf.Clamp(transform.localPosition.x + moveX, -3f, 3f);
 
-        transform.localPosition = new Vector3(newX, minY, newZ);
+
+        var moveY = actionBuffers.DiscreteActions[2] == 1
+            ? +0.02f
+            : actionBuffers.DiscreteActions[1] == 2
+            ? -0.02f
+            : 0;
+        float newY = Mathf.Clamp(transform.localPosition.y + moveY, minY, minY + yDistThres);
+
+        transform.localPosition = new Vector3(newX, newY, newZ);
     }
 
     /*-----------------------Reward-----------------------*/
@@ -230,12 +239,13 @@ public class RVOLabelAgent : Agent
         if(rew == 0)
         {
             float dist = Vector2.Distance(
-                new Vector2(transform.position.x, transform.position.z),
-                new Vector2(PlayerLabel.transform.position.x, PlayerLabel.transform.position.z)
+                transform.position,
+                new Vector3(PlayerLabel.transform.position.x, minY, PlayerLabel.transform.position.z)
             );
-                
+
             // [0, 0.01]
-            float rewDist = this.negativeShape(dist, 4.24f); // 3 * sqrt2
+            //float rewDist = this.negativeShape(dist, 4.24f); // 3 * sqrt2
+            float rewDist = this.negativeShape(dist, 5.2f);
             rewDist /= 100;
             rew += rewDist;
         }
