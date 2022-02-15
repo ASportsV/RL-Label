@@ -40,12 +40,14 @@ public class RVOplayer : MonoBehaviour
 
     public bool reached()
     {
-        return Vector3.Distance(transform.localPosition, destination) < 0.25f;
+        return Vector3.Distance(transform.localPosition, destination) < 0.2f;
     }
 
     public void resetDestination()
     {
-        destination = new Vector3(-transform.localPosition.x, transform.localPosition.y, -transform.localPosition.z);
+        float rx = UnityEngine.Random.value * 1f - 0.4f;
+        float rz = UnityEngine.Random.value * 1f - 0.4f;
+        destination = new Vector3(-(transform.localPosition.x + rx), transform.localPosition.y, -(transform.localPosition.z+rz));
     }
 
     // Update is called once per frame
