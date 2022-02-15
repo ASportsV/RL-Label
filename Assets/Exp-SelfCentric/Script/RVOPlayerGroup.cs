@@ -15,6 +15,8 @@ public class RVOPlayerGroup : MonoBehaviour
     public GameObject playerLabel_prefab;
 
     public Transform court;
+    public Camera cam;
+
 
     private Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
 
@@ -29,6 +31,7 @@ public class RVOPlayerGroup : MonoBehaviour
         Simulator.Instance.setTimeStep(Time.fixedDeltaTime);
         Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.5f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
         court = transform.parent.Find("fancy_court");
+        cam = transform.parent.Find("Camera").GetComponent<Camera>();
 
         // add in awake
         Simulator.Instance.processObstacles();
@@ -79,8 +82,9 @@ public class RVOPlayerGroup : MonoBehaviour
             m_playerMap.Add(sid, player);
 
             RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
-            agent.player = player;
+            agent.PlayerLabel = player;
             agent.court = court;
+            agent.cam = cam;
         }
     }
     public void CreateLabel()
@@ -110,7 +114,7 @@ public class RVOPlayerGroup : MonoBehaviour
             arLabel.tag = "agent";
 
             RVOLabelAgent agent = arLabel.GetComponent<RVOLabelAgent>();
-            agent.player = player;
+            agent.PlayerLabel = player;
         }
     }
 

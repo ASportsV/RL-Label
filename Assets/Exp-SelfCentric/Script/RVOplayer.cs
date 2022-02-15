@@ -15,11 +15,13 @@ public class RVOplayer : MonoBehaviour
     Rigidbody m_Rbody;
     /** Random number generator. */
     private System.Random m_random = new System.Random();
+    public Transform player;
 
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         m_Rbody = GetComponent<Rigidbody>();
+        player = transform.Find("player");
     }
 
     // Start is called before the first frame update

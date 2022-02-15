@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sid: -1
+  player: {fileID: 0}
 --- !u!1001 &4460626032237765154
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -92,7 +93,7 @@ PrefabInstance:
     - target: {fileID: 78729819680227589, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_Name
-      value: ARLabel
+      value: label
       objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -157,7 +158,7 @@ PrefabInstance:
     - target: {fileID: 3417699027278855939, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_SphereCastRadius
-      value: 0
+      value: 0.28
       objectReference: {fileID: 0}
     - target: {fileID: 3417699027278855939, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -167,7 +168,7 @@ PrefabInstance:
     - target: {fileID: 5371359020785915933, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.62
+      value: -0.7
       objectReference: {fileID: 0}
     - target: {fileID: 5371359020785915933, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -355,7 +356,7 @@ PrefabInstance:
     - target: {fileID: 7823073313924758570, guid: ff8546d662b540648afc0b45b953f89c,
         type: 3}
       propertyPath: m_Name
-      value: AgentLabel
+      value: player
       objectReference: {fileID: 0}
     - target: {fileID: 7823073313924758570, guid: ff8546d662b540648afc0b45b953f89c,
         type: 3}
