@@ -16,6 +16,8 @@ public class RVOLabelAgent : Agent
     public Transform court;
     //Rigidbody m_Rbody;
     RectTransform rTransform;
+    RVOLine m_RVOLine;
+    Transform m_Panel;
 
     // sensor
     BufferSensorComponent bSensor;
@@ -23,6 +25,8 @@ public class RVOLabelAgent : Agent
 
     float minY = 1f;
     float yDistThres = 3.0f;
+    float xzDistThres = 3.0f;
+    float maxDist;
     float maxYspeed = 3f;
 
     private void Awake()
@@ -42,6 +46,9 @@ public class RVOLabelAgent : Agent
         rTransform = GetComponentInChildren<RectTransform>();
         MaxStep = m_RVOSettings.MaxSteps;
         bSensor = GetComponent<BufferSensorComponent>();
+        m_RVOLine = GetComponent<RVOLine>();
+        maxDist = Mathf.Sqrt(yDistThres * yDistThres + xzDistThres * xzDistThres);
+        m_Panel = transform.Find("panel");
     }
 
     public override void OnEpisodeBegin()
@@ -93,9 +100,9 @@ public class RVOLabelAgent : Agent
 
                 Vector3 relativePos = child.position - selfPos;
 
-                obs.Add(relativePos.x / m_RVOSettings.courtX);
+                obs.Add(relativePos.x / (2 * m_RVOSettings.courtX));
                 //obs.Add(relativePos.y / yDistThres);
-                obs.Add(relativePos.z / m_RVOSettings.courtZ);
+                obs.Add(relativePos.z / (2 * m_RVOSettings.courtZ));
 
                 Vector3 vel = child.CompareTag("player")
                         ? child.parent.GetComponent<RVOplayer>().velocity
@@ -118,7 +125,7 @@ public class RVOLabelAgent : Agent
     }
 
     /*-----------------------Action-----------------------*/
-    float xzDistThres = 3.0f;
+ 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
 
@@ -227,10 +234,10 @@ public class RVOLabelAgent : Agent
 
         // being occluded
         // return [0, 0.1]
-        Vector3 origin = transform.position;
+        Vector3 origin = m_Panel.position;
         float radius = 0.3f;
         float maxDistance = Mathf.Infinity;
-        Vector3 direction = transform.forward;
+        Vector3 direction = m_Panel.forward;
 
         float rew = 0f;
         // occluded by labels
@@ -266,17 +273,23 @@ public class RVOLabelAgent : Agent
         // no occlusion
         if(rew == 0)
         {
-            float dist = Vector3.Distance(
+            float dist = Mathf.Clamp(Vector3.Distance(
                 transform.position,
-                new Vector3(PlayerLabel.transform.position.x, minY, PlayerLabel.transform.position.z)
-            );
+                new Vector3(PlayerLabel.transform.position.x, minY + PlayerLabel.transform.position.y, PlayerLabel.transform.position.z)
+            ), 0, maxDist);
 
             // [0, 0.01]
             //float rewDist = this.negativeShape(dist, 4.24f); // 3 * sqrt2
-            float rewDist = this.negativeShape(dist, 4.24f);
-            rewDist /= 10;
+            float rewDist = 0.1f * this.negativeShape(dist, maxDist);
             rew += rewDist;
         }
+
+
+        int numOfIntersections = transform.parent.parent.GetComponentsInChildren<RVOLine>()
+            .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject))
+            .Count(l => l.isIntersected(m_RVOLine, cam));
+        rew -= 0.05f * numOfIntersections;
+
         AddReward(rew);
 
         PlayerLabel.player.gameObject.layer = LayerMask.NameToLayer("player");
