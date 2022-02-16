@@ -5,6 +5,7 @@ using UnityEngine;
 public class RVOSettings : MonoBehaviour
 {
     public int MaxSteps;
+    public bool sync;
     public int numOfPlayer;
 
     public float playerSpeed = 4.0f;

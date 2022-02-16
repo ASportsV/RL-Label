@@ -66,10 +66,9 @@ public class RVOLabelAgent : Agent
 
     public override void OnEpisodeBegin()
     {
-        PlayerLabel.resetDestination();
+        if (!m_RVOSettings.sync) PlayerLabel.resetDestination();
         transform.localPosition = new Vector3(0f, minY, 0f);
         transform.forward = PlayerLabel.transform.forward;
-        //m_Rbody.velocity = Vector3.zero;
     }
 
     Vector3 velocity => PlayerLabel.velocity;
@@ -240,8 +239,11 @@ public class RVOLabelAgent : Agent
         if(PlayerLabel.reached())
         {
             SetReward(1.0f);
-            EndEpisode();
-            return;
+            if(!m_RVOSettings.sync)
+            {
+                EndEpisode();
+                return;
+            }
         }
 
         // being occluded

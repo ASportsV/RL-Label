@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using RVO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -125,8 +126,28 @@ public class RVOPlayerGroup : MonoBehaviour
     //}
 
     // Update is called once per frame
+    int step = 0;
     private void FixedUpdate()
     {
-        Simulator.Instance.doStep();  
+        // if sync and all reached
+        // reset all
+        if(m_RVOSettings.sync && (m_playerMap.Values.All(p => p.reached()) || step >= m_RVOSettings.MaxSteps))
+        {
+            int i = 0;
+            foreach(var p in m_playerMap.Values)
+            {
+                Vector3 rndPos = GetRandomSpawnPos(i);
+                p.transform.localPosition = rndPos;
+                Simulator.Instance.setAgentPosition(p.sid, new Vector2(rndPos.x, rndPos.z));
+                p.resetDestination();
+                p.GetComponentInChildren<RVOLabelAgent>().EndEpisode();
+                ++i;
+            }
+
+
+            step = 0;
+        }
+        ++step;
+        Simulator.Instance.doStep();
     }
 }

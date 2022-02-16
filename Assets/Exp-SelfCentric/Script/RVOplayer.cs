@@ -26,7 +26,7 @@ public class RVOplayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        destination = new Vector3(-transform.localPosition.x, transform.localPosition.y, -transform.localPosition.z);
+        resetDestination();
     }
 
     public Vector3 velocity
@@ -46,17 +46,17 @@ public class RVOplayer : MonoBehaviour
     {
         float rx = UnityEngine.Random.value * 1f - 0.5f;
         float rz = UnityEngine.Random.value * 1f - 0.5f;
-        destination = new Vector3(-destination.x + rx, destination.y, -destination.z + rz);
+        //destination = new Vector3(-destination.x + rx, destination.y, -destination.z + rz);
+
+        destination = new Vector3(
+            -transform.localPosition.x + rx, 
+            transform.localPosition.y, 
+            -transform.localPosition.z + rz);
     }
 
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (Vector3.Distance(transform.localPosition, destination) < 0.1f)
-        {
-            destination = new Vector3(-transform.localPosition.x, transform.localPosition.y, -transform.localPosition.z);
-        }
-
         if (sid >= 0)
         {
             Vector2 pos = Simulator.Instance.getAgentPosition(sid);
