@@ -136,7 +136,7 @@ public class RVOLabelAgent : Agent
             : 0;
         if(moveZ != 0)
         {
-            AddReward(-0.001f);
+            AddReward(-0.01f);
             Vector3 localDir = Quaternion.Inverse(transform.rotation) * (PlayerLabel.transform.position - transform.position);
             bool isForward = localDir.z > 0;
 
@@ -162,7 +162,7 @@ public class RVOLabelAgent : Agent
             : 0;
         if(moveY != 0)
         {
-            AddReward(-0.001f);
+            AddReward(-0.01f);
             float newY = Mathf.Clamp(transform.localPosition.y + moveY, minY, minY + yDistThres);
             transform.localPosition = new Vector3(transform.localPosition.x, newY, transform.localPosition.z);
         }
@@ -176,7 +176,7 @@ public class RVOLabelAgent : Agent
             : 0;
         if(rotateY != 0)
         {
-            AddReward(-0.001f);
+            AddReward(-0.01f);
             var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
             if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
             rotateY = Mathf.Clamp(angle + rotateY, -150f, -30f) - angle;
@@ -280,7 +280,7 @@ public class RVOLabelAgent : Agent
 
             // [0, 0.01]
             //float rewDist = this.negativeShape(dist, 4.24f); // 3 * sqrt2
-            float rewDist = 0.1f * this.negativeShape(dist, maxDist);
+            float rewDist = 0.05f * this.negativeShape(dist, maxDist);
             rew += rewDist;
         }
 
