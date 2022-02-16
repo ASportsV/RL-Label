@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Exp-Readability/Scene/Readability-preAgent.unity
     guid: d75d74ab814243642b10438030b2157d
+  - enabled: 1
+    path: Assets/Exp-SelfCentric/Scene/Readability-RvO.unity
+    guid: 9033b07f776feaa43b7c6a9457728abf
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 599bfcdeeb4cc4e5485798c6db489402,
       type: 2}
