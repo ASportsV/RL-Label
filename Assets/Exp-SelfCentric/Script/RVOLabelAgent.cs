@@ -14,7 +14,7 @@ public class RVOLabelAgent : Agent
     public class RewardInfo
     {                                           
         public float rew_turn = 0f;
-        public float rew_y = 0f;
+        public float rew_y = -0.1f;
         public float rew_z = 0f;
         public float rew_occlude = -0.01f;
         public float rew_dist = -0.005f;
@@ -175,11 +175,10 @@ public class RVOLabelAgent : Agent
             : 0;
         if(moveY != 0)
         {
-            // AddReward(-0.001f);
+            AddReward(rwd.rew_y);
             float newY = Mathf.Clamp(transform.localPosition.y + moveY, minY, minY + yDistThres);
             transform.localPosition = new Vector3(transform.localPosition.x, newY, transform.localPosition.z);
         }
-
 
         // rotation
         var rotateY = actionBuffers.DiscreteActions[1] == 1
