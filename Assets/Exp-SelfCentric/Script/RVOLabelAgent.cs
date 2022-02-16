@@ -9,7 +9,20 @@ using UnityEngine;
 public class RVOLabelAgent : Agent
 {
 
+
+    [System.Serializable]
+    public class RewardInfo
+    {                                           
+        public float rew_turn = 0f;
+        public float rew_y = 0f;
+        public float rew_z = 0f;
+        public float rew_occlude = -0.01f;
+        public float rew_dist = -0.005f;
+        public float rew_intersets = -0.005f;
+    }
+
     RVOSettings m_RVOSettings;
+    RewardInfo rwd = new RewardInfo();
 
     public RVOplayer PlayerLabel;
     public Camera cam;
@@ -136,7 +149,7 @@ public class RVOLabelAgent : Agent
             : 0;
         if(moveZ != 0)
         {
-            AddReward(-0.001f);
+            // AddReward(-0.001f);
             Vector3 localDir = Quaternion.Inverse(transform.rotation) * (PlayerLabel.transform.position - transform.position);
             bool isForward = localDir.z > 0;
 
@@ -162,7 +175,7 @@ public class RVOLabelAgent : Agent
             : 0;
         if(moveY != 0)
         {
-            AddReward(-0.001f);
+            // AddReward(-0.001f);
             float newY = Mathf.Clamp(transform.localPosition.y + moveY, minY, minY + yDistThres);
             transform.localPosition = new Vector3(transform.localPosition.x, newY, transform.localPosition.z);
         }
@@ -176,7 +189,7 @@ public class RVOLabelAgent : Agent
             : 0;
         if(rotateY != 0)
         {
-            AddReward(-0.001f);
+            // AddReward(-0.001f);
             var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
             if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
             rotateY = Mathf.Clamp(angle + rotateY, -150f, -30f) - angle;
@@ -248,26 +261,25 @@ public class RVOLabelAgent : Agent
         if (Physics.SphereCast(origin, radius, direction, out m_Hit, maxDistance, labelLayerMask))
         {
             // [0, 1]
-            Vector3 hitVel = m_Hit.collider.GetComponent<RVOLabelAgent>().velocity;
-            Vector3 relativeSpeed = hitVel - velocity;
-            float sqrtMat = Mathf.Min(relativeSpeed.sqrMagnitude, 2 * m_RVOSettings.playerSpeed);
-            float normalizedSqrtMat = sqrtMat / (4 * m_RVOSettings.playerSpeed * m_RVOSettings.playerSpeed);
-            float transferedSqrtMat = this.negativeShape(normalizedSqrtMat);
-            rew = -0.01f * transferedSqrtMat;
+            // Vector3 hitVel = m_Hit.collider.GetComponent<RVOLabelAgent>().velocity;
+            // Vector3 relativeSpeed = hitVel - velocity;
+            // float sqrtMat = Mathf.Min(relativeSpeed.sqrMagnitude, 2 * m_RVOSettings.playerSpeed);
+            // float normalizedSqrtMat = sqrtMat / (4 * m_RVOSettings.playerSpeed * m_RVOSettings.playerSpeed);
+            // float transferedSqrtMat = this.negativeShape(normalizedSqrtMat);
+            rew = rwd.rew_occlude * 1; //transferedSqrtMat;
         }
         
-        // occluding players
+        // occluding players + labels
         int playerLayerMask = 1 << LayerMask.NameToLayer("player") | labelLayerMask;
         if (Physics.SphereCast(origin, radius, -direction, out m_Hit, maxDistance, playerLayerMask))
         {
             // [0, 1]
-            Vector3 hitVel = m_Hit.collider.transform.parent.GetComponent<RVOplayer>().velocity;
-            Vector3 relativeSpeed = hitVel - velocity;
-            float sqrtMat = Mathf.Min(relativeSpeed.sqrMagnitude, 2 * m_RVOSettings.playerSpeed);
-            float normalizedSqrtMat = sqrtMat / (4 * m_RVOSettings.playerSpeed * m_RVOSettings.playerSpeed);
-            float transferedSqrtMat = this.negativeShape(normalizedSqrtMat);
-
-            rew += -0.01f * transferedSqrtMat;
+            // Vector3 hitVel = m_Hit.collider.transform.parent.GetComponent<RVOplayer>().velocity;
+            // Vector3 relativeSpeed = hitVel - velocity;
+            // float sqrtMat = Mathf.Min(relativeSpeed.sqrMagnitude, 2 * m_RVOSettings.playerSpeed);
+            // float normalizedSqrtMat = sqrtMat / (4 * m_RVOSettings.playerSpeed * m_RVOSettings.playerSpeed);
+            // float transferedSqrtMat = this.negativeShape(normalizedSqrtMat);
+            rew += rwd.rew_occlude * 1; // transferedSqrtMat;
         }
         
         // no occlusion
@@ -280,7 +292,7 @@ public class RVOLabelAgent : Agent
 
             // [0, 0.01]
             //float rewDist = this.negativeShape(dist, 4.24f); // 3 * sqrt2
-            float rewDist = 0.005f * (1f - this.negativeShape(dist, maxDist));
+            float rewDist = rwd.rew_dist * this.postiveShape(dist, maxDist);
             rew += rewDist;
         }
 
@@ -288,7 +300,7 @@ public class RVOLabelAgent : Agent
         int numOfIntersections = transform.parent.parent.GetComponentsInChildren<RVOLine>()
             .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject))
             .Count(l => l.isIntersected(m_RVOLine, cam));
-        rew += -0.005f * numOfIntersections;
+        rew += rwd.rew_intersets * numOfIntersections;
 
         AddReward(rew);
 
