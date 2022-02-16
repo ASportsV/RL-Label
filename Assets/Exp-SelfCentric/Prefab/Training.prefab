@@ -60,7 +60,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 321233322761613511}
   m_LocalRotation: {x: 0.3879389, y: -0.002152397, z: -0.00013452196, w: 0.9216826}
-  m_LocalPosition: {x: 0, y: 8.365414, z: -11.503477}
+  m_LocalPosition: {x: -0.0020189285, y: 7.8988667, z: -9.16888}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -862,11 +862,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2529f3623962a844a4ab61efdc0df74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ball_prefab: {fileID: 0}
   player_prefab: {fileID: 7823073313924758570, guid: 6b8f3948a28c0474b9866e888e1405f8,
     type: 3}
   label_prefab: {fileID: 78729819680227589, guid: ee79b8c838787b448b0571afc7740ea8,
     type: 3}
+  playerLabel_prefab: {fileID: 0}
+  court: {fileID: 0}
+  cam: {fileID: 0}
 --- !u!1 &4974859157436102698
 GameObject:
   m_ObjectHideFlags: 0
