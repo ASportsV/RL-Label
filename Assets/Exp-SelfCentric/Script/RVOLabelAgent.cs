@@ -280,7 +280,7 @@ public class RVOLabelAgent : Agent
 
             // [0, 0.01]
             //float rewDist = this.negativeShape(dist, 4.24f); // 3 * sqrt2
-            float rewDist = 0.005f * (1f - this.negativeShape(dist, maxDist));
+            float rewDist = 0.01f * (-1f + this.negativeShape(dist, maxDist));
             rew += rewDist;
         }
 
@@ -288,7 +288,7 @@ public class RVOLabelAgent : Agent
         int numOfIntersections = transform.parent.parent.GetComponentsInChildren<RVOLine>()
             .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject))
             .Count(l => l.isIntersected(m_RVOLine, cam));
-        rew += -0.005f * numOfIntersections;
+        rew += -0.01f * numOfIntersections;
 
         AddReward(rew);
 
