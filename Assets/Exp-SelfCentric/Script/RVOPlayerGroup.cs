@@ -140,11 +140,9 @@ public class RVOPlayerGroup : MonoBehaviour
                 p.transform.localPosition = rndPos;
                 Simulator.Instance.setAgentPosition(p.sid, new Vector2(rndPos.x, rndPos.z));
                 p.resetDestination();
-                p.GetComponentInChildren<RVOLabelAgent>().EndEpisode();
+                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
                 ++i;
             }
-
-
             step = 0;
         }
         ++step;

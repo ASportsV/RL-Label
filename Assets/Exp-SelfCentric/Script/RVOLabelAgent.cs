@@ -229,6 +229,12 @@ public class RVOLabelAgent : Agent
         return rewOcclude / 10f;
     }
 
+    public void SyncReset()
+    {
+        SetReward(1.0f);
+        EndEpisode();
+    }
+
     void UpdateReward(int academyStepCount)
     {
         if (academyStepCount == 0)
@@ -236,14 +242,11 @@ public class RVOLabelAgent : Agent
             return;
         }
 
-        if(PlayerLabel.reached())
+        if(!m_RVOSettings.sync && PlayerLabel.reached())
         {
             SetReward(1.0f);
-            if(!m_RVOSettings.sync)
-            {
-                EndEpisode();
-                return;
-            }
+            EndEpisode();
+            return;
         }
 
         // being occluded
