@@ -21,7 +21,6 @@ public class RVOPlayerGroup : MonoBehaviour
     public Transform court;
     public Camera cam;
 
-
     private List<RVOplayer> m_playerMap = new List<RVOplayer>();
 
     private void Awake()
@@ -88,15 +87,15 @@ public class RVOPlayerGroup : MonoBehaviour
         agent.PlayerLabel = player;
         agent.court = court;
         agent.cam = cam;
-        //if (idx == 5)
-        //{
-        //    DemonstrationRecorder dr = label.gameObject.AddComponent<DemonstrationRecorder>();
-        //    dr.DemonstrationDirectory = "Assets/Exp-SelfCentric/Demo";
-        //    dr.DemonstrationName = "RVOLabel";
-        //    dr.Record = true;
-        //    BehaviorParameters bp = label.GetComponent<BehaviorParameters>();
-        //    bp.BehaviorType = BehaviorType.HeuristicOnly;
-        //}
+        // if (idx == 5)
+        // {
+        //     DemonstrationRecorder dr = label.gameObject.AddComponent<DemonstrationRecorder>();
+        //     dr.DemonstrationDirectory = "Assets/Exp-SelfCentric/Demo";
+        //     dr.DemonstrationName = "RVOLabel";
+        //     dr.Record = true;
+        //     BehaviorParameters bp = label.GetComponent<BehaviorParameters>();
+        //     bp.BehaviorType = BehaviorType.HeuristicOnly;
+        // }
     }
 
     // Update is called once per frame
@@ -127,7 +126,7 @@ public class RVOPlayerGroup : MonoBehaviour
 
             foreach(var p in m_playerMap)
             {
-                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+                p.GetComponentInChildren<RVOLabelAgent>().SyncReset(step >= m_RVOSettings.MaxSteps);
             }
             step = 0;
         }

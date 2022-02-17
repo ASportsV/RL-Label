@@ -18,7 +18,7 @@ public class RVOLabelAgent : Agent
         public float rew_z = 0f;
         public float rew_occlude = -0.1f;
         public float rew_intersets = -0.1f;
-        public float rew_dist = -0.05f;
+        public float rew_dist = -0.01f;
     }
 
     RVOSettings m_RVOSettings;
@@ -57,7 +57,7 @@ public class RVOLabelAgent : Agent
     {
         //m_Rbody = GetComponent<Rigidbody>();
         rTransform = GetComponentInChildren<RectTransform>();
-        MaxStep = m_RVOSettings.MaxSteps;
+        //MaxStep = m_RVOSettings.MaxSteps;
         bSensor = GetComponent<BufferSensorComponent>();
         m_RVOLine = GetComponent<RVOLine>();
         maxDist = Mathf.Sqrt(yDistThres * yDistThres + xzDistThres * xzDistThres);
@@ -191,11 +191,12 @@ public class RVOLabelAgent : Agent
         return Mathf.Pow(1 - Mathf.Pow(x, 1.5f), 2);
     }
 
-    public void SyncReset()
+    public void SyncReset(bool maxstep = false)
     {
         SetReward(1.0f);
         Debug.Log(this.name + " c_reward is " + GetCumulativeReward());
-        EndEpisode();
+        if (maxstep) EpisodeInterrupted();
+        else EndEpisode();
     }
 
     void UpdateReward(int academyStepCount)
