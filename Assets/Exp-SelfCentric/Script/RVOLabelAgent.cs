@@ -14,11 +14,11 @@ public class RVOLabelAgent : Agent
     public class RewardInfo
     {                                           
         public float rew_turn = 0f;
-        public float rew_y = -0.1f;
+        public float rew_y = -1f;
         public float rew_z = 0f;
-        public float rew_occlude = -0.01f;
-        public float rew_dist = -0.01f;
-        public float rew_intersets = -0.01f;
+        public float rew_occlude = -0.1f;
+        public float rew_intersets = -0.1f;
+        public float rew_dist = -0.05f;
     }
 
     RVOSettings m_RVOSettings;
@@ -97,13 +97,12 @@ public class RVOLabelAgent : Agent
             if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
             List<float> obs = new List<float>();
 
-
             foreach(Transform child in other)
             {
                 // 2 + 2
                 Vector3 relativePos = child.position - selfPos;
-                obs.Add(relativePos.x / (2 * m_RVOSettings.courtX));
-                obs.Add(relativePos.z / (2 * m_RVOSettings.courtZ));
+                obs.Add(relativePos.x / m_RVOSettings.courtX);
+                obs.Add(relativePos.z / m_RVOSettings.courtZ);
             }
             
             Vector3 relativeVel = other.GetComponent<RVOplayer>().velocity - selfVel;
@@ -195,6 +194,7 @@ public class RVOLabelAgent : Agent
     public void SyncReset()
     {
         SetReward(1.0f);
+        Debug.Log(this.name + " c_reward is " + GetCumulativeReward());
         EndEpisode();
     }
 
@@ -232,7 +232,7 @@ public class RVOLabelAgent : Agent
             // float sqrtMat = Mathf.Min(relativeSpeed.sqrMagnitude, 2 * m_RVOSettings.playerSpeed);
             // float normalizedSqrtMat = sqrtMat / (4 * m_RVOSettings.playerSpeed * m_RVOSettings.playerSpeed);
             // float transferedSqrtMat = this.negativeShape(normalizedSqrtMat);
-            rew = rwd.rew_occlude * 1; //transferedSqrtMat;
+            rew += rwd.rew_occlude * 1; //transferedSqrtMat;
         }
         
         // occluding players + labels
@@ -248,30 +248,23 @@ public class RVOLabelAgent : Agent
             // float transferedSqrtMat = this.negativeShape(normalizedSqrtMat);
             rew += rwd.rew_occlude * 1; // transferedSqrtMat;
         }
-        
-        // no occlusion
-        // if(rew == 0)
-        // {
-            float dist = Mathf.Clamp(Vector3.Distance(
+
+        int numOfIntersections = transform.parent.parent.GetComponentsInChildren<RVOLine>()
+            .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject))
+            .Count(l => l.isIntersected(m_RVOLine, cam));
+        rew += rwd.rew_intersets * numOfIntersections;
+
+        float dist = Mathf.Clamp(Vector3.Distance(
                 transform.position,
                 new Vector3(PlayerLabel.transform.position.x, minY + PlayerLabel.transform.position.y, PlayerLabel.transform.position.z)
             ), 0, maxDist);
 
             // [0, 0.01]
             //float rewDist = this.negativeShape(dist, 4.24f); // 3 * sqrt2
-            float rewDist = rwd.rew_dist * this.postiveShape(dist, maxDist);
-            rew += rewDist;
-        // }
+        float rewDist = rwd.rew_dist * this.postiveShape(dist, maxDist);
 
-
-        int numOfIntersections = transform.parent.parent.GetComponentsInChildren<RVOLine>()
-            .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject))
-            .Count(l => l.isIntersected(m_RVOLine, cam));
-        if(numOfIntersections != 0)
-        {
-            rew += rwd.rew_intersets * numOfIntersections;
-        }
-
+        // if no occlusion and intersection, double penatly to move fast        
+        rew += rewDist * (rew == 0 ? 2 : 1);
         AddReward(rew);
 
         //PlayerLabel.player.gameObject.layer = LayerMask.NameToLayer("player");
