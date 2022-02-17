@@ -88,7 +88,7 @@ public class RVOPlayerGroup : MonoBehaviour
     }
 
     // Update is called once per frame
-    int step = 0;
+    public int step = 0;
     private void FixedUpdate()
     {
         // if sync and all reached

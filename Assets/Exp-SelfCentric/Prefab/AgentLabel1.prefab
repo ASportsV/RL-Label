@@ -171,10 +171,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1017326981065827231, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_RaysPerDirection
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2254527845119027484, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2254527845119027484, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_TagString
+      value: label
+      objectReference: {fileID: 0}
     - target: {fileID: 3417699027278855939, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_SensorName
       value: BackRayPerceptionSensor
+      objectReference: {fileID: 0}
+    - target: {fileID: 3417699027278855939, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_RaysPerDirection
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3417699027278855939, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -184,12 +204,22 @@ PrefabInstance:
     - target: {fileID: 3417699027278855939, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_RayLayerMask.m_Bits
-      value: 4227923592
+      value: 4227923848
+      objectReference: {fileID: 0}
+    - target: {fileID: 3417699027278855939, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_DetectableTags.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3417699027278855939, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_DetectableTags.Array.data[1]
+      value: label
       objectReference: {fileID: 0}
     - target: {fileID: 5371359020785915933, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.7
+      value: -0.01
       objectReference: {fileID: 0}
     - target: {fileID: 5371359020785915933, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
