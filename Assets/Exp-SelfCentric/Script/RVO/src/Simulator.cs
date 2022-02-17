@@ -146,7 +146,6 @@ namespace RVO
                 onDelAgent();
         }
 
-        static int s_totalID = 0;
         /**
          * <summary>Adds a new agent with default properties to the simulation.
          * </summary>
@@ -165,8 +164,7 @@ namespace RVO
             }
 
             Agent agent = new Agent();
-            agent.id_ = s_totalID;
-            s_totalID++;
+            agent.id_ = agents_.Count;
             agent.maxNeighbors_ = defaultAgent_.maxNeighbors_;
             agent.maxSpeed_ = defaultAgent_.maxSpeed_;
             agent.neighborDist_ = defaultAgent_.neighborDist_;
@@ -241,8 +239,7 @@ namespace RVO
         public int addAgent(Vector2 position, float neighborDist, int maxNeighbors, float timeHorizon, float timeHorizonObst, float radius, float maxSpeed, Vector2 velocity)
         {
             Agent agent = new Agent();
-            agent.id_ = s_totalID;
-            s_totalID++;
+            agent.id_ = agents_.Count;
             agent.maxNeighbors_ = maxNeighbors;
             agent.maxSpeed_ = maxSpeed;
             agent.neighborDist_ = neighborDist;

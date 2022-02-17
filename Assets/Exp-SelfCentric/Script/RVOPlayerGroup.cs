@@ -20,7 +20,7 @@ public class RVOPlayerGroup : MonoBehaviour
     public Camera cam;
 
 
-    private Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
+    private List<RVOplayer> m_playerMap = new List<RVOplayer>();
 
     private void Awake()
     {
@@ -32,11 +32,9 @@ public class RVOPlayerGroup : MonoBehaviour
     {
         Simulator.Instance.setTimeStep(Time.fixedDeltaTime);
         Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.5f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
+        Simulator.Instance.processObstacles();
         court = transform.parent.Find("fancy_court");
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
-
-        // add in awake
-        Simulator.Instance.processObstacles();
 
         for(int i = 0; i < m_RVOSettings.numOfPlayer; ++i)
         {
@@ -65,34 +63,30 @@ public class RVOPlayerGroup : MonoBehaviour
     {
         Vector3 rndPos = GetRandomSpawnPos(idx);
         int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
-        if (sid >= 0)
-        {
-            //var worldPos = transform.TransformPoint(rndPos);
 
-            GameObject playerObj = Instantiate(playerLabel_prefab, rndPos, Quaternion.identity);
-            playerObj.transform.SetParent(gameObject.transform, false);
-            playerObj.name = idx + "_PlayerLabel";
-            //playerObj.tag = "player_agent";
-            //playerObj.layer = LayerMask.NameToLayer("player_agent");
+        GameObject playerObj = Instantiate(playerLabel_prefab, rndPos, Quaternion.identity);
+        playerObj.transform.SetParent(gameObject.transform, false);
+        playerObj.name = idx + "_PlayerLabel";
+        //playerObj.tag = "player_agent";
+        //playerObj.layer = LayerMask.NameToLayer("player_agent");
 
-            //Color color = new Color(69 / 255f, 154 / 255f, 224 / 255f);
-            //var cubeRenderer = playerObj.GetComponent<Renderer>();
-            //cubeRenderer.material.SetColor("_Color", color);
-            RVOplayer player = playerObj.GetComponent<RVOplayer>();
+        //Color color = new Color(69 / 255f, 154 / 255f, 224 / 255f);
+        //var cubeRenderer = playerObj.GetComponent<Renderer>();
+        //cubeRenderer.material.SetColor("_Color", color);
+        RVOplayer player = playerObj.GetComponent<RVOplayer>();
 
-            player.sid = sid;
-            m_playerMap.Add(sid, player);
+        player.sid = sid;
+        m_playerMap.Add(player);
 
-            Transform label = playerObj.gameObject.transform.Find("label");
-            label.name = idx + "_label";
-            Text name = label.Find("panel/Player_info/Name").GetComponent<Text>();
-            name.text = label.name;
+        Transform label = playerObj.gameObject.transform.Find("label");
+        label.name = idx + "_label";
+        Text name = label.Find("panel/Player_info/Name").GetComponent<Text>();
+        name.text = label.name;
 
-            RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
-            agent.PlayerLabel = player;
-            agent.court = court;
-            agent.cam = cam;
-        }
+        RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
+        agent.PlayerLabel = player;
+        agent.court = court;
+        agent.cam = cam;
     }
     //public void CreateLabel()
     //{
@@ -131,17 +125,26 @@ public class RVOPlayerGroup : MonoBehaviour
     {
         // if sync and all reached
         // reset all
-        if(m_RVOSettings.sync && (m_playerMap.Values.All(p => p.reached()) || step >= m_RVOSettings.MaxSteps))
+        if(m_RVOSettings.sync && (m_playerMap.All(p => p.reached()) || step >= m_RVOSettings.MaxSteps))
         {
+            Simulator.Instance.Clear();
+            Simulator.Instance.setTimeStep(Time.fixedDeltaTime);
+            Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.5f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
+            Simulator.Instance.processObstacles();
             int i = 0;
-            foreach(var p in m_playerMap.Values)
+            foreach(var p in m_playerMap)
             {
                 Vector3 rndPos = GetRandomSpawnPos(i);
+                int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
                 p.transform.localPosition = rndPos;
-                Simulator.Instance.setAgentPosition(p.sid, new Vector2(rndPos.x, rndPos.z));
+                p.sid = sid;
                 p.resetDestination();
-                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
                 ++i;
+            }
+
+            foreach(var p in m_playerMap)
+            {
+                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
             }
             step = 0;
         }

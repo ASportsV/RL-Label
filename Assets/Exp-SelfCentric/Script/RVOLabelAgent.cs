@@ -16,7 +16,7 @@ public class RVOLabelAgent : Agent
         public float rew_turn = 0f;
         public float rew_y = -0.1f;
         public float rew_z = 0f;
-        public float rew_occlude = -0.01f;
+        public float rew_occlude = -0.1f;
         public float rew_dist = -0.005f;
         public float rew_intersets = -0.005f;
     }
