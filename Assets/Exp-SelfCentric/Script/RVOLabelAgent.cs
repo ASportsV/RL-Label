@@ -16,9 +16,9 @@ public class RVOLabelAgent : Agent
         public float rew_turn = 0f;
         public float rew_y = -0.1f;
         public float rew_z = 0f;
-        public float rew_occlude = -0.1f;
-        public float rew_dist = -0.005f;
-        public float rew_intersets = -0.005f;
+        public float rew_occlude = -0.01f;
+        public float rew_dist = -0.01f;
+        public float rew_intersets = -0.01f;
     }
 
     RVOSettings m_RVOSettings;
@@ -250,8 +250,8 @@ public class RVOLabelAgent : Agent
         }
         
         // no occlusion
-        if(rew == 0)
-        {
+        // if(rew == 0)
+        // {
             float dist = Mathf.Clamp(Vector3.Distance(
                 transform.position,
                 new Vector3(PlayerLabel.transform.position.x, minY + PlayerLabel.transform.position.y, PlayerLabel.transform.position.z)
@@ -261,7 +261,7 @@ public class RVOLabelAgent : Agent
             //float rewDist = this.negativeShape(dist, 4.24f); // 3 * sqrt2
             float rewDist = rwd.rew_dist * this.postiveShape(dist, maxDist);
             rew += rewDist;
-        }
+        // }
 
 
         int numOfIntersections = transform.parent.parent.GetComponentsInChildren<RVOLine>()
