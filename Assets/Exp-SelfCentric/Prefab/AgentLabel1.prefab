@@ -59,7 +59,8 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 5022602860645237092, guid: 02c5163a305639b458e24064fad6c544,
+        type: 3}
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_BehaviorName
@@ -409,22 +410,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!114 &3307383287391109681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4391264606213972775}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2902496c0120472b90269f94a0aec7e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Record: 1
-  NumStepsToRecord: 0
-  DemonstrationName: RVOLabel
-  DemonstrationDirectory: Assets/Exp-SelfCentric/Demo
 --- !u!114 &3860728042212645599
 MonoBehaviour:
   m_ObjectHideFlags: 0

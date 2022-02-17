@@ -4,6 +4,9 @@ using RVO;
 using UnityEngine;
 using UnityEngine.UI;
 using Vector2 = RVO.Vector2;
+using Unity.MLAgents.Demonstrations;
+using Unity.MLAgents.Actuators;
+using Unity.MLAgents.Policies;
 
 public class RVOPlayerGroup : MonoBehaviour
 {
@@ -85,6 +88,15 @@ public class RVOPlayerGroup : MonoBehaviour
         agent.PlayerLabel = player;
         agent.court = court;
         agent.cam = cam;
+        //if (idx == 5)
+        //{
+        //    DemonstrationRecorder dr = label.gameObject.AddComponent<DemonstrationRecorder>();
+        //    dr.DemonstrationDirectory = "Assets/Exp-SelfCentric/Demo";
+        //    dr.DemonstrationName = "RVOLabel";
+        //    dr.Record = true;
+        //    BehaviorParameters bp = label.GetComponent<BehaviorParameters>();
+        //    bp.BehaviorType = BehaviorType.HeuristicOnly;
+        //}
     }
 
     // Update is called once per frame
@@ -100,9 +112,12 @@ public class RVOPlayerGroup : MonoBehaviour
             Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.5f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
             Simulator.Instance.processObstacles();
 
-            for(int i = 0, len = m_playerMap.Count; i < len; ++i)
+            var rnd = new System.Random();
+            var randomized = m_playerMap.OrderBy(item => rnd.Next()).ToList();
+
+            for (int i = 0, len = randomized.Count; i < len; ++i)
             {
-                var p = m_playerMap[i];
+                var p = randomized[i];
                 Vector3 rndPos = GetRandomSpawnPos(i);
                 int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
                 p.transform.localPosition = rndPos;
