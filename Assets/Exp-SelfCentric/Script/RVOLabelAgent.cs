@@ -201,7 +201,7 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        this.OBIn3DWorldSpace2(sensor);
+        this.OBIn2DViewportSpace(sensor);
     }
 
     /*-----------------------Action-----------------------*/
