@@ -37,10 +37,11 @@ public class RVOLabelAgent : Agent
     RayPerceptionSensorComponent3D raycastSensor;
 
     float minY = 1f;
-    float yDistThres = 3.0f;
+    float yDistThres = 0.0f;
     float xzDistThres = 3.0f;
     float maxDist;
-    float maxYspeed = 3f;
+    float minAngle = -170f;
+    float maxAngle = -10f;
 
     private void Awake()
     {
@@ -48,16 +49,10 @@ public class RVOLabelAgent : Agent
         Academy.Instance.AgentPreStep += UpdateReward;
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
-
     public override void Initialize()
     {
         //m_Rbody = GetComponent<Rigidbody>();
         rTransform = GetComponentInChildren<RectTransform>();
-        //MaxStep = m_RVOSettings.MaxSteps;
         bSensor = GetComponent<BufferSensorComponent>();
         m_RVOLine = GetComponent<RVOLine>();
         maxDist = Mathf.Sqrt(yDistThres * yDistThres + xzDistThres * xzDistThres);
@@ -73,8 +68,21 @@ public class RVOLabelAgent : Agent
 
     Vector3 velocity => PlayerLabel.velocity;
  
-
     /** ------------------ Observation ---------------------**/
+    void OBDist(VectorSensor sensor)
+    {
+        float distToGocal = Vector3.Distance(transform.position, new Vector3(PlayerLabel.transform.position.x, minY+PlayerLabel.transform.position.y, PlayerLabel.transform.position.z));
+        sensor.AddObservation(distToGocal);
+    }
+
+    void OB_Angle(VectorSensor sensor)
+    {
+        var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
+        if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
+        sensor.AddObservation((angle - minAngle) / (maxAngle - minAngle));
+    }
+
+    // old
     void OBIn3DWorldSpace(VectorSensor sensor)
     {
         Vector3 selfPos = transform.position;
@@ -119,17 +127,13 @@ public class RVOLabelAgent : Agent
         Vector3 selfPos = transform.position;
         Vector3 selfVel = velocity;
 
+        OBDist(sensor);
+        OB_Angle(sensor);
+
         // 2 + 3 + 3
         Vector3 localPosition = selfPos - court.position;
         sensor.AddObservation(localPosition.x / m_RVOSettings.courtX);
         sensor.AddObservation(localPosition.z / m_RVOSettings.courtZ);
-
-        float distToGocal = Vector3.Distance(selfPos, new Vector3(PlayerLabel.transform.position.x, minY, PlayerLabel.transform.position.z));
-        sensor.AddObservation(distToGocal);
-
-        var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
-        if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
-        sensor.AddObservation((angle - minAngle) / (maxAngle - minAngle));
 
         Vector3 selfPosInViewport = cam.WorldToViewportPoint(selfPos);
         Vector3 goalPosInViewport = cam.WorldToViewportPoint(PlayerLabel.transform.position);
@@ -160,8 +164,46 @@ public class RVOLabelAgent : Agent
         }
     }
 
-    float minAngle = -170f;
-    float maxAngle = -10f;
+    void OBIn3DWorldSpace3(VectorSensor sensor)
+    {
+        Vector3 selfPos = transform.position;
+        Vector3 selfPosInViewport = cam.WorldToViewportPoint(selfPos);
+        Vector3 selfVel = velocity;
+        Vector3 goalPosInViewport = cam.WorldToViewportPoint(PlayerLabel.transform.position);
+
+        OBDist(sensor);
+        OB_Angle(sensor);
+
+        // pos
+        Vector3 localPosition = selfPos - court.position;
+        sensor.AddObservation(localPosition.x / m_RVOSettings.courtX);
+        sensor.AddObservation(localPosition.z / m_RVOSettings.courtZ);
+
+        // forward
+        sensor.AddObservation(transform.forward);
+
+        foreach (Transform other in transform.parent.parent)
+        {
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+            List<float> obs = new List<float>();
+
+            foreach(Transform child in other)
+            {
+                // 2 + 2
+                Vector3 relativePos = child.position - selfPos;
+                obs.Add(relativePos.x / m_RVOSettings.courtX);
+                obs.Add(relativePos.z / m_RVOSettings.courtZ);
+            }
+            
+            Vector3 relativeVel = other.GetComponent<RVOplayer>().velocity - selfVel;
+            obs.Add(relativeVel.x / (2 * m_RVOSettings.playerSpeed));
+            obs.Add(relativeVel.z / (2 * m_RVOSettings.playerSpeed));
+
+            bSensor.AppendObservation(obs.ToArray());
+        }
+    }
+
+
     void OBIn2DViewportSpace(VectorSensor sensor)
     {
         Vector3 selfPos = transform.position;
@@ -201,7 +243,7 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        this.OBIn3DWorldSpace2(sensor);
+        this.OBIn3DWorldSpace3(sensor);
     }
 
     /*-----------------------Action-----------------------*/
@@ -233,20 +275,6 @@ public class RVOLabelAgent : Agent
             }
         }
 
-
-        ///
-        var moveY = actionBuffers.DiscreteActions[2] == 1
-            ? +0.02f
-            : actionBuffers.DiscreteActions[2] == 2
-            ? -0.02f
-            : 0;
-        if(moveY != 0)
-        {
-            AddReward(rwd.rew_y);
-            float newY = Mathf.Clamp(transform.localPosition.y + moveY, minY, minY + yDistThres);
-            transform.localPosition = new Vector3(transform.localPosition.x, newY, transform.localPosition.z);
-        }
-
         // rotation
         var rotateY = actionBuffers.DiscreteActions[1] == 1
             ? +2f
@@ -262,6 +290,18 @@ public class RVOLabelAgent : Agent
             transform.RotateAround(PlayerLabel.player.position, PlayerLabel.player.up, rotateY);
         }
 
+        // ///
+        // var moveY = actionBuffers.DiscreteActions[2] == 1
+        //     ? +0.02f
+        //     : actionBuffers.DiscreteActions[2] == 2
+        //     ? -0.02f
+        //     : 0;
+        // if(moveY != 0)
+        // {
+        //     AddReward(rwd.rew_y);
+        //     float newY = Mathf.Clamp(transform.localPosition.y + moveY, minY, minY + yDistThres);
+        //     transform.localPosition = new Vector3(transform.localPosition.x, newY, transform.localPosition.z);
+        // }
     }
 
     /*-----------------------Reward-----------------------*/
@@ -389,15 +429,15 @@ public class RVOLabelAgent : Agent
             discreteActionsOut[1] = 2;
         }
 
-        discreteActionsOut[2] = 0;
-        if (Input.GetKey(KeyCode.Q))
-        {
-            discreteActionsOut[2] = 1;
-        }
-        if (Input.GetKey(KeyCode.E))
-        {
-            discreteActionsOut[2] = 2;
-        }
+        // discreteActionsOut[2] = 0;
+        // if (Input.GetKey(KeyCode.Q))
+        // {
+        //     discreteActionsOut[2] = 1;
+        // }
+        // if (Input.GetKey(KeyCode.E))
+        // {
+        //     discreteActionsOut[2] = 2;
+        // }
 
         //var continuousActionsOut = actionsOut.ContinuousActions;
         //continuousActionsOut[0] = -Input.GetAxis("Horizontal");
