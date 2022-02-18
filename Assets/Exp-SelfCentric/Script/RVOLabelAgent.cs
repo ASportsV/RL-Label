@@ -113,6 +113,53 @@ public class RVOLabelAgent : Agent
         }
     }
 
+    // dist + theta
+    void OBIn3DWorldSpace2(VectorSensor sensor)
+    {
+        Vector3 selfPos = transform.position;
+        Vector3 selfVel = velocity;
+
+        // 2 + 3 + 3
+        Vector3 localPosition = selfPos - court.position;
+        sensor.AddObservation(localPosition.x / m_RVOSettings.courtX);
+        sensor.AddObservation(localPosition.z / m_RVOSettings.courtZ);
+
+        float distToGocal = Vector3.Distance(selfPos, new Vector3(PlayerLabel.transform.position.x, minY, PlayerLabel.transform.position.z));
+        sensor.AddObservation(distToGocal);
+
+        var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
+        if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
+        sensor.AddObservation((angle - minAngle) / (maxAngle - minAngle));
+
+        Vector3 selfPosInViewport = cam.WorldToViewportPoint(selfPos);
+        Vector3 goalPosInViewport = cam.WorldToViewportPoint(PlayerLabel.transform.position);
+        // 4 ?
+        sensor.AddObservation(selfPosInViewport.x);
+        sensor.AddObservation(selfPosInViewport.y);
+        sensor.AddObservation(goalPosInViewport.x);
+        sensor.AddObservation(goalPosInViewport.y);
+
+        foreach (Transform other in transform.parent.parent)
+        {
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+            List<float> obs = new List<float>();
+
+            foreach (Transform child in other)
+            {
+                // 2 + 2
+                Vector3 relativePos = cam.WorldToViewportPoint(child.position) - selfPosInViewport;
+                obs.Add(relativePos.x);
+                obs.Add(relativePos.y);
+            }
+
+            Vector3 relativeVel = other.GetComponent<RVOplayer>().velocity - selfVel;
+            obs.Add(relativeVel.x / (2 * m_RVOSettings.playerSpeed));
+            obs.Add(relativeVel.z / (2 * m_RVOSettings.playerSpeed));
+
+            bSensor.AppendObservation(obs.ToArray());
+        }
+    }
+
     float minAngle = -170f;
     float maxAngle = -10f;
     void OBIn2DViewportSpace(VectorSensor sensor)
@@ -154,7 +201,7 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        this.OBIn2DViewportSpace(sensor);
+        this.OBIn3DWorldSpace2(sensor);
     }
 
     /*-----------------------Action-----------------------*/
