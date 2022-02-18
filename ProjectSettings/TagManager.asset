@@ -10,6 +10,7 @@ TagManager:
   - bullet
   - player_agent
   - label
+  - agent
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - AR_UI
   - player
   - label
-  - 
+  - raycastsensor
   - 
   - 
   - 
