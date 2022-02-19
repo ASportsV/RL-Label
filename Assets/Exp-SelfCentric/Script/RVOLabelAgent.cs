@@ -211,12 +211,9 @@ public class RVOLabelAgent : Agent
         Vector3 selfVel = velocity;
         Vector3 goalPosInViewport = cam.WorldToViewportPoint(PlayerLabel.transform.position);
 
-        float distToGocal = Vector3.Distance(selfPos, new Vector3(PlayerLabel.transform.position.x, minY, PlayerLabel.transform.position.z));
-        sensor.AddObservation(distToGocal);
+        OBDist(sensor);
+        OB_Angle(sensor);
 
-        var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
-        if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
-        sensor.AddObservation((angle - minAngle) / (maxAngle - minAngle));
         sensor.AddObservation(selfPosInViewport);
         sensor.AddObservation(goalPosInViewport);
 
