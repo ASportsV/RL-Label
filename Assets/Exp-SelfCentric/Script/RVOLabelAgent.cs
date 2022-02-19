@@ -203,7 +203,6 @@ public class RVOLabelAgent : Agent
         }
     }
 
-
     void OBIn2DViewportSpace(VectorSensor sensor)
     {
         Vector3 selfPos = transform.position;
