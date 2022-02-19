@@ -160,6 +160,44 @@ public class RVOLabelAgent : Agent
         }
     }
 
+    void OBIn2DViewportSpace2(VectorSensor sensor)
+    {
+        Vector3 selfPos = transform.position;
+        Vector3 selfPosInViewport = cam.WorldToViewportPoint(selfPos);
+        Vector3 selfVelInScreen = cam.WorldToViewportPoint(selfPos + velocity * Time.fixedDeltaTime) - cam.WorldToViewportPoint(selfPos);
+        Vector3 goalPosInViewport = cam.WorldToViewportPoint(PlayerLabel.transform.position);
+
+        float distToGocal = Vector3.Distance(selfPos, new Vector3(PlayerLabel.transform.position.x, minY, PlayerLabel.transform.position.z));
+        sensor.AddObservation(distToGocal);
+
+        var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
+        if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
+        sensor.AddObservation((angle - minAngle) / (maxAngle - minAngle));
+        sensor.AddObservation(selfPosInViewport);
+        sensor.AddObservation(goalPosInViewport);
+
+        foreach (Transform other in transform.parent.parent)
+        {
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+            List<float> obs = new List<float>();
+
+            foreach (Transform child in other)
+            {
+                // 2 + 2
+                Vector3 relativePos = cam.WorldToViewportPoint(child.position) - selfPosInViewport;
+                obs.Add(relativePos.x);
+                obs.Add(relativePos.y);
+            }
+
+            Vector3 velInScreen = cam.WorldToViewportPoint(other.transform.position + other.GetComponent<RVOplayer>().velocity * Time.fixedDeltaTime) - cam.WorldToViewportPoint(other.transform.position);
+            Vector3 relativeVel = velInScreen - selfVelInScreen; 
+            obs.Add(relativeVel.x);
+            obs.Add(relativeVel.y);
+
+            bSensor.AppendObservation(obs.ToArray());
+        }
+    }
+
     float minAngle = -170f;
     float maxAngle = -10f;
     void OBIn2DViewportSpace(VectorSensor sensor)
@@ -201,7 +239,7 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        this.OBIn3DWorldSpace2(sensor);
+        this.OBIn2DViewportSpace2(sensor);
     }
 
     /*-----------------------Action-----------------------*/
