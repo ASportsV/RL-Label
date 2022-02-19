@@ -116,6 +116,8 @@ public class RVOLabelAgent : Agent
         sensor.AddObservation(posInViewport.x);
         sensor.AddObservation(posInViewport.y);
         if (z) sensor.AddObservation(posInViewport.z);
+        // 3, cam to forward
+        sensor.AddObservation(m_Panel.forward);
 
         // 2,
         Vector3 relativeTPosInviewport = cam.WorldToViewportPoint(PlayerLabel.player.transform.position) - posInViewport;
@@ -123,16 +125,12 @@ public class RVOLabelAgent : Agent
         sensor.AddObservation(relativeTPosInviewport.y);
         if (z) sensor.AddObservation(relativeTPosInviewport.z);
 
-        // 3, cam to forward
-        sensor.AddObservation(m_Panel.forward);
-
         // 1, z forward
         sensor.AddObservation(transform.forward);
 
+
         // theta
         OB1_Angle(sensor);
-
-        // optional, z
 
         // attentions to others
         int i = 0;
@@ -147,14 +145,93 @@ public class RVOLabelAgent : Agent
                 Vector3 relativePos = cam.WorldToViewportPoint(child.position) - posInViewport;
                 obs.Add(relativePos.x);
                 obs.Add(relativePos.y);
-                if (z) obs.Add(relativePos.z);
+                if (z) obs.Add(relativePos.z / m_RVOSettings.courtZ);
 
                 // type
                 obs.Add(child.CompareTag("player") ? 1f : 0f);
-                // forward
-                obs.Add(child.forward.x);
-                obs.Add(child.forward.y);
-                obs.Add(child.forward.z);
+                // forward, for occlusion
+                Vector3 otherForward = child.CompareTag("player")
+                        ? child.forward
+                        : child.Find("panel").forward;
+                obs.Add(otherForward.x);
+                obs.Add(otherForward.y);
+                obs.Add(otherForward.z);
+
+                // relative vel
+                Vector3 relativeVel = other.GetComponent<RVOplayer>().velocity - velocity;
+                obs.Add(relativeVel.x / (2 * m_RVOSettings.playerSpeed));
+                obs.Add(relativeVel.z / (2 * m_RVOSettings.playerSpeed));
+                // one hot
+                float[] one_hot = new float[m_RVOSettings.maxNumOfPlayer];
+                one_hot[i] = 1.0f;
+                obs.AddRange(one_hot);
+                bSensor.AppendObservation(obs.ToArray());
+            }
+            ++i;
+        }
+    }
+
+    void OBForGoals3D(VectorSensor sensor, bool z = false)
+    {
+        // 16 = 1 + 2 + 2 + 3 + 2 + 2 + 3 + 1
+        // 1, dist
+        OB1_Dist(sensor);
+
+        // 2, 3D x y
+        Vector3 localPosition = transform.position - court.position;
+        sensor.AddObservation(localPosition.x / m_RVOSettings.courtX);
+        sensor.AddObservation(localPosition.z / m_RVOSettings.courtZ);
+        // 2, screen xy
+        Vector3 posInViewport = cam.WorldToViewportPoint(transform.position);
+        sensor.AddObservation(posInViewport.x);
+        sensor.AddObservation(posInViewport.y);
+
+        // 3, cam to forward
+        sensor.AddObservation(m_Panel.forward);
+
+        // 2,
+        Vector3 distToGoal = PlayerLabel.player.position - transform.position;
+        sensor.AddObservation(distToGoal.x / m_RVOSettings.courtX);
+        sensor.AddObservation(distToGoal.z / m_RVOSettings.courtZ);
+        // 2, screen xy
+        Vector3 relativeTPosInviewport = cam.WorldToViewportPoint(PlayerLabel.player.transform.position) - posInViewport;
+        sensor.AddObservation(relativeTPosInviewport.x);
+        sensor.AddObservation(relativeTPosInviewport.y);
+
+        // 3, z forward
+        sensor.AddObservation(transform.forward);
+
+        // 1, theta
+        OB1_Angle(sensor);
+
+        // attentions to others
+        int i = 0;
+        foreach (Transform other in transform.parent.parent)
+        {
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+
+            foreach (Transform child in other)
+            {
+                List<float> obs = new List<float>();
+                // 20 = 2 + 2 + 1 + 3 + 2 + 10
+                Vector3 relativePos = child.position - transform.position;
+                obs.Add(relativePos.x / m_RVOSettings.courtX);
+                obs.Add(relativePos.z / m_RVOSettings.courtZ);
+
+                Vector3 relativeScreenPos = cam.WorldToViewportPoint(child.position) - posInViewport;
+                obs.Add(relativeScreenPos.x);
+                obs.Add(relativeScreenPos.y);
+
+                // type
+                obs.Add(child.CompareTag("player") ? 1f : 0f);
+                // forward, for occlusion
+                Vector3 otherForward = child.CompareTag("player")
+                        ? child.forward
+                        : child.Find("panel").forward;
+                obs.Add(otherForward.x);
+                obs.Add(otherForward.y);
+                obs.Add(otherForward.z);
+
                 // relative vel
                 Vector3 relativeVel = other.GetComponent<RVOplayer>().velocity - velocity;
                 obs.Add(relativeVel.x / (2 * m_RVOSettings.playerSpeed));
@@ -429,13 +506,17 @@ public class RVOLabelAgent : Agent
         // return [0, 0.1]
         Vector3 origin = m_Panel.position;
         float radius = 0.3f;
-        float maxDistance = Mathf.Infinity;
+        Vector3 extent = new Vector3(0.3f, 0.3f, 0.000001f);
         Vector3 direction = m_Panel.forward;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        float maxDistance = Mathf.Infinity;
 
         float rew = 0f;
         // occluded by labels
         int labelLayerMask = 1 << LayerMask.NameToLayer("label");
-        if (Physics.SphereCast(origin, radius, direction, out forHit, maxDistance, labelLayerMask))
+        
+        //if (Physics.SphereCast(origin, radius, direction,  maxDistance, labelLayerMask))
+        if(Physics.BoxCast(origin, extent, direction, out forHit, rotation, maxDistance, labelLayerMask))
         {
             // [0, 1]
             // Vector3 hitVel = m_Hit.collider.GetComponent<RVOLabelAgent>().velocity;
@@ -449,7 +530,8 @@ public class RVOLabelAgent : Agent
         // occluding players + labels
         //PlayerLabel.player.gameObject.layer = LayerMask.NameToLayer("Default");
         int playerLayerMask = 1 << LayerMask.NameToLayer("player") | labelLayerMask;
-        if (Physics.SphereCast(origin, radius, -direction, out backHit, maxDistance, playerLayerMask))
+        //if (Physics.SphereCast(origin, radius, -direction, out backHit, maxDistance, playerLayerMask))
+        if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
         {
             // [0, 1]
             // Vector3 hitVel = m_Hit.collider.transform.parent.GetComponent<RVOplayer>().velocity;
