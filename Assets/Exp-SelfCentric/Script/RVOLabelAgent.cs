@@ -13,9 +13,9 @@ public class RVOLabelAgent : Agent
     [System.Serializable]
     public class RewardInfo
     {                                           
-        public float rew_turn = -0.0025f;
+        public float rew_turn = 0f;
         public float rew_y = -1f;
-        public float rew_z = -0.0025f;
+        public float rew_z = 0f;
         public float rew_occlude = -0.1f;
         public float rew_intersets = -0.1f;
         public float rew_dist = -0.01f;
@@ -105,7 +105,7 @@ public class RVOLabelAgent : Agent
         sensor.AddObservation(selfPosInViewport);
     }
 
-    void OBForGoals(VectorSensor sensor, bool z = false)
+    void OBForGoals(VectorSensor sensor)
     {
         // 1 + 2 + 2 + 3 + 1
         // 1, dist
@@ -115,13 +115,11 @@ public class RVOLabelAgent : Agent
         Vector3 posInViewport = cam.WorldToViewportPoint(transform.position);
         sensor.AddObservation(posInViewport.x);
         sensor.AddObservation(posInViewport.y);
-        if (z) sensor.AddObservation(posInViewport.z);
 
         // 2,
         Vector3 relativeTPosInviewport = cam.WorldToViewportPoint(PlayerLabel.player.transform.position) - posInViewport;
         sensor.AddObservation(relativeTPosInviewport.x);
         sensor.AddObservation(relativeTPosInviewport.y);
-        if (z) sensor.AddObservation(relativeTPosInviewport.z);
 
         // 3, cam to forward
         sensor.AddObservation(m_Panel.forward);
@@ -147,8 +145,6 @@ public class RVOLabelAgent : Agent
                 Vector3 relativePos = cam.WorldToViewportPoint(child.position) - posInViewport;
                 obs.Add(relativePos.x);
                 obs.Add(relativePos.y);
-                if (z) obs.Add(relativePos.z);
-
                 // type
                 obs.Add(child.CompareTag("player") ? 1f : 0f);
                 // forward
@@ -327,7 +323,7 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        this.OBForGoals(sensor, true);
+        this.OBForGoals(sensor);
     }
 
     /*-----------------------Action-----------------------*/
