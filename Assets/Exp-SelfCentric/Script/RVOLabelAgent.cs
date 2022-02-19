@@ -107,7 +107,7 @@ public class RVOLabelAgent : Agent
 
     void OBForGoals(VectorSensor sensor)
     {
-        // 1 + 2 + 2 + 3 + 1
+        // 1 + 2 + 2 + 3 + 3 + 1
         // 1, dist
         OB1_Dist(sensor);
 
