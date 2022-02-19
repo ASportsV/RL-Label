@@ -13,9 +13,9 @@ public class RVOLabelAgent : Agent
     [System.Serializable]
     public class RewardInfo
     {                                           
-        public float rew_turn = -0.00025f;
+        public float rew_turn = 0f;
         public float rew_y = -1f;
-        public float rew_z = -0.00025f;
+        public float rew_z = 0f;
         public float rew_occlude = -0.1f;
         public float rew_intersets = -0.1f;
         public float rew_dist = -0.01f;
@@ -409,6 +409,8 @@ public class RVOLabelAgent : Agent
         else EndEpisode();
     }
 
+    RaycastHit forHit;
+    RaycastHit backHit;
     void UpdateReward(int academyStepCount)
     {
         if (academyStepCount == 0)
@@ -432,10 +434,8 @@ public class RVOLabelAgent : Agent
 
         float rew = 0f;
         // occluded by labels
-        RaycastHit m_Hit;
-
         int labelLayerMask = 1 << LayerMask.NameToLayer("label");
-        if (Physics.SphereCast(origin, radius, direction, out m_Hit, maxDistance, labelLayerMask))
+        if (Physics.SphereCast(origin, radius, direction, out forHit, maxDistance, labelLayerMask))
         {
             // [0, 1]
             // Vector3 hitVel = m_Hit.collider.GetComponent<RVOLabelAgent>().velocity;
@@ -448,8 +448,8 @@ public class RVOLabelAgent : Agent
 
         // occluding players + labels
         //PlayerLabel.player.gameObject.layer = LayerMask.NameToLayer("Default");
-        int playerLayerMask = 1 << LayerMask.NameToLayer("player"); // | labelLayerMask;
-        if (Physics.SphereCast(origin, radius, -direction, out m_Hit, maxDistance, playerLayerMask))
+        int playerLayerMask = 1 << LayerMask.NameToLayer("player") | labelLayerMask;
+        if (Physics.SphereCast(origin, radius, -direction, out backHit, maxDistance, playerLayerMask))
         {
             // [0, 1]
             // Vector3 hitVel = m_Hit.collider.transform.parent.GetComponent<RVOplayer>().velocity;
@@ -525,5 +525,36 @@ public class RVOLabelAgent : Agent
 
         //var continuousActionsOut = actionsOut.ContinuousActions;
         //continuousActionsOut[0] = -Input.GetAxis("Horizontal");
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (m_Panel == null) return;
+
+        Vector3 origin = m_Panel.position;
+        Vector3 direction = m_Panel.forward;
+        
+
+        Gizmos.color = new Color(0f, 1f, 0.5f);
+        Gizmos.DrawRay(origin, direction);
+
+        Gizmos.color = new Color(1f, 0.5f, 0f);
+        Gizmos.DrawRay(origin, -direction);
+
+        if(!Object.Equals(forHit, default(RaycastHit)))
+        {
+            Vector3 intersectionPoint = origin + Vector3.Project(forHit.point - origin, direction);
+            Gizmos.color = new Color(0f, 1f, 0.5f);
+            Gizmos.DrawLine(origin, intersectionPoint);
+            Gizmos.DrawWireSphere(intersectionPoint, 0.3f);
+        }
+
+        if (!Object.Equals(backHit, default(RaycastHit)))
+        {
+            Vector3 intersectionPoint = origin + Vector3.Project(backHit.point - origin, -direction);
+            Gizmos.color = new Color(1f, 0.5f, 0f);
+            Gizmos.DrawLine(origin, backHit.point);
+            Gizmos.DrawWireSphere(intersectionPoint, 0.3f);
+        }
     }
 }
