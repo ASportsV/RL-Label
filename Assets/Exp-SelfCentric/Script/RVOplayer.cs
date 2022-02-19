@@ -21,6 +21,7 @@ public class RVOplayer : MonoBehaviour
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         player = transform.Find("player");
+        m_Rbody = player.GetComponent<Rigidbody>();
     }
 
     // Start is called before the first frame update
@@ -57,15 +58,15 @@ public class RVOplayer : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (sid >= 0)
-        {
-            Vector2 pos = Simulator.Instance.getAgentPosition(sid);
-            Vector2 vel = Simulator.Instance.getAgentPrefVelocity(sid);
-            transform.localPosition = new Vector3(pos.x(), transform.localPosition.y, pos.y());
 
-            if (Math.Abs(vel.x()) > 0.01f && Math.Abs(vel.y()) > 0.01f)
-                transform.forward = new Vector3(vel.x(), 0, vel.y()).normalized;
-        }
+        Vector2 pos = Simulator.Instance.getAgentPosition(sid);
+        Vector2 vel = Simulator.Instance.getAgentPrefVelocity(sid);
+
+        transform.localPosition = new Vector3(pos.x(), transform.localPosition.y, pos.y());
+        //m_Rbody.velocity = new Vector3(vel.x(), 0, vel.y());
+
+        if (Math.Abs(vel.x()) > 0.01f && Math.Abs(vel.y()) > 0.01f)
+            transform.forward = new Vector3(vel.x(), 0, vel.y()).normalized;
 
         // update prefVel
         Vector2 goalVector = new Vector2(destination.x, destination.z) - Simulator.Instance.getAgentPosition(sid);// GameMainManager.Instance.mousePosition - Simulator.Instance.getAgentPosition(sid);

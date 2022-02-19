@@ -59,7 +59,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: cc9821837afcdfb49aa9f9feb7281d00,
+      objectReference: {fileID: 5022602860645237092, guid: bb2b3562fe7b4f8469f12b4bbc5491de,
         type: 3}
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -74,7 +74,7 @@ PrefabInstance:
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_BrainParameters.VectorObservationSize
-      value: 9
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -289,7 +289,7 @@ PrefabInstance:
     - target: {fileID: 7278368080911663354, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_ObservableSize
-      value: 18
+      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: 7865552096013063794, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -362,8 +362,8 @@ LineRenderer:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.01720047
-        value: 0.043928146
+        time: 0.023342133
+        value: 0.012922287
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -422,6 +422,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ae6fb9d0fd8ae443aaf50269148762b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  overlay: {fileID: 0}
   end: {fileID: 2976346511293885445}
 --- !u!1001 &5032460194982985697
 PrefabInstance:
@@ -430,6 +431,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3933635731914576204}
     m_Modifications:
+    - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_Size.z
+      value: 0.8
+      objectReference: {fileID: 0}
     - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
         type: 3}
       propertyPath: m_IsTrigger

@@ -70,9 +70,6 @@ public class RVOPlayerGroup : MonoBehaviour
         //playerObj.tag = "player_agent";
         //playerObj.layer = LayerMask.NameToLayer("player_agent");
 
-        //Color color = new Color(69 / 255f, 154 / 255f, 224 / 255f);
-        //var cubeRenderer = playerObj.GetComponent<Renderer>();
-        //cubeRenderer.material.SetColor("_Color", color);
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
 
         player.sid = sid;
@@ -95,6 +92,9 @@ public class RVOPlayerGroup : MonoBehaviour
         //     dr.Record = true;
         //     BehaviorParameters bp = label.GetComponent<BehaviorParameters>();
         //     bp.BehaviorType = BehaviorType.HeuristicOnly;
+        //     Color color = new Color(255f / 255f, 154 / 255f, 224 / 255f);
+        //     var cubeRenderer = player.player.GetComponent<Renderer>();
+        //     cubeRenderer.material.SetColor("_Color", color);
         // }
     }
 
