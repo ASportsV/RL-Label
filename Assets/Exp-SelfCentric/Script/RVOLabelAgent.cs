@@ -69,17 +69,100 @@ public class RVOLabelAgent : Agent
     Vector3 velocity => PlayerLabel.velocity;
  
     /** ------------------ Observation ---------------------**/
-    void OBDist(VectorSensor sensor)
+    void OB1_Dist(VectorSensor sensor)
     {
         float distToGocal = Vector3.Distance(transform.position, new Vector3(PlayerLabel.transform.position.x, minY+PlayerLabel.transform.position.y, PlayerLabel.transform.position.z));
         sensor.AddObservation(distToGocal);
     }
 
-    void OB_Angle(VectorSensor sensor)
+    void OB1_Angle(VectorSensor sensor)
     {
         var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
         if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
         sensor.AddObservation((angle - minAngle) / (maxAngle - minAngle));
+    }
+
+    // 2
+    void OB2_WorldPos(VectorSensor sensor)
+    {
+        Vector3 localPosition = transform.position - court.position;
+        sensor.AddObservation(localPosition.x / m_RVOSettings.courtX);
+        sensor.AddObservation(localPosition.z / m_RVOSettings.courtZ);
+    }
+
+    void OB2_ScreenPos(VectorSensor sensor, Vector3 pos)
+    {
+        Vector3 posInViewport = cam.WorldToViewportPoint(pos);
+        sensor.AddObservation(posInViewport.x);
+        sensor.AddObservation(posInViewport.y);
+    }
+
+    // 3
+    void OB3_ScreenPos(VectorSensor sensor)
+    {
+        Vector3 selfPos = transform.position;
+        Vector3 selfPosInViewport = cam.WorldToViewportPoint(transform.position);
+        sensor.AddObservation(selfPosInViewport);
+    }
+
+    void OBForGoals(VectorSensor sensor)
+    {
+        // 1 + 2 + 2 + 3 + 1
+        // 1, dist
+        OB1_Dist(sensor);
+
+        // 2, screen x y
+        Vector3 posInViewport = cam.WorldToViewportPoint(transform.position);
+        sensor.AddObservation(posInViewport.x);
+        sensor.AddObservation(posInViewport.y);
+
+        // 2,
+        Vector3 relativeTPosInviewport = cam.WorldToViewportPoint(PlayerLabel.player.transform.position) - posInViewport;
+        sensor.AddObservation(relativeTPosInviewport.x);
+        sensor.AddObservation(relativeTPosInviewport.y);
+
+        // 3, cam to forward
+        sensor.AddObservation(m_Panel.forward);
+
+        // 1, z forward
+        sensor.AddObservation(transform.forward);
+
+        // theta
+        OB1_Angle(sensor);
+
+        // optional, z
+
+        // attentions to others
+        int i = 0;
+        foreach (Transform other in transform.parent.parent)
+        {
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+            
+            foreach (Transform child in other)
+            {
+                List<float> obs = new List<float>();
+                // 2 + 1 + 3 + 2 + 10
+                Vector3 relativePos = cam.WorldToViewportPoint(child.position) - posInViewport;
+                obs.Add(relativePos.x);
+                obs.Add(relativePos.y);
+                // type
+                obs.Add(child.CompareTag("player") ? 1f : 0f);
+                // forward
+                obs.Add(child.forward.x);
+                obs.Add(child.forward.y);
+                obs.Add(child.forward.z);
+                // relative vel
+                Vector3 relativeVel = other.GetComponent<RVOplayer>().velocity - velocity;
+                obs.Add(relativeVel.x / (2 * m_RVOSettings.playerSpeed));
+                obs.Add(relativeVel.z / (2 * m_RVOSettings.playerSpeed));
+                // one hot
+                float[] one_hot = new float[m_RVOSettings.maxNumOfPlayer];
+                one_hot[i] = 1.0f;
+                obs.AddRange(one_hot);
+                bSensor.AppendObservation(obs.ToArray());
+            }
+            ++i;
+        }
     }
 
     // old
@@ -127,8 +210,8 @@ public class RVOLabelAgent : Agent
         Vector3 selfPos = transform.position;
         Vector3 selfVel = velocity;
 
-        OBDist(sensor);
-        OB_Angle(sensor);
+        OB1_Dist(sensor);
+        OB1_Angle(sensor);
 
         // 2 + 3 + 3
         Vector3 localPosition = selfPos - court.position;
@@ -171,8 +254,8 @@ public class RVOLabelAgent : Agent
         Vector3 selfVel = velocity;
         Vector3 goalPosInViewport = cam.WorldToViewportPoint(PlayerLabel.transform.position);
 
-        OBDist(sensor);
-        OB_Angle(sensor);
+        OB1_Dist(sensor);
+        OB1_Angle(sensor);
 
         // pos
         Vector3 localPosition = selfPos - court.position;
@@ -211,12 +294,9 @@ public class RVOLabelAgent : Agent
         Vector3 selfVel = velocity;
         Vector3 goalPosInViewport = cam.WorldToViewportPoint(PlayerLabel.transform.position);
 
-        float distToGocal = Vector3.Distance(selfPos, new Vector3(PlayerLabel.transform.position.x, minY, PlayerLabel.transform.position.z));
-        sensor.AddObservation(distToGocal);
+        OB1_Dist(sensor);
+        OB1_Angle(sensor);
 
-        var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
-        if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
-        sensor.AddObservation((angle - minAngle) / (maxAngle - minAngle));
         sensor.AddObservation(selfPosInViewport);
         sensor.AddObservation(goalPosInViewport);
 
@@ -243,7 +323,7 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        this.OBIn3DWorldSpace3(sensor);
+        this.OBForGoals(sensor);
     }
 
     /*-----------------------Action-----------------------*/
@@ -361,10 +441,10 @@ public class RVOLabelAgent : Agent
             // float transferedSqrtMat = this.negativeShape(normalizedSqrtMat);
             rew += rwd.rew_occlude * 1; //transferedSqrtMat;
         }
-        
+
         // occluding players + labels
         //PlayerLabel.player.gameObject.layer = LayerMask.NameToLayer("Default");
-        int playerLayerMask = 1 << LayerMask.NameToLayer("player") | labelLayerMask;
+        int playerLayerMask = 1 << LayerMask.NameToLayer("player"); // | labelLayerMask;
         if (Physics.SphereCast(origin, radius, -direction, out m_Hit, maxDistance, playerLayerMask))
         {
             // [0, 1]

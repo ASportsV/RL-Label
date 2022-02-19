@@ -7,6 +7,7 @@ public class RVOSettings : MonoBehaviour
     public int MaxSteps;
     public bool sync;
     public int numOfPlayer;
+    public int maxNumOfPlayer = 10;
 
     public float playerSpeed = 4.0f;
 
