@@ -342,7 +342,7 @@ public class RVOLabelAgent : Agent
             : 0;
         if(moveZ != 0)
         {
-            // AddReward(-0.001f);
+            AddReward(rwd.rew_z);
             Vector3 localDir = Quaternion.Inverse(transform.rotation) * (PlayerLabel.transform.position - transform.position);
             bool isForward = localDir.z > 0;
 
@@ -367,7 +367,7 @@ public class RVOLabelAgent : Agent
             : 0;
         if(rotateY != 0)
         {
-            // AddReward(-0.001f);
+            AddReward(rwd.rew_turn);
             var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
             if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y < 0) angle = -angle;
             rotateY = Mathf.Clamp(angle + rotateY, minAngle, maxAngle) - angle;
@@ -479,7 +479,7 @@ public class RVOLabelAgent : Agent
         AddReward(rew);
 
         //PlayerLabel.player.gameObject.layer = LayerMask.NameToLayer("player");
-        transform.Find("panel").LookAt(cam.transform);
+        m_Panel.LookAt(cam.transform);
     }
 
     public Vector3 GetExtentInWorld()
