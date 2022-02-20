@@ -404,7 +404,7 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        this.OBForGoals(sensor, true);
+        this.OBForGoals3D(sensor, true);
     }
 
     /*-----------------------Action-----------------------*/
