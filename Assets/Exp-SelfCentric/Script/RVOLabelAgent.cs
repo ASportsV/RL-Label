@@ -13,9 +13,9 @@ public class RVOLabelAgent : Agent
     [System.Serializable]
     public class RewardInfo
     {                                           
-        public float rew_turn = 0f;
+        public float rew_turn = -0.00025f;
         public float rew_y = -1f;
-        public float rew_z = 0f;
+        public float rew_z = -0.00025f;
         public float rew_occlude = -0.1f;
         public float rew_intersets = -0.1f;
         public float rew_dist = -0.01f;
@@ -107,7 +107,7 @@ public class RVOLabelAgent : Agent
 
     void OBForGoals(VectorSensor sensor, bool z = false)
     {
-        // 1 + 2 + 2 + 3 + 1
+        // 1 + 3 + 3 + 3 + 3 + 1
         // 1, dist
         OB1_Dist(sensor);
 
