@@ -58,7 +58,7 @@ public class RVOplayer : MonoBehaviour
         else
         {
             float rx = m_RVOSettings.courtX -1f- UnityEngine.Random.value;
-            float rz = transform.localPosition.z + UnityEngine.Random.value * 1f - 0.5f;
+            float rz = transform.localPosition.z; //+ UnityEngine.Random.value * 1f - 0.5f;
             destination = new Vector3(
                 rx,
                 transform.localPosition.y,

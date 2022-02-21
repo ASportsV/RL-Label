@@ -141,7 +141,7 @@ public class RVOPlayerGroup : MonoBehaviour
             }
 
             // get new number of agents
-            int numOfAgent = UnityEngine.Random.Range(m_RVOSettings.minNumOfPlayer, m_RVOSettings.maxNumOfPlayer+1);
+            int numOfAgent = UnityEngine.Random.Range(6, 10+1);
             m_RVOSettings.numOfPlayer = numOfAgent;
             if(numOfAgent > m_playerMap.Count)
             {
