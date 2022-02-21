@@ -6,6 +6,11 @@ public class RVOSettings : MonoBehaviour
 {
     public int MaxSteps;
     public bool sync;
+
+    public bool CrossingMode = true;
+    public float parallelModeUpdateFreq = 3f;
+
+
     public int numOfPlayer;
     public int maxNumOfPlayer = 10;
 

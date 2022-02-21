@@ -145,7 +145,7 @@ public class RVOLabelAgent : Agent
                 Vector3 relativePos = cam.WorldToViewportPoint(child.position) - posInViewport;
                 obs.Add(relativePos.x);
                 obs.Add(relativePos.y);
-                if (z) obs.Add(relativePos.z / m_RVOSettings.courtZ);
+                if (z) obs.Add(relativePos.z);
 
                 // type
                 obs.Add(child.CompareTag("player") ? 1f : 0f);

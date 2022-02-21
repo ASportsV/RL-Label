@@ -37,24 +37,37 @@ public class RVOPlayerGroup : MonoBehaviour
         court = transform.parent.Find("fancy_court");
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
 
-        for(int i = 0; i < m_RVOSettings.numOfPlayer; ++i)
+        var rnd = new System.Random();
+        var randomized = Enumerable.Range(0, m_RVOSettings.numOfPlayer).OrderBy(item => rnd.Next()).ToList();
+        for (int i = 0; i < randomized.Count; ++i)
         {
-            CreatePlayerLabel(i);
+            CreatePlayerLabel(randomized[i]);
         }
     }
 
     public Vector3 GetRandomSpawnPos(int idx)
     {
-        float radius = Mathf.Min(m_RVOSettings.courtX * 0.95f, m_RVOSettings.courtZ * 0.95f);
-        float variance = 1.0f;
+        var randomSpawnPos = Vector3.zero;
+        if (m_RVOSettings.CrossingMode)
+        {
+            float radius = Mathf.Min(m_RVOSettings.courtX * 0.95f, m_RVOSettings.courtZ * 0.95f);
+            float variance = 1.0f;
        
-        var angle = (idx + Random.value) * Mathf.PI * 2 / m_RVOSettings.numOfPlayer;
-        var randomPosX = Mathf.Cos(angle) * radius;
-        var randomPosZ = Mathf.Sin(angle) * radius;
-        randomPosX += Random.value * variance;
-        randomPosZ += Random.value * variance;
+            var angle = (idx + Random.value) * Mathf.PI * 2 / m_RVOSettings.numOfPlayer;
+            var randomPosX = Mathf.Cos(angle) * radius;
+            var randomPosZ = Mathf.Sin(angle) * radius;
+            randomPosX += Random.value * variance;
+            randomPosZ += Random.value * variance;
 
-        var randomSpawnPos = new Vector3(randomPosX, 0.5f, randomPosZ);
+            randomSpawnPos = new Vector3(randomPosX, 0.5f, randomPosZ);
+        }
+        else
+        {
+            float oneLine = m_RVOSettings.courtZ / 7f;
+            float posZ = idx * oneLine - m_RVOSettings.numOfPlayer * 0.5f * oneLine;
+            float randomPosX = -m_RVOSettings.courtX + Random.value * 0.3f * m_RVOSettings.courtX;
+            randomSpawnPos = new Vector3(randomPosX, 0.5f, posZ);
+        }
   
         return randomSpawnPos;
     }
@@ -67,6 +80,11 @@ public class RVOPlayerGroup : MonoBehaviour
         GameObject playerObj = Instantiate(playerLabel_prefab, rndPos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = idx + "_PlayerLabel";
+        var text = playerObj.transform.Find("player/BackCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = sid.ToString();
+        text = playerObj.transform.Find("player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = sid.ToString();
+
         //playerObj.tag = "player_agent";
         //playerObj.layer = LayerMask.NameToLayer("player_agent");
 
@@ -77,8 +95,8 @@ public class RVOPlayerGroup : MonoBehaviour
 
         Transform label = playerObj.gameObject.transform.Find("label");
         label.name = idx + "_label";
-        Text name = label.Find("panel/Player_info/Name").GetComponent<Text>();
-        name.text = label.name;
+        var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
+        name.text = Random.Range(10, 99).ToString();
 
         RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
         agent.PlayerLabel = player;
@@ -111,6 +129,7 @@ public class RVOPlayerGroup : MonoBehaviour
             Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.5f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
             Simulator.Instance.processObstacles();
 
+            // if circle
             var rnd = new System.Random();
             var randomized = m_playerMap.OrderBy(item => rnd.Next()).ToList();
 
@@ -128,6 +147,10 @@ public class RVOPlayerGroup : MonoBehaviour
             {
                 p.GetComponentInChildren<RVOLabelAgent>().SyncReset(step >= m_RVOSettings.MaxSteps);
             }
+
+
+            // if 
+
             step = 0;
         }
         ++step;

@@ -188,6 +188,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxSteps: 1500
   sync: 1
+  CrossingMode: 1
+  parallelModeUpdateFreq: 3
   numOfPlayer: 8
   maxNumOfPlayer: 10
   playerSpeed: 1
