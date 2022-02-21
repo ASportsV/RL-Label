@@ -154,7 +154,7 @@ public class RVOPlayerGroup : MonoBehaviour
             else if (numOfAgent < m_playerMap.Count)
             {
                 // should destory   
-                for(int i = m_playerMap.Count -1; i >= numOfAgent; i)
+                for(int i = m_playerMap.Count -1; i >= numOfAgent; --i)
                 {
                     var p = m_playerMap[i];
                     m_playerMap.RemoveAt(i);
