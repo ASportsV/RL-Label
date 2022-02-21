@@ -34,7 +34,7 @@ public class RVOPlayerGroup : MonoBehaviour
     void Start()
     {
         Simulator.Instance.setTimeStep(Time.fixedDeltaTime);
-        Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.5f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
+        Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 1f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
         Simulator.Instance.processObstacles();
         court = transform.parent.Find("fancy_court");
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
@@ -59,7 +59,7 @@ public class RVOPlayerGroup : MonoBehaviour
             float radius = Mathf.Min(m_RVOSettings.courtX * 0.95f, m_RVOSettings.courtZ * 0.95f);
             float variance = 1.0f;
        
-            var angle = (idx + Random.value) * Mathf.PI * 2 / m_RVOSettings.numOfPlayer;
+            var angle = (idx + 0.8f * Random.value) * Mathf.PI * 2 / m_RVOSettings.numOfPlayer;
             var randomPosX = Mathf.Cos(angle) * radius;
             var randomPosZ = Mathf.Sin(angle) * radius;
             randomPosX += Random.value * variance;
