@@ -20,6 +20,8 @@ public class RVOPlayerGroup : MonoBehaviour
 
     public Transform court;
     public Camera cam;
+    float minZInCam;
+    float maxZInCam;
 
     private List<RVOplayer> m_playerMap = new List<RVOplayer>();
 
@@ -36,6 +38,10 @@ public class RVOPlayerGroup : MonoBehaviour
         Simulator.Instance.processObstacles();
         court = transform.parent.Find("fancy_court");
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
+
+        minZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, -m_RVOSettings.courtZ)).z;
+        maxZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z;
+        Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + ")");
 
         var rnd = new System.Random();
         var randomized = Enumerable.Range(0, m_RVOSettings.numOfPlayer).OrderBy(item => rnd.Next()).ToList();
@@ -95,6 +101,8 @@ public class RVOPlayerGroup : MonoBehaviour
 
         Transform label = playerObj.gameObject.transform.Find("label");
         label.name = idx + "_label";
+
+        Debug.Log("Finish initialize " + label.name);
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         name.text = Random.Range(10, 99).ToString();
 
@@ -102,6 +110,9 @@ public class RVOPlayerGroup : MonoBehaviour
         agent.PlayerLabel = player;
         agent.court = court;
         agent.cam = cam;
+        agent.minZInCam = minZInCam;
+        agent.maxZInCam = maxZInCam;
+
         // if (idx == 5)
         // {
         //     DemonstrationRecorder dr = label.gameObject.AddComponent<DemonstrationRecorder>();
