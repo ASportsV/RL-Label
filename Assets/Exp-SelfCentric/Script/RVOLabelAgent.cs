@@ -51,6 +51,11 @@ public class RVOLabelAgent : Agent
         Academy.Instance.AgentPreStep += UpdateReward;
     }
 
+    private void OnDestroy()
+    {
+        Academy.Instance.AgentPreStep -= UpdateReward;
+    }
+
     public override void Initialize()
     {
         //m_Rbody = GetComponent<Rigidbody>();
@@ -68,7 +73,7 @@ public class RVOLabelAgent : Agent
         Debug.Log("OnEpisodeBegin " + this.name);
         if (!m_RVOSettings.sync) PlayerLabel.resetDestination();
         transform.localPosition = new Vector3(0f, minY, 0f);
-        transform.forward = PlayerLabel.transform.forward;
+        transform.forward = transform.parent.transform.forward;
     }
 
     Vector3 velocity => PlayerLabel.velocity;

@@ -85,7 +85,7 @@ public class RVOPlayerGroup : MonoBehaviour
 
         GameObject playerObj = Instantiate(playerLabel_prefab, rndPos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
-        playerObj.name = idx + "_PlayerLabel";
+        playerObj.name = sid + "_PlayerLabel";
         var text = playerObj.transform.Find("player/BackCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = sid.ToString();
         text = playerObj.transform.Find("player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
@@ -100,7 +100,7 @@ public class RVOPlayerGroup : MonoBehaviour
         m_playerMap.Add(player);
 
         Transform label = playerObj.gameObject.transform.Find("label");
-        label.name = idx + "_label";
+        label.name = sid + "_label";
 
         Debug.Log("Finish initialize " + label.name);
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
@@ -135,6 +135,33 @@ public class RVOPlayerGroup : MonoBehaviour
         // reset all
         if(m_RVOSettings.sync && (m_playerMap.All(p => p.reached()) || step >= m_RVOSettings.MaxSteps))
         {
+            foreach (var p in m_playerMap)
+            {
+                p.GetComponentInChildren<RVOLabelAgent>().SyncReset(step >= m_RVOSettings.MaxSteps);
+            }
+
+            // get new number of agents
+            int numOfAgent = UnityEngine.Random.Range(m_RVOSettings.minNumOfPlayer, m_RVOSettings.maxNumOfPlayer+1);
+            m_RVOSettings.numOfPlayer = numOfAgent;
+            if(numOfAgent > m_playerMap.Count)
+            {
+                // should spawn
+                for (int i = m_playerMap.Count; i < numOfAgent; ++i)
+                {
+                    CreatePlayerLabel(i);
+                }
+            }
+            else if (numOfAgent < m_playerMap.Count)
+            {
+                // should destory   
+                for(int i = m_playerMap.Count -1; i >= numOfAgent; i)
+                {
+                    var p = m_playerMap[i];
+                    m_playerMap.RemoveAt(i);
+                    Destroy(p.gameObject);
+                }
+            }
+
             Simulator.Instance.Clear();
             Simulator.Instance.setTimeStep(Time.fixedDeltaTime);
             Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.5f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
@@ -153,14 +180,6 @@ public class RVOPlayerGroup : MonoBehaviour
                 p.sid = sid;
                 p.resetDestination();
             }
-
-            foreach(var p in m_playerMap)
-            {
-                p.GetComponentInChildren<RVOLabelAgent>().SyncReset(step >= m_RVOSettings.MaxSteps);
-            }
-
-
-            // if 
 
             step = 0;
         }
