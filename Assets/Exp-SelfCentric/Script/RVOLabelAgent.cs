@@ -529,7 +529,7 @@ public class RVOLabelAgent : Agent
 
         // occluding players + labels
         //PlayerLabel.player.gameObject.layer = LayerMask.NameToLayer("Default");
-        int playerLayerMask = 1 << LayerMask.NameToLayer("player") | labelLayerMask;
+        int playerLayerMask = 1 << LayerMask.NameToLayer("player"); // | labelLayerMask;
         //if (Physics.SphereCast(origin, radius, -direction, out backHit, maxDistance, playerLayerMask))
         if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
         {
