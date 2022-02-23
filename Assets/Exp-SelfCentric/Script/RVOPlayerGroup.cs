@@ -143,7 +143,7 @@ public class RVOPlayerGroup : MonoBehaviour
             }
 
             // get new number of agents
-            int numOfAgent = UnityEngine.Random.Range(6, 10 + 1);
+            int numOfAgent = UnityEngine.Random.Range(m_RVOSettings.minNumOfPlayer, m_RVOSettings.maxNumOfPlayer + 1);
             m_RVOSettings.numOfPlayer = numOfAgent;
             if (numOfAgent > m_playerMap.Count)
             {
@@ -182,7 +182,6 @@ public class RVOPlayerGroup : MonoBehaviour
                 p.sid = sid;
                 p.resetDestination();
             }
-
 
             // -----------> EVALUATION <------------ save occlusion rate
             //StreamWriter writer = new StreamWriter(System.DateTime.Now.ToFileTime() + ".txt", true);

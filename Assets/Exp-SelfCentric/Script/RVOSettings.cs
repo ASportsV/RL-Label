@@ -10,15 +10,21 @@ public class RVOSettings : MonoBehaviour
     public int MaxSteps;
     public bool sync;
 
-    public bool CrossingMode = true;
     public float parallelModeUpdateFreq = 3f;
-
     public int numOfPlayer;
-    public int maxNumOfPlayer = 10; // = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("maxPlayerNum", 10);
-    public int minNumOfPlayer = 6; // = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("minPlayerNum", 6);
-
     public float playerSpeed = 1f;
+
+    internal bool CrossingMode = true;
+    internal int maxNumOfPlayer;
+    internal int minNumOfPlayer;
 
     public int courtX = 14;
     public int courtZ = 7;
+
+    private void Awake()
+    {
+        CrossingMode = Academy.Instance.EnvironmentParameters.GetWithDefault("crossing", 1.0f) != 0f;
+        maxNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("maxPlayerNum", 10);
+        minNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("minPlayerNum", 6);
+    }
 }

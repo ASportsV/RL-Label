@@ -23,8 +23,6 @@ public class RVOLine : MonoBehaviour
 
         Image image = debugPoint.AddComponent<Image>();
         image.color = new Color(0.0F, 1.0F, 0.0F, 0.2f);
-
-
     }
 
     // Update is called once per frame
