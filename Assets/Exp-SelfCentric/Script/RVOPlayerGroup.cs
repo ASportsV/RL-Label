@@ -7,6 +7,7 @@ using Vector2 = RVO.Vector2;
 using Unity.MLAgents.Demonstrations;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Policies;
+using System.IO;
 
 public class RVOPlayerGroup : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class RVOPlayerGroup : MonoBehaviour
     void Start()
     {
         Simulator.Instance.setTimeStep(Time.fixedDeltaTime);
-        Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 1f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
+        Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.8f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
         Simulator.Instance.processObstacles();
         court = transform.parent.Find("fancy_court");
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
@@ -69,7 +70,7 @@ public class RVOPlayerGroup : MonoBehaviour
         }
         else
         {
-            float oneLine = m_RVOSettings.courtZ / 7f;
+            float oneLine = m_RVOSettings.courtZ / 8f;
             float posZ = idx * oneLine - m_RVOSettings.numOfPlayer * 0.5f * oneLine;
             float randomPosX = -m_RVOSettings.courtX + Random.value * 0.3f * m_RVOSettings.courtX;
             randomSpawnPos = new Vector3(randomPosX, 0.5f, posZ);
@@ -129,11 +130,12 @@ public class RVOPlayerGroup : MonoBehaviour
 
     // Update is called once per frame
     public int step = 0;
+    List<float> occlusionRate = new List<float>();
     private void FixedUpdate()
     {
         // if sync and all reached
         // reset all
-        if(m_RVOSettings.sync && (m_playerMap.All(p => p.reached()) || step >= m_RVOSettings.MaxSteps))
+        if (m_RVOSettings.sync && (m_playerMap.All(p => p.reached()) || step >= m_RVOSettings.MaxSteps))
         {
             foreach (var p in m_playerMap)
             {
@@ -141,9 +143,9 @@ public class RVOPlayerGroup : MonoBehaviour
             }
 
             // get new number of agents
-            int numOfAgent = UnityEngine.Random.Range(6, 10+1);
+            int numOfAgent = UnityEngine.Random.Range(6, 10 + 1);
             m_RVOSettings.numOfPlayer = numOfAgent;
-            if(numOfAgent > m_playerMap.Count)
+            if (numOfAgent > m_playerMap.Count)
             {
                 // should spawn
                 for (int i = m_playerMap.Count; i < numOfAgent; ++i)
@@ -154,7 +156,7 @@ public class RVOPlayerGroup : MonoBehaviour
             else if (numOfAgent < m_playerMap.Count)
             {
                 // should destory   
-                for(int i = m_playerMap.Count -1; i >= numOfAgent; --i)
+                for (int i = m_playerMap.Count - 1; i >= numOfAgent; --i)
                 {
                     var p = m_playerMap[i];
                     m_playerMap.RemoveAt(i);
@@ -164,7 +166,7 @@ public class RVOPlayerGroup : MonoBehaviour
 
             Simulator.Instance.Clear();
             Simulator.Instance.setTimeStep(Time.fixedDeltaTime);
-            Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.5f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
+            Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.8f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
             Simulator.Instance.processObstacles();
 
             // if circle
@@ -181,9 +183,26 @@ public class RVOPlayerGroup : MonoBehaviour
                 p.resetDestination();
             }
 
+
+            // -----------> EVALUATION <------------ save occlusion rate
+            //StreamWriter writer = new StreamWriter(System.DateTime.Now.ToFileTime() + ".txt", true);
+            //writer.Write(string.Join('\n', occlusionRate));
+            //writer.Close();
+            //occlusionRate.Clear();
+
             step = 0;
         }
         ++step;
         Simulator.Instance.doStep();
+
+        // -----------> EVALUATION <------------ save occlusion rate
+        // calculate occlusion rate here
+        //GameObject[] occluded = m_playerMap
+        //    .SelectMany(p => p.GetComponentInChildren<RVOLabelAgent>().occluding())
+        //    .Distinct().ToArray();
+
+        //int numOfOcclusion = occluded
+        //    .Count();
+        //occlusionRate.Add((float)numOfOcclusion / (2 * m_RVOSettings.numOfPlayer - 1));
     }
 }

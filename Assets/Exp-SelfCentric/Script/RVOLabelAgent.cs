@@ -36,7 +36,7 @@ public class RVOLabelAgent : Agent
     BufferSensorComponent bSensor;
     RayPerceptionSensorComponent3D raycastSensor;
 
-    float minY = 1f;
+    float minY = 1.2f;
     float yDistThres = 0.0f;
     float xzDistThres = 3.0f;
     float maxDist;
@@ -318,8 +318,77 @@ public class RVOLabelAgent : Agent
         else EndEpisode();
     }
 
+    public GameObject[] occluding()
+    {
+        BoxCollider collider = m_Panel.GetComponent<BoxCollider>();
+        Vector3 size = collider.size * 0.5f;
+        Vector3[] points = new Vector3[] {
+            new Vector3(-size.x, size.y, 0),
+            new Vector3(0, size.y, 0),
+            new Vector3(size.x, size.y, 0),
+            //
+            new Vector3(-size.x, 0, 0),
+            new Vector3(0, 0, 0),
+            new Vector3(size.x, 0, 0),
+            // 
+            new Vector3(-size.x, -size.y, 0),
+            new Vector3(0, -size.y, 0),
+            new Vector3(size.x, -size.y, 0)
+        };
+
+        //Vector3 origin = cam.transform.position;
+        int labelLayerMask = 1 << LayerMask.NameToLayer("label");
+        int playerLayerMask = 1 << LayerMask.NameToLayer("player");
+
+        List<RaycastHit> hits = new List<RaycastHit>();
+        foreach (var p in points)
+        {
+            Vector3 origin = m_Panel.TransformPoint(p);
+            Vector3 direction = origin - cam.transform.position;
+            Debug.DrawRay(origin, direction, new Color(1, 0, 0));
+            // raycast, count hit
+            RaycastHit hit;
+            if(Physics.Raycast(origin, direction, out hit, Mathf.Infinity, labelLayerMask | playerLayerMask))
+            {
+                if(!GameObject.ReferenceEquals(hit.collider.transform.parent.gameObject, gameObject))
+                    hits.Add(hit);
+            }
+        }
+
+
+        GameObject[] gs = hits.GroupBy(h => h.colliderInstanceID).Select(g => g.First().collider.gameObject).ToArray();
+
+        return gs;
+    }
+
     RaycastHit forHit;
     RaycastHit backHit;
+    int rewOcclusions()
+    {
+        Vector3 origin = m_Panel.position;
+        Vector3 extent = GetSizeInWorld() * 0.5f;
+        Vector3 direction = m_Panel.forward;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        float maxDistance = Mathf.Infinity;
+
+        int count = 0;
+        // occluded by labels
+        int labelLayerMask = 1 << LayerMask.NameToLayer("label");
+
+        if (Physics.BoxCast(origin, extent, direction, out forHit, rotation, maxDistance, labelLayerMask))
+        {
+            count += 1;
+        }
+
+        // occluding players
+        int playerLayerMask = 1 << LayerMask.NameToLayer("player"); //| labelLayerMask;
+        if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
+        {
+            count += 1;
+        }        
+        return count;
+    }
+
     void UpdateReward(int academyStepCount)
     {
         if (academyStepCount == 0)
@@ -336,42 +405,13 @@ public class RVOLabelAgent : Agent
 
         // being occluded
         // return [0, 0.1]
-        Vector3 origin = m_Panel.position;
-        Vector3 extent = new Vector3(0.3f, 0.3f, 0.000001f);
-        Vector3 direction = m_Panel.forward;
-        Quaternion rotation = Quaternion.LookRotation(direction);
-        float maxDistance = Mathf.Infinity;
-
-        float rew = 0f;
-        // occluded by labels
-        int labelLayerMask = 1 << LayerMask.NameToLayer("label");
+        //Vector3 origin = m_Panel.position;
+        //Vector3 extent = new Vector3(0.3f, 0.3f, 0.000001f);
+        //Vector3 direction = m_Panel.forward;
+        //Quaternion rotation = Quaternion.LookRotation(direction);
         
-        //if (Physics.SphereCast(origin, radius, direction,  maxDistance, labelLayerMask))
-        if(Physics.BoxCast(origin, extent, direction, out forHit, rotation, maxDistance, labelLayerMask))
-        {
-            // [0, 1]
-            // Vector3 hitVel = m_Hit.collider.GetComponent<RVOLabelAgent>().velocity;
-            // Vector3 relativeSpeed = hitVel - velocity;
-            // float sqrtMat = Mathf.Min(relativeSpeed.sqrMagnitude, 2 * m_RVOSettings.playerSpeed);
-            // float normalizedSqrtMat = sqrtMat / (4 * m_RVOSettings.playerSpeed * m_RVOSettings.playerSpeed);
-            // float transferedSqrtMat = this.negativeShape(normalizedSqrtMat);
-            rew += rwd.rew_occlude * 1; //transferedSqrtMat;
-        }
-
-        // occluding players + labels
-        //PlayerLabel.player.gameObject.layer = LayerMask.NameToLayer("Default");
-        int playerLayerMask = 1 << LayerMask.NameToLayer("player") | labelLayerMask;
-        //if (Physics.SphereCast(origin, radius, -direction, out backHit, maxDistance, playerLayerMask))
-        if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
-        {
-            // [0, 1]
-            // Vector3 hitVel = m_Hit.collider.transform.parent.GetComponent<RVOplayer>().velocity;
-            // Vector3 relativeSpeed = hitVel - velocity;
-            // float sqrtMat = Mathf.Min(relativeSpeed.sqrMagnitude, 2 * m_RVOSettings.playerSpeed);
-            // float normalizedSqrtMat = sqrtMat / (4 * m_RVOSettings.playerSpeed * m_RVOSettings.playerSpeed);
-            // float transferedSqrtMat = this.negativeShape(normalizedSqrtMat);
-            rew += rwd.rew_occlude * 1; // transferedSqrtMat;
-        }
+        float rew = 0f;
+        rew += rwd.rew_occlude * rewOcclusions();
 
         int numOfIntersections = transform.parent.parent.GetComponentsInChildren<RVOLine>()
             .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject))
@@ -394,7 +434,7 @@ public class RVOLabelAgent : Agent
         m_Panel.LookAt(cam.transform);
     }
 
-    public Vector3 GetExtentInWorld()
+    public Vector3 GetSizeInWorld()
     {
         float scale = this.transform.localScale.x;
         return new Vector3(rTransform.rect.size.x * scale, rTransform.rect.size.y * scale, 0.0001f);
