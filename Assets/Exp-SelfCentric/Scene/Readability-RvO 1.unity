@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311938, g: 0.38074005, b: 0.35872707, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -188,11 +188,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxSteps: 1500
   sync: 1
-  CrossingMode: 1
+  CrossingMode: 0
   parallelModeUpdateFreq: 3
   numOfPlayer: 8
   maxNumOfPlayer: 10
-  minNumOfPlayer: 0
+  minNumOfPlayer: 6
   playerSpeed: 1
   courtX: 14
   courtZ: 6
