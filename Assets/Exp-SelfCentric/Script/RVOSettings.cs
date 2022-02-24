@@ -21,6 +21,8 @@ public class RVOSettings : MonoBehaviour
     public int courtX = 14;
     public int courtZ = 7;
 
+    public bool evaluate = false;
+
     private void Awake()
     {
         CrossingMode = Academy.Instance.EnvironmentParameters.GetWithDefault("crossing", 1.0f) != 0f;

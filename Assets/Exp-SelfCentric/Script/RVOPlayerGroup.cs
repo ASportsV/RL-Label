@@ -4,9 +4,6 @@ using RVO;
 using UnityEngine;
 using UnityEngine.UI;
 using Vector2 = RVO.Vector2;
-using Unity.MLAgents.Demonstrations;
-using Unity.MLAgents.Actuators;
-using Unity.MLAgents.Policies;
 using System.IO;
 
 public class RVOPlayerGroup : MonoBehaviour
@@ -184,10 +181,13 @@ public class RVOPlayerGroup : MonoBehaviour
             }
 
             // -----------> EVALUATION <------------ save occlusion rate
-            //StreamWriter writer = new StreamWriter(System.DateTime.Now.ToFileTime() + ".txt", true);
-            //writer.Write(string.Join('\n', occlusionRate));
-            //writer.Close();
-            //occlusionRate.Clear();
+            if(m_RVOSettings.evaluate)
+            {
+                StreamWriter writer = new StreamWriter(System.DateTime.Now.ToFileTime() + ".txt", true);
+                writer.Write(string.Join('\n', occlusionRate));
+                writer.Close();
+                occlusionRate.Clear();
+            }
 
             step = 0;
         }
@@ -196,12 +196,15 @@ public class RVOPlayerGroup : MonoBehaviour
 
         // -----------> EVALUATION <------------ save occlusion rate
         // calculate occlusion rate here
-        //GameObject[] occluded = m_playerMap
-        //    .SelectMany(p => p.GetComponentInChildren<RVOLabelAgent>().occluding())
-        //    .Distinct().ToArray();
+        if(m_RVOSettings.evaluate)
+        {
+            GameObject[] occluded = m_playerMap
+                .SelectMany(p => p.GetComponentInChildren<RVOLabelAgent>().occluding())
+                .Distinct().ToArray();
 
-        //int numOfOcclusion = occluded
-        //    .Count();
-        //occlusionRate.Add((float)numOfOcclusion / (2 * m_RVOSettings.numOfPlayer - 1));
+            int numOfOcclusion = occluded
+                .Count();
+            occlusionRate.Add((float)numOfOcclusion / (2 * m_RVOSettings.numOfPlayer - 1));
+        }
     }
 }
