@@ -8,20 +8,19 @@ using UnityEngine;
 
 public class RVOLabelAgent : Agent
 {
-    [System.Serializable]
-    public class RewardInfo
+    struct Rewards
     {
-        public float rew_turn = -0.00025f;
-        public float rew_y = -1f;
-        public float rew_z = -0.00025f;
-        public float rew_x = -0.00025f;
-        public float rew_occlude = -0.1f;
-        public float rew_intersets = -0.1f;
-        public float rew_dist = -0.01f;
+        public float rew_turn;
+        public float rew_y;
+        public float rew_z;
+        public float rew_x;
+        public float rew_occlude;
+        public float rew_intersets;
+        public float rew_dist;
     }
 
     RVOSettings m_RVOSettings;
-    RewardInfo rwd = new RewardInfo();
+    Rewards rwd = new Rewards();
 
     public RVOplayer PlayerLabel;
     public Camera cam;
@@ -47,6 +46,12 @@ public class RVOLabelAgent : Agent
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         Academy.Instance.AgentPreStep += UpdateReward;
+
+        rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
+        rwd.rew_x = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_x", -0.00025f);
+        rwd.rew_occlude = -0.1f;
+        rwd.rew_intersets = -0.1f;
+        rwd.rew_dist = -0.01f;
     }
 
     private void OnDestroy()
