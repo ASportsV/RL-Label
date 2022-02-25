@@ -21,6 +21,8 @@ public class RVOPlayerGroup : MonoBehaviour
     public Camera cam;
     float minZInCam;
     float maxZInCam;
+    public int totalStep = -1;
+    int currentStep = 0;
 
     private List<RVOplayer> m_playerMap = new List<RVOplayer>();
 
@@ -66,6 +68,23 @@ public class RVOPlayerGroup : MonoBehaviour
             {
                 this.CreatePlayerLabelFromPos(i, positions[i].ToArray());
             }
+            // max velocity
+            Vector3 maxVel = Vector3.zero;
+            Vector3 minVel = new Vector3(Mathf.Infinity, 0, Mathf.Infinity);
+            foreach(var player in m_playerMap)
+            {
+                float maxX = player.velocities.Max(v => Mathf.Abs(v.x));
+                float minX = player.velocities.Min(v => Mathf.Abs(v.x));
+                float maxZ = player.velocities.Max(v => Mathf.Abs(v.z));
+                float minZ = player.velocities.Min(v => Mathf.Abs(v.z));
+
+                maxVel = new Vector3(Mathf.Max(maxX, maxVel.x), 0, Mathf.Max(maxZ, maxVel.z));
+                minVel = new Vector3(Mathf.Min(minX, minVel.x), 0, Mathf.Min(minZ, minVel.z));
+            }
+            Debug.Log("Max Vel:" + maxVel.ToString());
+            Debug.Log("Min Vel:" + minVel.ToString());
+            m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
+            m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
         }
     }
 
@@ -121,13 +140,6 @@ public class RVOPlayerGroup : MonoBehaviour
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         name.text = Random.Range(10, 99).ToString();
         var iamge = label.Find("panel/Player_info").GetComponent<Image>();
-        iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
-        if (sid % 2 != 0)
-        {
-            Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
-            var cubeRenderer = player.player.GetComponent<Renderer>();
-            cubeRenderer.material.SetColor("_Color", color);
-        }
 
         RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
         agent.PlayerLabel = player;
@@ -135,6 +147,17 @@ public class RVOPlayerGroup : MonoBehaviour
         agent.cam = cam;
         agent.minZInCam = minZInCam;
         agent.maxZInCam = maxZInCam;
+
+
+        iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
+
+        if (sid % 2 != 0)
+        {
+            Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
+            var cubeRenderer = player.player.GetComponent<Renderer>();
+            cubeRenderer.material.SetColor("_Color", color);
+            //agent.minY = 1.2f;
+        }
     }
 
     //public void CreatePlayerLabel(int idx)
@@ -196,6 +219,9 @@ public class RVOPlayerGroup : MonoBehaviour
 
     // Update is called once per frame
     public int step = 0;
+
+    private float time = 0.0f;
+    private float timeStep = 0.04f;
     List<Metrics> metrics = new List<Metrics>();
     private void FixedUpdate()
     {
@@ -256,10 +282,28 @@ public class RVOPlayerGroup : MonoBehaviour
         //    step = 0;
         //}
         //++step;
+        time += Time.fixedDeltaTime;
+
+        if (time >= timeStep)
+        {
+            time -= timeStep;
+            currentStep += 1;
+        }
+
+        if(currentStep < totalStep)
+        {
+            m_playerMap.ForEach(p => p.step(currentStep));
+        }
+        else
+        {
+            currentStep = 0;
+            // reset all 
+            m_playerMap.ForEach(p => p.GetComponentInChildren<RVOLabelAgent>().SyncReset());
+        }
 
         // -----------> EVALUATION <------------ save occlusion rate
         // calculate occlusion rate here
-        if(m_RVOSettings.evaluate)
+        if (m_RVOSettings.evaluate)
         {
             GameObject[] occluded = m_playerMap
                 .SelectMany(p => p.GetComponentInChildren<RVOLabelAgent>().occluding())
@@ -302,6 +346,8 @@ public class RVOPlayerGroup : MonoBehaviour
                 float.Parse(array[2])
             ));
         }
+
+        totalStep = playerPos.Min(p => p.Count);
 
         return playerPos;
     }

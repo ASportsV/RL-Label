@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 13
+    VectorObservationSize: 9
     NumStackedVectorObservations: 4
     m_ActionSpec:
       m_NumContinuousActions: 1
@@ -80,7 +80,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SensorName: RVOBufferSensor
-  m_ObservableSize: 14
+  m_ObservableSize: 11
   m_MaxNumObservables: 20
 --- !u!114 &6863877820660453592
 MonoBehaviour:
@@ -115,6 +115,7 @@ MonoBehaviour:
   PlayerLabel: {fileID: 0}
   cam: {fileID: 0}
   court: {fileID: 0}
+  minY: 1.8
   minZInCam: 0
   maxZInCam: 0
 --- !u!1 &1960322110530793552
@@ -183,7 +184,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: A
+  m_text: 'AB
+
+    CD'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -210,8 +213,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.6
-  m_fontSizeBase: 0.6
+  m_fontSize: 0.5
+  m_fontSizeBase: 0.5
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -325,7 +328,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.8, y: 0.6, z: 0.0001}
+  m_Size: {x: 0.7, y: 0.4, z: 0.0001}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7865552096013063794
 GameObject:
@@ -400,7 +403,6 @@ GameObject:
   - component: {fileID: 997773280011638155}
   - component: {fileID: 4717459929955007934}
   - component: {fileID: 6009518845260514490}
-  - component: {fileID: 7450000048915854736}
   m_Layer: 8
   m_Name: Player_info
   m_TagString: Untagged
@@ -427,7 +429,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1, y: 0.8}
+  m_SizeDelta: {x: 1, y: 0.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &7352855847109485388
 Canvas:
@@ -518,7 +520,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c768de5a4366ba94f938f519e387ab35, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -528,23 +530,3 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!95 &7450000048915854736
-Animator:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8707171942931381426}
-  m_Enabled: 0
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 16e873b194016ab4bba6004ff024f736, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0

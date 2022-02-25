@@ -12,7 +12,8 @@ public class RVOSettings : MonoBehaviour
 
     public float parallelModeUpdateFreq = 3f;
     public int numOfPlayer;
-    public float playerSpeed = 1f;
+    public float playerSpeedX = 1f;
+    public float playerSppedZ = 1f;
 
     internal bool CrossingMode = false;
     internal int Dataset = 1;
