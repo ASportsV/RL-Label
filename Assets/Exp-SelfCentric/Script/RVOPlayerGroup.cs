@@ -323,7 +323,7 @@ public class RVOPlayerGroup : MonoBehaviour
     private List<List<Vector3>> GetPos()
     {
 
-        string fileName = Path.Combine(Application.dataPath, "Exp-SelfCentric/Data/nba_7501.csv");
+        string fileName = Path.Combine(Application.streamingAssetsPath, "nba_7501.csv");
         StreamReader r = new StreamReader(fileName);
         string pos_data = r.ReadToEnd();
 
