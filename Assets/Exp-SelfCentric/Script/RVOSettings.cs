@@ -14,7 +14,8 @@ public class RVOSettings : MonoBehaviour
     public int numOfPlayer;
     public float playerSpeed = 1f;
 
-    internal bool CrossingMode = true;
+    internal bool CrossingMode = false;
+    internal int Dataset = 1;
     internal int maxNumOfPlayer;
     internal int minNumOfPlayer;
 
@@ -25,7 +26,7 @@ public class RVOSettings : MonoBehaviour
 
     private void Awake()
     {
-        CrossingMode = Academy.Instance.EnvironmentParameters.GetWithDefault("crossing", 1.0f) != 0f;
+        CrossingMode = Academy.Instance.EnvironmentParameters.GetWithDefault("crossing", 0.0f) != 0f;
         maxNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("maxPlayerNum", 10);
         minNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("minPlayerNum", 6);
     }

@@ -361,6 +361,13 @@ public class RVOLabelAgent : Agent
         return gs;
     }
 
+    public int numOfIntersection()
+    {
+        return transform.parent.parent.GetComponentsInChildren<RVOLine>()
+            .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject))
+            .Count(l => l.isIntersected(m_RVOLine, cam));
+    }
+
     RaycastHit forHit;
     RaycastHit backHit;
     int rewOcclusions()
@@ -404,12 +411,6 @@ public class RVOLabelAgent : Agent
         }
 
         // being occluded
-        // return [0, 0.1]
-        //Vector3 origin = m_Panel.position;
-        //Vector3 extent = new Vector3(0.3f, 0.3f, 0.000001f);
-        //Vector3 direction = m_Panel.forward;
-        //Quaternion rotation = Quaternion.LookRotation(direction);
-        
         float rew = 0f;
         rew += rwd.rew_occlude * rewOcclusions();
 

@@ -3,7 +3,6 @@ using System.Linq;
 using RVO;
 using UnityEngine;
 using UnityEngine.UI;
-using Vector2 = RVO.Vector2;
 using System.IO;
 
 public class RVOPlayerGroup : MonoBehaviour
@@ -15,6 +14,8 @@ public class RVOPlayerGroup : MonoBehaviour
     public GameObject label_prefab;
     // player + label
     public GameObject playerLabel_prefab;
+    public Sprite redLabel;
+    public Sprite blueLabel;
 
     public Transform court;
     public Camera cam;
@@ -22,6 +23,17 @@ public class RVOPlayerGroup : MonoBehaviour
     float maxZInCam;
 
     private List<RVOplayer> m_playerMap = new List<RVOplayer>();
+
+    struct Metrics
+    {
+        public float occlusionRate;
+        public int intersections;
+        public override string ToString()
+        {
+            return occlusionRate.ToString() + "," + intersections.ToString();
+        }
+    }
+
 
     private void Awake()
     {
@@ -31,9 +43,6 @@ public class RVOPlayerGroup : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Simulator.Instance.setTimeStep(Time.fixedDeltaTime);
-        Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.8f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
-        Simulator.Instance.processObstacles();
         court = transform.parent.Find("fancy_court");
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
 
@@ -41,11 +50,22 @@ public class RVOPlayerGroup : MonoBehaviour
         maxZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z;
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + ")");
 
-        var rnd = new System.Random();
-        var randomized = Enumerable.Range(0, m_RVOSettings.numOfPlayer).OrderBy(item => rnd.Next()).ToList();
-        for (int i = 0; i < randomized.Count; ++i)
+        if(m_RVOSettings.Dataset == 0)
         {
-            CreatePlayerLabel(randomized[i]);
+            //var rnd = new System.Random();
+            //var randomized = Enumerable.Range(0, m_RVOSettings.numOfPlayer).OrderBy(item => rnd.Next()).ToList();
+            //for (int i = 0; i < randomized.Count; ++i)
+            //{
+            //    CreatePlayerLabel(randomized[i]);
+            //}
+        }
+        else if (m_RVOSettings.Dataset == 1)
+        {
+            var positions = GetPos();
+            for(int i = 0; i < positions.Count; ++i)
+            {
+                this.CreatePlayerLabelFromPos(i, positions[i].ToArray());
+            }
         }
     }
 
@@ -76,23 +96,20 @@ public class RVOPlayerGroup : MonoBehaviour
         return randomSpawnPos;
     }
 
-    public void CreatePlayerLabel(int idx)
+    public void CreatePlayerLabelFromPos(int sid, Vector3[] positions)
     {
-        Vector3 rndPos = GetRandomSpawnPos(idx);
-        int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
 
-        GameObject playerObj = Instantiate(playerLabel_prefab, rndPos, Quaternion.identity);
+        GameObject playerObj = Instantiate(playerLabel_prefab, positions[0], Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = sid + "_PlayerLabel";
+
         var text = playerObj.transform.Find("player/BackCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = sid.ToString();
         text = playerObj.transform.Find("player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = sid.ToString();
 
-        //playerObj.tag = "player_agent";
-        //playerObj.layer = LayerMask.NameToLayer("player_agent");
-
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
+        player.positions = positions;
 
         player.sid = sid;
         m_playerMap.Add(player);
@@ -103,6 +120,14 @@ public class RVOPlayerGroup : MonoBehaviour
         Debug.Log("Finish initialize " + label.name);
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         name.text = Random.Range(10, 99).ToString();
+        var iamge = label.Find("panel/Player_info").GetComponent<Image>();
+        iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
+        if (sid % 2 != 0)
+        {
+            Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
+            var cubeRenderer = player.player.GetComponent<Renderer>();
+            cubeRenderer.material.SetColor("_Color", color);
+        }
 
         RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
         agent.PlayerLabel = player;
@@ -110,89 +135,127 @@ public class RVOPlayerGroup : MonoBehaviour
         agent.cam = cam;
         agent.minZInCam = minZInCam;
         agent.maxZInCam = maxZInCam;
-
-        // if (idx == 5)
-        // {
-        //     DemonstrationRecorder dr = label.gameObject.AddComponent<DemonstrationRecorder>();
-        //     dr.DemonstrationDirectory = "Assets/Exp-SelfCentric/Demo";
-        //     dr.DemonstrationName = "RVOLabel";
-        //     dr.Record = true;
-        //     BehaviorParameters bp = label.GetComponent<BehaviorParameters>();
-        //     bp.BehaviorType = BehaviorType.HeuristicOnly;
-        //     Color color = new Color(255f / 255f, 154 / 255f, 224 / 255f);
-        //     var cubeRenderer = player.player.GetComponent<Renderer>();
-        //     cubeRenderer.material.SetColor("_Color", color);
-        // }
     }
+
+    //public void CreatePlayerLabel(int idx)
+    //{
+    //    Vector3 rndPos = GetRandomSpawnPos(idx);
+    //    int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
+
+    //    GameObject playerObj = Instantiate(playerLabel_prefab, rndPos, Quaternion.identity);
+    //    playerObj.transform.SetParent(gameObject.transform, false);
+    //    playerObj.name = sid + "_PlayerLabel";
+    //    var text = playerObj.transform.Find("player/BackCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+    //    text.text = sid.ToString();
+    //    text = playerObj.transform.Find("player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+    //    text.text = sid.ToString();
+
+    //    //playerObj.tag = "player_agent";
+    //    //playerObj.layer = LayerMask.NameToLayer("player_agent");
+
+    //    RVOplayer player = playerObj.GetComponent<RVOplayer>();
+
+    //    player.sid = sid;
+    //    m_playerMap.Add(player);
+
+    //    Transform label = playerObj.gameObject.transform.Find("label");
+    //    label.name = sid + "_label";
+
+    //    Debug.Log("Finish initialize " + label.name);
+    //    var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
+    //    name.text = Random.Range(10, 99).ToString();
+    //    var iamge = label.Find("panel/Player_info").GetComponent<Image>();
+    //    iamge.sprite = (idx % 2 == 0) ? blueLabel : redLabel;
+    //    if(idx % 2 != 0)
+    //    {
+    //        Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
+    //        var cubeRenderer = player.player.GetComponent<Renderer>();
+    //        cubeRenderer.material.SetColor("_Color", color);
+    //    }
+
+    //    RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
+    //    agent.PlayerLabel = player;
+    //    agent.court = court;
+    //    agent.cam = cam;
+    //    agent.minZInCam = minZInCam;
+    //    agent.maxZInCam = maxZInCam;
+
+    //    // if (idx == 5)
+    //    // {
+    //    //     DemonstrationRecorder dr = label.gameObject.AddComponent<DemonstrationRecorder>();
+    //    //     dr.DemonstrationDirectory = "Assets/Exp-SelfCentric/Demo";
+    //    //     dr.DemonstrationName = "RVOLabel";
+    //    //     dr.Record = true;
+    //    //     BehaviorParameters bp = label.GetComponent<BehaviorParameters>();
+    //    //     bp.BehaviorType = BehaviorType.HeuristicOnly;
+    //    //     Color color = new Color(255f / 255f, 154 / 255f, 224 / 255f);
+    //    //     var cubeRenderer = player.player.GetComponent<Renderer>();
+    //    //     cubeRenderer.material.SetColor("_Color", color);
+    //    // }
+    //}
 
     // Update is called once per frame
     public int step = 0;
-    List<float> occlusionRate = new List<float>();
+    List<Metrics> metrics = new List<Metrics>();
     private void FixedUpdate()
     {
         // if sync and all reached
         // reset all
-        if (m_RVOSettings.sync && (m_playerMap.All(p => p.reached()) || step >= m_RVOSettings.MaxSteps))
-        {
-            foreach (var p in m_playerMap)
-            {
-                p.GetComponentInChildren<RVOLabelAgent>().SyncReset(step >= m_RVOSettings.MaxSteps);
-            }
+        //if (m_RVOSettings.sync && (m_playerMap.All(p => p.reached()) || step >= m_RVOSettings.MaxSteps))
+        //{
+        //    foreach (var p in m_playerMap)
+        //    {
+        //        p.GetComponentInChildren<RVOLabelAgent>().SyncReset(step >= m_RVOSettings.MaxSteps);
+        //    }
 
-            // get new number of agents
-            int numOfAgent = UnityEngine.Random.Range(m_RVOSettings.minNumOfPlayer, m_RVOSettings.maxNumOfPlayer + 1);
-            m_RVOSettings.numOfPlayer = numOfAgent;
-            if (numOfAgent > m_playerMap.Count)
-            {
-                // should spawn
-                for (int i = m_playerMap.Count; i < numOfAgent; ++i)
-                {
-                    CreatePlayerLabel(i);
-                }
-            }
-            else if (numOfAgent < m_playerMap.Count)
-            {
-                // should destory   
-                for (int i = m_playerMap.Count - 1; i >= numOfAgent; --i)
-                {
-                    var p = m_playerMap[i];
-                    m_playerMap.RemoveAt(i);
-                    Destroy(p.gameObject);
-                }
-            }
+        //    // get new number of agents
+        //    int numOfAgent = UnityEngine.Random.Range(m_RVOSettings.minNumOfPlayer, m_RVOSettings.maxNumOfPlayer + 1);
+        //    m_RVOSettings.numOfPlayer = numOfAgent;
+        //    if (numOfAgent > m_playerMap.Count)
+        //    {
+        //        // should spawn
+        //        for (int i = m_playerMap.Count; i < numOfAgent; ++i)
+        //        {
+        //            CreatePlayerLabel(i);
+        //        }
+        //    }
+        //    else if (numOfAgent < m_playerMap.Count)
+        //    {
+        //        // should destory   
+        //        for (int i = m_playerMap.Count - 1; i >= numOfAgent; --i)
+        //        {
+        //            var p = m_playerMap[i];
+        //            m_playerMap.RemoveAt(i);
+        //            Destroy(p.gameObject);
+        //        }
+        //    }
 
-            Simulator.Instance.Clear();
-            Simulator.Instance.setTimeStep(Time.fixedDeltaTime);
-            Simulator.Instance.setAgentDefaults(1f, 10, 5.0f, 5.0f, 0.8f, m_RVOSettings.playerSpeed, new Vector2(0.0f, 0.0f));
-            Simulator.Instance.processObstacles();
+        //    // if circle
+        //    var rnd = new System.Random();
+        //    var randomized = m_playerMap.OrderBy(item => rnd.Next()).ToList();
 
-            // if circle
-            var rnd = new System.Random();
-            var randomized = m_playerMap.OrderBy(item => rnd.Next()).ToList();
+        //    for (int i = 0, len = randomized.Count; i < len; ++i)
+        //    {
+        //        var p = randomized[i];
+        //        Vector3 rndPos = GetRandomSpawnPos(i);
+        //        int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
+        //        p.transform.localPosition = rndPos;
+        //        p.sid = sid;
+        //        p.resetDestination();
+        //    }
 
-            for (int i = 0, len = randomized.Count; i < len; ++i)
-            {
-                var p = randomized[i];
-                Vector3 rndPos = GetRandomSpawnPos(i);
-                int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
-                p.transform.localPosition = rndPos;
-                p.sid = sid;
-                p.resetDestination();
-            }
+        //    // -----------> EVALUATION <------------ save occlusion rate
+        //    if(m_RVOSettings.evaluate)
+        //    {
+        //        StreamWriter writer = new StreamWriter(System.DateTime.Now.ToFileTime() + ".txt", true);
+        //        writer.Write(string.Join('\n', metrics));
+        //        writer.Close();
+        //        metrics.Clear();
+        //    }
 
-            // -----------> EVALUATION <------------ save occlusion rate
-            if(m_RVOSettings.evaluate)
-            {
-                StreamWriter writer = new StreamWriter(System.DateTime.Now.ToFileTime() + ".txt", true);
-                writer.Write(string.Join('\n', occlusionRate));
-                writer.Close();
-                occlusionRate.Clear();
-            }
-
-            step = 0;
-        }
-        ++step;
-        Simulator.Instance.doStep();
+        //    step = 0;
+        //}
+        //++step;
 
         // -----------> EVALUATION <------------ save occlusion rate
         // calculate occlusion rate here
@@ -204,7 +267,42 @@ public class RVOPlayerGroup : MonoBehaviour
 
             int numOfOcclusion = occluded
                 .Count();
-            occlusionRate.Add((float)numOfOcclusion / (2 * m_RVOSettings.numOfPlayer - 1));
+
+            Metrics m = new Metrics();
+            m.occlusionRate = (float)numOfOcclusion / (2 * m_RVOSettings.numOfPlayer - 1);
+            int numOfIntersection = (int) (m_playerMap.Sum(p => p.GetComponentInChildren<RVOLabelAgent>().numOfIntersection()) * 0.5f);
+            m.intersections = numOfIntersection;
+            metrics.Add(m);
         }
+    }
+
+    private List<List<Vector3>> GetPos()
+    {
+
+        string fileName = Path.Combine(Application.dataPath, "Exp-SelfCentric/Data/nba_7501.csv");
+        StreamReader r = new StreamReader(fileName);
+        string pos_data = r.ReadToEnd();
+
+        string[] records = pos_data.Split('\n');
+
+        List<List<Vector3>> playerPos = new List<List<Vector3>>();
+        for(int i = 0; i < records.Length; ++i)
+        {
+            string[] array = records[i].Split(',');
+            int playerIdx = int.Parse(array[0]);
+
+            if ((playerIdx + 1) > playerPos.Count)
+            {
+                playerPos.Add(new List<Vector3>());
+            }
+            
+            playerPos[playerIdx].Add(new Vector3(
+                float.Parse(array[1]),
+                0.5f,
+                float.Parse(array[2])
+            ));
+        }
+
+        return playerPos;
     }
 }
