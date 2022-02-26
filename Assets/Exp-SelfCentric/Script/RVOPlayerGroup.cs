@@ -7,10 +7,6 @@ using System.IO;
 public class RVOPlayerGroup : MonoBehaviour
 {
     RVOSettings m_RVOSettings;
-    // player
-    public GameObject player_prefab;
-    // label
-    public GameObject label_prefab;
     // player + label
     public GameObject playerLabel_prefab;
     public Sprite redLabel;
@@ -51,40 +47,29 @@ public class RVOPlayerGroup : MonoBehaviour
         maxZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z;
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + ")");
 
-        if(m_RVOSettings.Dataset == 0)
+        var positions = GetPos();
+        int maxPlayers = Mathf.Min(positions.Count(), 20);
+        for(int i = 0; i < maxPlayers; ++i)
         {
-            //var rnd = new System.Random();
-            //var randomized = Enumerable.Range(0, m_RVOSettings.numOfPlayer).OrderBy(item => rnd.Next()).ToList();
-            //for (int i = 0; i < randomized.Count; ++i)
-            //{
-            //    CreatePlayerLabel(randomized[i]);
-            //}
+            this.CreatePlayerLabelFromPos(i, positions[i].ToArray());
         }
-        else if (m_RVOSettings.Dataset == 1)
+        // max velocity
+        Vector3 maxVel = Vector3.zero;
+        Vector3 minVel = new Vector3(Mathf.Infinity, 0, Mathf.Infinity);
+        foreach(var player in m_playerMap)
         {
-            var positions = GetPos();
-            for(int i = 0; i < 20; ++i)
-            {
-                this.CreatePlayerLabelFromPos(i, positions[i].ToArray());
-            }
-            // max velocity
-            Vector3 maxVel = Vector3.zero;
-            Vector3 minVel = new Vector3(Mathf.Infinity, 0, Mathf.Infinity);
-            foreach(var player in m_playerMap)
-            {
-                float maxX = player.velocities.Max(v => Mathf.Abs(v.x));
-                float minX = player.velocities.Min(v => Mathf.Abs(v.x));
-                float maxZ = player.velocities.Max(v => Mathf.Abs(v.z));
-                float minZ = player.velocities.Min(v => Mathf.Abs(v.z));
+            float maxX = player.velocities.Max(v => Mathf.Abs(v.x));
+            float minX = player.velocities.Min(v => Mathf.Abs(v.x));
+            float maxZ = player.velocities.Max(v => Mathf.Abs(v.z));
+            float minZ = player.velocities.Min(v => Mathf.Abs(v.z));
 
-                maxVel = new Vector3(Mathf.Max(maxX, maxVel.x), 0, Mathf.Max(maxZ, maxVel.z));
-                minVel = new Vector3(Mathf.Min(minX, minVel.x), 0, Mathf.Min(minZ, minVel.z));
-            }
-            Debug.Log("Max Vel:" + maxVel.ToString());
-            Debug.Log("Min Vel:" + minVel.ToString());
-            m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
-            m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
+            maxVel = new Vector3(Mathf.Max(maxX, maxVel.x), 0, Mathf.Max(maxZ, maxVel.z));
+            minVel = new Vector3(Mathf.Min(minX, minVel.x), 0, Mathf.Min(minZ, minVel.z));
         }
+        Debug.Log("Max Vel:" + maxVel.ToString());
+        Debug.Log("Min Vel:" + minVel.ToString());
+        m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
+        m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
     }
 
     public Vector3 GetRandomSpawnPos(int idx)
@@ -159,63 +144,6 @@ public class RVOPlayerGroup : MonoBehaviour
         }
     }
 
-    //public void CreatePlayerLabel(int idx)
-    //{
-    //    Vector3 rndPos = GetRandomSpawnPos(idx);
-    //    int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
-
-    //    GameObject playerObj = Instantiate(playerLabel_prefab, rndPos, Quaternion.identity);
-    //    playerObj.transform.SetParent(gameObject.transform, false);
-    //    playerObj.name = sid + "_PlayerLabel";
-    //    var text = playerObj.transform.Find("player/BackCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
-    //    text.text = sid.ToString();
-    //    text = playerObj.transform.Find("player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
-    //    text.text = sid.ToString();
-
-    //    //playerObj.tag = "player_agent";
-    //    //playerObj.layer = LayerMask.NameToLayer("player_agent");
-
-    //    RVOplayer player = playerObj.GetComponent<RVOplayer>();
-
-    //    player.sid = sid;
-    //    m_playerMap.Add(player);
-
-    //    Transform label = playerObj.gameObject.transform.Find("label");
-    //    label.name = sid + "_label";
-
-    //    Debug.Log("Finish initialize " + label.name);
-    //    var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
-    //    name.text = Random.Range(10, 99).ToString();
-    //    var iamge = label.Find("panel/Player_info").GetComponent<Image>();
-    //    iamge.sprite = (idx % 2 == 0) ? blueLabel : redLabel;
-    //    if(idx % 2 != 0)
-    //    {
-    //        Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
-    //        var cubeRenderer = player.player.GetComponent<Renderer>();
-    //        cubeRenderer.material.SetColor("_Color", color);
-    //    }
-
-    //    RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
-    //    agent.PlayerLabel = player;
-    //    agent.court = court;
-    //    agent.cam = cam;
-    //    agent.minZInCam = minZInCam;
-    //    agent.maxZInCam = maxZInCam;
-
-    //    // if (idx == 5)
-    //    // {
-    //    //     DemonstrationRecorder dr = label.gameObject.AddComponent<DemonstrationRecorder>();
-    //    //     dr.DemonstrationDirectory = "Assets/Exp-SelfCentric/Demo";
-    //    //     dr.DemonstrationName = "RVOLabel";
-    //    //     dr.Record = true;
-    //    //     BehaviorParameters bp = label.GetComponent<BehaviorParameters>();
-    //    //     bp.BehaviorType = BehaviorType.HeuristicOnly;
-    //    //     Color color = new Color(255f / 255f, 154 / 255f, 224 / 255f);
-    //    //     var cubeRenderer = player.player.GetComponent<Renderer>();
-    //    //     cubeRenderer.material.SetColor("_Color", color);
-    //    // }
-    //}
-
     // Update is called once per frame
     public int step = 0;
 
@@ -224,63 +152,6 @@ public class RVOPlayerGroup : MonoBehaviour
     List<Metrics> metrics = new List<Metrics>();
     private void FixedUpdate()
     {
-        // if sync and all reached
-        // reset all
-        //if (m_RVOSettings.sync && (m_playerMap.All(p => p.reached()) || step >= m_RVOSettings.MaxSteps))
-        //{
-        //    foreach (var p in m_playerMap)
-        //    {
-        //        p.GetComponentInChildren<RVOLabelAgent>().SyncReset(step >= m_RVOSettings.MaxSteps);
-        //    }
-
-        //    // get new number of agents
-        //    int numOfAgent = UnityEngine.Random.Range(m_RVOSettings.minNumOfPlayer, m_RVOSettings.maxNumOfPlayer + 1);
-        //    m_RVOSettings.numOfPlayer = numOfAgent;
-        //    if (numOfAgent > m_playerMap.Count)
-        //    {
-        //        // should spawn
-        //        for (int i = m_playerMap.Count; i < numOfAgent; ++i)
-        //        {
-        //            CreatePlayerLabel(i);
-        //        }
-        //    }
-        //    else if (numOfAgent < m_playerMap.Count)
-        //    {
-        //        // should destory   
-        //        for (int i = m_playerMap.Count - 1; i >= numOfAgent; --i)
-        //        {
-        //            var p = m_playerMap[i];
-        //            m_playerMap.RemoveAt(i);
-        //            Destroy(p.gameObject);
-        //        }
-        //    }
-
-        //    // if circle
-        //    var rnd = new System.Random();
-        //    var randomized = m_playerMap.OrderBy(item => rnd.Next()).ToList();
-
-        //    for (int i = 0, len = randomized.Count; i < len; ++i)
-        //    {
-        //        var p = randomized[i];
-        //        Vector3 rndPos = GetRandomSpawnPos(i);
-        //        int sid = Simulator.Instance.addAgent(new Vector2(rndPos.x, rndPos.z));
-        //        p.transform.localPosition = rndPos;
-        //        p.sid = sid;
-        //        p.resetDestination();
-        //    }
-
-        //    // -----------> EVALUATION <------------ save occlusion rate
-        //    if(m_RVOSettings.evaluate)
-        //    {
-        //        StreamWriter writer = new StreamWriter(System.DateTime.Now.ToFileTime() + ".txt", true);
-        //        writer.Write(string.Join('\n', metrics));
-        //        writer.Close();
-        //        metrics.Clear();
-        //    }
-
-        //    step = 0;
-        //}
-        //++step;
         time += Time.fixedDeltaTime;
 
         if (time >= timeStep)
