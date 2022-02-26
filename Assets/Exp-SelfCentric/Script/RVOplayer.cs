@@ -48,8 +48,11 @@ public class RVOplayer : MonoBehaviour
 
     public void step(int idx)
     {
-        currentStep = idx;
-        transform.localPosition = _positions[idx];
-        player.transform.forward = velocities[idx].normalized;
+        if(idx < _positions.Count())
+        {
+            currentStep = idx;
+            transform.localPosition = _positions[idx];
+            player.transform.forward = velocities[idx].normalized;
+        }
     }
 }

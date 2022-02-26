@@ -64,7 +64,7 @@ public class RVOPlayerGroup : MonoBehaviour
         else if (m_RVOSettings.Dataset == 1)
         {
             var positions = GetPos();
-            for(int i = 0; i < positions.Count; ++i)
+            for(int i = 0; i < 20; ++i)
             {
                 this.CreatePlayerLabelFromPos(i, positions[i].ToArray());
             }
@@ -323,6 +323,7 @@ public class RVOPlayerGroup : MonoBehaviour
     private List<List<Vector3>> GetPos()
     {
 
+        //string fileName = Path.Combine(Application.streamingAssetsPath, "student_20_100.csv");
         string fileName = Path.Combine(Application.streamingAssetsPath, "nba_7501.csv");
         StreamReader r = new StreamReader(fileName);
         string pos_data = r.ReadToEnd();
@@ -347,7 +348,7 @@ public class RVOPlayerGroup : MonoBehaviour
             ));
         }
 
-        totalStep = playerPos.Min(p => p.Count);
+        totalStep = playerPos.Max(p => p.Count);
 
         return playerPos;
     }

@@ -25,7 +25,7 @@ public class RVOLabelAgent : Agent
     public RVOplayer PlayerLabel;
     public Camera cam;
     public Transform court;
-    //Rigidbody m_Rbody;
+    Rigidbody m_Rbody;
     RectTransform rTransform;
     RVOLine m_RVOLine;
     Transform m_Panel;
@@ -35,7 +35,7 @@ public class RVOLabelAgent : Agent
 
     public float minY = 1.8f;
     float yDistThres = 0.0f;
-    float xzDistThres = 2.5f;
+    float xzDistThres = 1.5f;
     float maxDist;
     //float minAngle = -170f;
     //float maxAngle = -10f;
@@ -46,6 +46,8 @@ public class RVOLabelAgent : Agent
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         Academy.Instance.AgentPreStep += UpdateReward;
+
+        m_Rbody = GetComponent<Rigidbody>();
 
         rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
         rwd.rew_x = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_x", -0.00025f);
@@ -176,7 +178,7 @@ public class RVOLabelAgent : Agent
     }
 
     /*-----------------------Action-----------------------*/
-    float moveUnit = 0.06f;
+    float moveUnit = 1; // 0.06f;
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         var moveZ = actionBuffers.DiscreteActions[0] == 1
@@ -187,12 +189,14 @@ public class RVOLabelAgent : Agent
         if (moveZ != 0)
         {
             AddReward(rwd.rew_z);
-            Vector3 newPos = transform.position + new Vector3(0, 0, 1.0f) * moveZ;
-            float distToTarget = Mathf.Abs(newPos.z - PlayerLabel.transform.position.z);
-            if (distToTarget < xzDistThres)
-            {
-                transform.position = newPos;
-            }
+            //Vector3 newPos = transform.position + new Vector3(0, 0, 1.0f) * moveZ;
+            //float distToTarget = transform.position.z - PlayerLabel.transform.position.z;
+
+            //if(!(distToTarget >= xzDistThres && moveZ > 0) && !(distToTarget <= -xzDistThres && moveZ < 0))
+            //{
+                m_Rbody.AddForce(new Vector3(0, 0, 1.0f) * moveZ * 1, ForceMode.VelocityChange);
+            //}
+
         }
         else
         {
@@ -207,17 +211,34 @@ public class RVOLabelAgent : Agent
         if(moveX != 0)
         {
             AddReward(rwd.rew_x);
-            Vector3 newPos = transform.position + new Vector3(1.0f, 0, 0) * moveX;
-            float distToTarget = Mathf.Abs(newPos.x - PlayerLabel.transform.position.x);
-            if (distToTarget < xzDistThres)
-            {
-                transform.position = newPos; //target - new Vector3(1.0f, 0, 0) * (xzDistThres - 0.001f);
-            }
+            //Vector3 newPos = transform.position + new Vector3(1.0f, 0, 0) * moveX;
+            //float distToTarget = Mathf.Abs(newPos.x - PlayerLabel.transform.position.x);
+            //if (distToTarget < xzDistThres)
+            //{
+            //    transform.position = newPos; //target - new Vector3(1.0f, 0, 0) * (xzDistThres - 0.001f);
+            //}
+            m_Rbody.AddForce(new Vector3(1, 0, 0f) * moveX * 1, ForceMode.VelocityChange);
         }
         else
         {
             AddReward(-rwd.rew_x);
         }
+    }
+
+    private void FixedUpdate()
+    {
+        float distToTarget = transform.position.z - PlayerLabel.transform.position.z;
+        if(Mathf.Abs(distToTarget) > xzDistThres)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, PlayerLabel.transform.position.z + (distToTarget > 0 ? xzDistThres: -xzDistThres));
+        }
+
+        distToTarget = transform.position.x - PlayerLabel.transform.position.x;
+        if (Mathf.Abs(distToTarget) > xzDistThres)
+        {
+            transform.position = new Vector3(PlayerLabel.transform.position.x + (distToTarget > 0 ? xzDistThres : -xzDistThres), transform.position.y, transform.position.z);
+        }
+
     }
 
     /*-----------------------Reward-----------------------*/
