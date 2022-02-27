@@ -3,6 +3,31 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
+using UnityEditor;
+
+public class ReadOnlyAttribute : PropertyAttribute
+{
+
+}
+
+[CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
+public class ReadOnlyDrawer : PropertyDrawer
+{
+    public override float GetPropertyHeight(SerializedProperty property,
+                                            GUIContent label)
+    {
+        return EditorGUI.GetPropertyHeight(property, label, true);
+    }
+
+    public override void OnGUI(Rect position,
+                               SerializedProperty property,
+                               GUIContent label)
+    {
+        GUI.enabled = false;
+        EditorGUI.PropertyField(position, property, label, true);
+        GUI.enabled = true;
+    }
+}
 
 public class RVOPlayerGroup : MonoBehaviour
 {
@@ -16,8 +41,19 @@ public class RVOPlayerGroup : MonoBehaviour
     public Camera cam;
     float minZInCam;
     float maxZInCam;
-    public int totalStep = -1;
-    int currentStep = 0;
+    [ReadOnly] public int currentStep = 0;
+    [ReadOnly] public int currentTrack = 0;
+
+
+    public struct Track
+    {
+        public List<Vector3[]> positions;
+        public List<Vector3[]> velocities;
+        public int totalStep;
+    }
+
+    public List<Track> tracks = new List<Track>();
+
 
     private List<RVOplayer> m_playerMap = new List<RVOplayer>();
 
@@ -46,63 +82,51 @@ public class RVOPlayerGroup : MonoBehaviour
         minZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, -m_RVOSettings.courtZ)).z;
         maxZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z;
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + ")");
+        currentStep = 0;
+        currentTrack = 0;
 
-        var positions = GetPos();
-        int maxPlayers = Mathf.Min(positions.Count(), 20);
-        for(int i = 0; i < maxPlayers; ++i)
-        {
-            this.CreatePlayerLabelFromPos(i, positions[i].ToArray());
-        }
-        // max velocity
-        Vector3 maxVel = Vector3.zero;
-        Vector3 minVel = new Vector3(Mathf.Infinity, 0, Mathf.Infinity);
-        foreach(var player in m_playerMap)
-        {
-            float maxX = player.velocities.Max(v => Mathf.Abs(v.x));
-            float minX = player.velocities.Min(v => Mathf.Abs(v.x));
-            float maxZ = player.velocities.Max(v => Mathf.Abs(v.z));
-            float minZ = player.velocities.Min(v => Mathf.Abs(v.z));
-
-            maxVel = new Vector3(Mathf.Max(maxX, maxVel.x), 0, Mathf.Max(maxZ, maxVel.z));
-            minVel = new Vector3(Mathf.Min(minX, minVel.x), 0, Mathf.Min(minZ, minVel.z));
-        }
-        Debug.Log("Max Vel:" + maxVel.ToString());
-        Debug.Log("Min Vel:" + minVel.ToString());
-        m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
-        m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
+        LoadPosInTrack();
+        LoadTrack(currentTrack);
     }
 
-    public Vector3 GetRandomSpawnPos(int idx)
+    void LoadTrack(int idx)
     {
-        var randomSpawnPos = Vector3.zero;
-        if (m_RVOSettings.CrossingMode)
-        {
-            float radius = Mathf.Min(m_RVOSettings.courtX * 0.95f, m_RVOSettings.courtZ * 0.95f);
-            float variance = 1.0f;
-       
-            var angle = (idx + 0.8f * Random.value) * Mathf.PI * 2 / m_RVOSettings.numOfPlayer;
-            var randomPosX = Mathf.Cos(angle) * radius;
-            var randomPosZ = Mathf.Sin(angle) * radius;
-            randomPosX += Random.value * variance;
-            randomPosZ += Random.value * variance;
+        if (idx >= tracks.Count) Debug.LogWarning("Idx " + idx + " out of tracks range");
+        var track = tracks[idx];
+        int numPlayers = track.positions.Count;
+        int curNumPlayers = m_playerMap.Count;
 
-            randomSpawnPos = new Vector3(randomPosX, 0.5f, randomPosZ);
-        }
-        else
+        if(numPlayers > curNumPlayers)
         {
-            float oneLine = m_RVOSettings.courtZ / 8f;
-            float posZ = idx * oneLine - m_RVOSettings.numOfPlayer * 0.5f * oneLine;
-            float randomPosX = -m_RVOSettings.courtX + Random.value * 0.3f * m_RVOSettings.courtX;
-            randomSpawnPos = new Vector3(randomPosX, 0.5f, posZ);
+            // should spawn
+            for (int i = curNumPlayers; i < numPlayers; ++i) 
+                CreatePlayerLabelFromPos(i, track.positions[i][0]);
         }
-  
-        return randomSpawnPos;
+        else if (numPlayers < curNumPlayers)
+        {
+            // should destory
+            for(int i = m_playerMap.Count -1; i >= numPlayers; --i)
+            {
+                var p = m_playerMap[i];
+                m_playerMap.RemoveAt(i);
+                Destroy(p.gameObject);
+            }
+        }
+
+        for(int i = 0, len = m_playerMap.Count; i < len; ++i)
+        {
+            var player = m_playerMap[i];
+            player.positions = track.positions[i];
+            player.velocities = track.velocities[i];
+        }
+
+        currentStep = 0;
     }
 
-    public void CreatePlayerLabelFromPos(int sid, Vector3[] positions)
+    public void CreatePlayerLabelFromPos(int sid, Vector3 pos)
     {
 
-        GameObject playerObj = Instantiate(playerLabel_prefab, positions[0], Quaternion.identity);
+        GameObject playerObj = Instantiate(playerLabel_prefab, pos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = sid + "_PlayerLabel";
 
@@ -112,7 +136,6 @@ public class RVOPlayerGroup : MonoBehaviour
         text.text = sid.ToString();
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
-        player.positions = positions;
 
         player.sid = sid;
         m_playerMap.Add(player);
@@ -140,16 +163,13 @@ public class RVOPlayerGroup : MonoBehaviour
             Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
             var cubeRenderer = player.player.GetComponent<Renderer>();
             cubeRenderer.material.SetColor("_Color", color);
-            //agent.minY = 1.2f;
         }
     }
-
-    // Update is called once per frame
-    public int step = 0;
 
     private float time = 0.0f;
     private float timeStep = 0.04f;
     List<Metrics> metrics = new List<Metrics>();
+    List<List<HashSet<int>>> occlusionPerStepPerTrack = new List<List<HashSet<int>>>();
     private void FixedUpdate()
     {
         time += Time.fixedDeltaTime;
@@ -160,66 +180,146 @@ public class RVOPlayerGroup : MonoBehaviour
             currentStep += 1;
         }
 
-        if(currentStep < totalStep)
+        if(currentStep < tracks[currentTrack].totalStep)
         {
             m_playerMap.ForEach(p => p.step(currentStep));
         }
         else
         {
-            currentStep = 0;
+            var labelAgents = m_playerMap.Select(p => p.GetComponentInChildren<RVOLabelAgent>());
+            // collect the occlusion over time
+            List<HashSet<int>> accumulatedOcclusion = new List<HashSet<int>>();
+            for(int i = 0; i < tracks[currentTrack].totalStep; ++i)
+            {
+                var occluded = new HashSet<int>();
+                foreach (var labelAgent in labelAgents)
+                {
+                    occluded.UnionWith(labelAgent.occludedObjectOverTime[i]);
+                }
+                accumulatedOcclusion.Add(occluded);
+            }
+            if ((currentTrack + 1) > occlusionPerStepPerTrack.Count)
+            {
+                occlusionPerStepPerTrack.Add(accumulatedOcclusion);
+            }
+            else occlusionPerStepPerTrack[currentTrack] = accumulatedOcclusion;
+            // save 
+            using (StreamWriter writer = new StreamWriter("nba_full_split_occlutionRate.txt", false))
+            {
+                string data = "";
+                for(int i = 0; i < occlusionPerStepPerTrack.Count; ++i)
+                {
+                    var track = occlusionPerStepPerTrack[i];
+                    data += string.Join('\n', track.Select(s => i + "," + string.Join(',', s))) + '\n';
+                }
+
+                //writer.Write(string.Join('\n', occlusionPerStepPerTrack.Select(t => string.Join('\n', t.Select(s => string.Join(',', s))))));
+                writer.Write(data);
+                writer.Close();
+            }
+            
             // reset all 
+            currentStep = 0;
             m_playerMap.ForEach(p => p.GetComponentInChildren<RVOLabelAgent>().SyncReset());
+            // get the accumulate occlusion over time
+
+            // load another track
+            currentTrack = (++currentTrack % tracks.Count);
+            LoadTrack(currentTrack);
         }
 
         // -----------> EVALUATION <------------ save occlusion rate
         // calculate occlusion rate here
-        if (m_RVOSettings.evaluate)
-        {
-            GameObject[] occluded = m_playerMap
-                .SelectMany(p => p.GetComponentInChildren<RVOLabelAgent>().occluding())
-                .Distinct().ToArray();
+        //if (m_RVOSettings.evaluate)
+        //{
+        //    GameObject[] occluded = m_playerMap
+        //        .SelectMany(p => p.GetComponentInChildren<RVOLabelAgent>().occluding())
+        //        .Distinct().ToArray();
 
-            int numOfOcclusion = occluded
-                .Count();
+        //    int numOfOcclusion = occluded
+        //        .Count();
 
-            Metrics m = new Metrics();
-            m.occlusionRate = (float)numOfOcclusion / (2 * m_RVOSettings.numOfPlayer - 1);
-            int numOfIntersection = (int) (m_playerMap.Sum(p => p.GetComponentInChildren<RVOLabelAgent>().numOfIntersection()) * 0.5f);
-            m.intersections = numOfIntersection;
-            metrics.Add(m);
-        }
+        //    Metrics m = new Metrics();
+        //    m.occlusionRate = (float)numOfOcclusion / (2 * m_RVOSettings.numOfPlayer - 1);
+        //    int numOfIntersection = (int) (m_playerMap.Sum(p => p.GetComponentInChildren<RVOLabelAgent>().numOfIntersection()) * 0.5f);
+        //    m.intersections = numOfIntersection;
+        //    metrics.Add(m);
+        //}
     }
 
-    private List<List<Vector3>> GetPos()
+    private void LoadPosInTrack()
     {
 
         //string fileName = Path.Combine(Application.streamingAssetsPath, "student_20_100.csv");
-        string fileName = Path.Combine(Application.streamingAssetsPath, "nba_7501.csv");
+        string fileName = Path.Combine(Application.streamingAssetsPath, "nba_full_split.csv");
         StreamReader r = new StreamReader(fileName);
         string pos_data = r.ReadToEnd();
 
         string[] records = pos_data.Split('\n');
 
-        List<List<Vector3>> playerPos = new List<List<Vector3>>();
+        List<List<List<Vector3>>> tracks = new List<List<List<Vector3>>>();
         for(int i = 0; i < records.Length; ++i)
         {
             string[] array = records[i].Split(',');
-            int playerIdx = int.Parse(array[0]);
+            int trackIdx = int.Parse(array[0]);
+            int playerIdx = int.Parse(array[1]);
+            float px = float.Parse(array[2]);
+            float py = float.Parse(array[3]);
 
-            if ((playerIdx + 1) > playerPos.Count)
+            if((trackIdx +1) > tracks.Count)
             {
-                playerPos.Add(new List<Vector3>());
+                tracks.Add(new List<List<Vector3>>());
             }
-            
-            playerPos[playerIdx].Add(new Vector3(
-                float.Parse(array[1]),
-                0.5f,
-                float.Parse(array[2])
-            ));
+
+            var track = tracks[trackIdx];
+            if((playerIdx + 1) > track.Count)
+            {
+                track.Add(new List<Vector3>());
+            }
+            var playerPos = track[playerIdx];
+            playerPos.Add(new Vector3(px, 0.5f, py));
         }
 
-        totalStep = playerPos.Max(p => p.Count);
+        // positions, velocitye, max velocity
+        Vector3 maxVel = Vector3.zero;
+        Vector3 minVel = new Vector3(Mathf.Infinity, 0, Mathf.Infinity);
+     
+        for(int tIdx = 0; tIdx < tracks.Count; ++tIdx)
+        {
+            var track = tracks[tIdx];
+            var trackStruct = new Track();
+            int totalStep = track.Max(p => p.Count);
+            List<Vector3[]> positions = track.Select(p => p.ToArray()).ToList();
+            List<Vector3[]> velocities = new List<Vector3[]>();
 
-        return playerPos;
+            for(int pIdx = 0; pIdx < positions.Count; ++pIdx)
+            {
+                var pos = positions[pIdx];
+                Vector3[] vel = new Vector3[pos.Length];
+                for (int i = 0; i < pos.Length - 1; ++i)
+                {
+                    Vector3 cur = pos[i];
+                    Vector3 next = pos[i + 1];
+                    vel[i] = (next - cur) / timeStep;
+
+                    maxVel = new Vector3(Mathf.Max(vel[i].x, maxVel.x), 0, Mathf.Max(vel[i].z, maxVel.z));
+                    minVel = new Vector3(Mathf.Min(vel[i].x, minVel.x), 0, Mathf.Min(vel[i].z, minVel.z));
+
+                }
+                vel[pos.Length - 1] = vel[pos.Length - 2];
+                velocities.Add(vel);
+            }
+
+            trackStruct.totalStep = totalStep;
+            trackStruct.positions = positions;
+            trackStruct.velocities = velocities;
+            this.tracks.Add(trackStruct);
+        }
+
+        Debug.Log("Max Vel:" + maxVel.ToString());
+        Debug.Log("Min Vel:" + minVel.ToString());
+        m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
+        m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
+
     }
 }

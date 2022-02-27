@@ -30,6 +30,8 @@ public class RVOLabelAgent : Agent
     RVOLine m_RVOLine;
     Transform m_Panel;
 
+    public List<HashSet<int>> occludedObjectOverTime = new List<HashSet<int>>();
+
     // sensor
     BufferSensorComponent bSensor;
 
@@ -74,6 +76,7 @@ public class RVOLabelAgent : Agent
     public override void OnEpisodeBegin()
     {
         transform.localPosition = new Vector3(0f, minY, 0f);
+        occludedObjectOverTime.Clear();
     }
 
     Vector3 velocity => PlayerLabel.velocity;
@@ -258,7 +261,6 @@ public class RVOLabelAgent : Agent
         }
     }
 
-  
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         addForceMove(actionBuffers);
@@ -300,7 +302,7 @@ public class RVOLabelAgent : Agent
         EndEpisode();
     }
 
-    public GameObject[] occluding()
+    private void CollectOccluding()
     {
         BoxCollider collider = m_Panel.GetComponent<BoxCollider>();
         Vector3 size = collider.size * 0.5f;
@@ -318,7 +320,6 @@ public class RVOLabelAgent : Agent
             new Vector3(size.x, -size.y, 0)
         };
 
-        //Vector3 origin = cam.transform.position;
         int labelLayerMask = 1 << LayerMask.NameToLayer("label");
         int playerLayerMask = 1 << LayerMask.NameToLayer("player");
 
@@ -337,10 +338,9 @@ public class RVOLabelAgent : Agent
             }
         }
 
-
-        GameObject[] gs = hits.GroupBy(h => h.colliderInstanceID).Select(g => g.First().collider.gameObject).ToArray();
-
-        return gs;
+        var ids = new HashSet<int>();
+        hits.ForEach(hit => ids.Add(hit.collider.GetInstanceID()));
+        occludedObjectOverTime.Add(ids);
     }
 
     public int numOfIntersection()
@@ -404,6 +404,7 @@ public class RVOLabelAgent : Agent
         AddReward(rew);
 
         m_Panel.LookAt(cam.transform);
+        CollectOccluding();
     }
 
     public Vector3 GetSizeInWorld()
