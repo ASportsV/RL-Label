@@ -182,10 +182,10 @@ public class RVOLabelAgent : Agent
     {
         float moveUnit = 0.06f;
         var moveZ = actionBuffers.DiscreteActions[0] == 1
-    ? moveUnit
-    : actionBuffers.DiscreteActions[0] == 2
-    ? -moveUnit
-    : 0;
+            ? moveUnit
+            : actionBuffers.DiscreteActions[0] == 2
+            ? -moveUnit
+            : 0;
         if (moveZ != 0)
         {
             AddReward(rwd.rew_z);
@@ -260,7 +260,7 @@ public class RVOLabelAgent : Agent
   
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        distMove(actionBuffers);
+        addForceMove(actionBuffers);
     }
 
     private void FixedUpdate()
