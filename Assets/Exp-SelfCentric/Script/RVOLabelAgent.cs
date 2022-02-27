@@ -35,7 +35,7 @@ public class RVOLabelAgent : Agent
 
     public float minY = 1.8f;
     float yDistThres = 0.0f;
-    float xzDistThres = 2.5f;
+    float xzDistThres;
     float maxDist;
     //float minAngle = -170f;
     //float maxAngle = -10f;
@@ -51,6 +51,7 @@ public class RVOLabelAgent : Agent
 
         rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
         rwd.rew_x = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_x", -0.00025f);
+        xzDistThres =  Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 2f);
         rwd.rew_occlude = -0.1f;
         rwd.rew_intersets = -0.1f;
         rwd.rew_dist = -0.01f;
@@ -182,10 +183,10 @@ public class RVOLabelAgent : Agent
     {
         float moveUnit = 0.06f;
         var moveZ = actionBuffers.DiscreteActions[0] == 1
-    ? moveUnit
-    : actionBuffers.DiscreteActions[0] == 2
-    ? -moveUnit
-    : 0;
+            ? moveUnit
+            : actionBuffers.DiscreteActions[0] == 2
+            ? -moveUnit
+            : 0;
         if (moveZ != 0)
         {
             AddReward(rwd.rew_z);
@@ -260,7 +261,7 @@ public class RVOLabelAgent : Agent
   
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        distMove(actionBuffers);
+        addForceMove(actionBuffers);
     }
 
     private void FixedUpdate()
