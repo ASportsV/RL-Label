@@ -80,8 +80,10 @@ public class RVOPlayerGroup : MonoBehaviour
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
 
         minZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, -m_RVOSettings.courtZ)).z;
-        maxZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z;
-        Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + ")");
+        cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
+        maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
+
+        Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
         currentStep = 0;
         currentTrack = 0;
 
@@ -321,5 +323,50 @@ public class RVOPlayerGroup : MonoBehaviour
         m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
         m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
 
+    }
+
+
+    void CalBounds(Vector3[] BBox, string tag = "")
+    {
+        Vector3[] anchors = new Vector3[] {
+            new Vector3(-m_RVOSettings.courtX, 0.5f, -m_RVOSettings.courtZ),
+            new Vector3(0, 0.5f, -m_RVOSettings.courtZ),
+            new Vector3(m_RVOSettings.courtX, 0.5f, -m_RVOSettings.courtZ),
+
+            new Vector3(m_RVOSettings.courtX, 0.5f, 0),
+            new Vector3(m_RVOSettings.courtX, 0.5f, m_RVOSettings.courtZ),
+
+            new Vector3(0, 0.5f, m_RVOSettings.courtZ),
+            new Vector3(-m_RVOSettings.courtX, 0.5f, m_RVOSettings.courtZ),
+
+            new Vector3(-m_RVOSettings.courtX, 0.5f, 0)
+        };
+
+
+        Vector3 min = Vector3.zero;
+        Vector3 max = Vector3.zero;
+        // player extent
+        foreach (var anchor in anchors)
+        {
+            // cam lookat
+            cam.transform.LookAt(anchor);
+            // iterate through the bbox points
+            Vector3 localMin = Vector3.zero;
+            Vector3 localMax = Vector3.zero;
+            foreach (var endPoint in BBox)
+            {
+                var pointInCam = cam.transform.InverseTransformPoint(endPoint);
+
+                min = new Vector3(Mathf.Min(min.x, pointInCam.x), Mathf.Min(min.y, pointInCam.y), Mathf.Min(min.z, pointInCam.z));
+                max = new Vector3(Mathf.Max(max.x, pointInCam.x), Mathf.Max(max.y, pointInCam.y), Mathf.Max(max.z, pointInCam.z));
+
+                localMin = new Vector3(Mathf.Min(localMin.x, pointInCam.x), Mathf.Min(localMin.y, pointInCam.y), Mathf.Min(localMin.z, pointInCam.z));
+                localMax = new Vector3(Mathf.Max(localMax.x, pointInCam.x), Mathf.Max(localMax.y, pointInCam.y), Mathf.Max(localMax.z, pointInCam.z));
+                print(tag + "LocalMin: " + localMin.ToString() + ", LocalMax: " + localMax.ToString() + ", extent: " + (localMax - localMin).ToString());
+            }
+
+
+        }
+        print(tag + "Min: " + min.ToString() + ", Max: " + max.ToString() + ", extent: " + (max - min).ToString());
     }
 }
