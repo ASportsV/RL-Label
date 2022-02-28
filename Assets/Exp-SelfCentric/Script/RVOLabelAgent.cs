@@ -418,28 +418,28 @@ public class RVOLabelAgent : Agent
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
-        var discreteActionsOut = actionsOut.DiscreteActions;
-        discreteActionsOut[0] = 0;
-        //forward
-        if (Input.GetKey(KeyCode.W))
-        {
-            discreteActionsOut[0] = 1;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            discreteActionsOut[0] = 2;
-        }
+        //var discreteActionsOut = actionsOut.DiscreteActions;
+        //discreteActionsOut[0] = 0;
+        ////forward
+        //if (Input.GetKey(KeyCode.W))
+        //{
+        //    discreteActionsOut[0] = 1;
+        //}
+        //if (Input.GetKey(KeyCode.S))
+        //{
+        //    discreteActionsOut[0] = 2;
+        //}
 
 
-        discreteActionsOut[1] = 0;
-        if (Input.GetKey(KeyCode.A))
-        {
-            discreteActionsOut[1] = 1;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            discreteActionsOut[1] = 2;
-        }
+        //discreteActionsOut[1] = 0;
+        //if (Input.GetKey(KeyCode.A))
+        //{
+        //    discreteActionsOut[1] = 1;
+        //}
+        //if (Input.GetKey(KeyCode.D))
+        //{
+        //    discreteActionsOut[1] = 2;
+        //}
 
         // discreteActionsOut[2] = 0;
         // if (Input.GetKey(KeyCode.Q))
