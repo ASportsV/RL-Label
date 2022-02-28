@@ -225,13 +225,15 @@ public class RVOLabelAgent : Agent
 
     void addForceMove(ActionBuffers actionBuffers)
     {
-        float moveUnit = 1;
-        var moveZ = actionBuffers.DiscreteActions[0] == 1
-           ? moveUnit
-           : actionBuffers.DiscreteActions[0] == 2
-           ? -moveUnit
-           : 0;
-        if (moveZ != 0)
+        float moveUnit = 3f;
+        float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * moveUnit;
+
+        // var moveZ = actionBuffers.DiscreteActions[0] == 1
+        //    ? moveUnit
+        //    : actionBuffers.DiscreteActions[0] == 2
+        //    ? -moveUnit
+        //    : 0;
+        if (Mathf.Abs(moveZ) > 0.001f)
         {
             AddReward(rwd.rew_z);
             m_Rbody.AddForce(new Vector3(0, 0, 1.0f) * moveZ * 1, ForceMode.VelocityChange);
@@ -242,12 +244,13 @@ public class RVOLabelAgent : Agent
             AddReward(-rwd.rew_z);
         }
 
-        var moveX = actionBuffers.DiscreteActions[1] == 1
-            ? -moveUnit
-            : actionBuffers.DiscreteActions[1] == 2
-            ? +moveUnit
-            : 0;
-        if (moveX != 0)
+        float moveX = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f) * moveUnit;
+        // var moveX = actionBuffers.DiscreteActions[1] == 1
+        //     ? -moveUnit
+        //     : actionBuffers.DiscreteActions[1] == 2
+        //     ? +moveUnit
+        //     : 0;
+        if (Mathf.Abs(moveX) > 0.001f)
         {
             AddReward(rwd.rew_x);
             m_Rbody.AddForce(new Vector3(1, 0, 0f) * moveX * 1, ForceMode.VelocityChange);
