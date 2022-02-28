@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using UnityEditor;
+using Unity.MLAgents;
 
 public class RVOPlayerGroup : MonoBehaviour
 {
@@ -48,19 +49,28 @@ public class RVOPlayerGroup : MonoBehaviour
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
+        cam = transform.parent.Find("Camera").GetComponent<Camera>();
+        
+        bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
+        if(movingCam) 
+        {
+            cam.gameObject.AddComponent<MovingCamera>();
+        }
+        court = transform.parent.Find("fancy_court");
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        court = transform.parent.Find("fancy_court");
-        cam = transform.parent.Find("Camera").GetComponent<Camera>();
-
-        var tmp = cam.transform.forward;
         minZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, -m_RVOSettings.courtZ)).z;
-        cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
-        maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
-        cam.transform.forward = tmp;
+        maxZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z;
+
+        if(cam.GetComponent<MovingCamera>()) {
+            var tmp = cam.transform.forward;
+            cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
+            maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
+            cam.transform.forward = tmp;
+        }
 
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
