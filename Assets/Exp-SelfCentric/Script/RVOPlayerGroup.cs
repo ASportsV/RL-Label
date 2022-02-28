@@ -5,30 +5,6 @@ using UnityEngine.UI;
 using System.IO;
 using UnityEditor;
 
-public class ReadOnlyAttribute : PropertyAttribute
-{
-
-}
-
-[CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
-public class ReadOnlyDrawer : PropertyDrawer
-{
-    public override float GetPropertyHeight(SerializedProperty property,
-                                            GUIContent label)
-    {
-        return EditorGUI.GetPropertyHeight(property, label, true);
-    }
-
-    public override void OnGUI(Rect position,
-                               SerializedProperty property,
-                               GUIContent label)
-    {
-        GUI.enabled = false;
-        EditorGUI.PropertyField(position, property, label, true);
-        GUI.enabled = true;
-    }
-}
-
 public class RVOPlayerGroup : MonoBehaviour
 {
     RVOSettings m_RVOSettings;
@@ -41,9 +17,10 @@ public class RVOPlayerGroup : MonoBehaviour
     public Camera cam;
     float minZInCam;
     float maxZInCam;
-    [ReadOnly] public int currentStep = 0;
-    [ReadOnly] public int currentTrack = 0;
-
+    public int currentStep = 0;
+    public int currentTrack;
+    int[] testingTrack = { 0, 6, 13, 15 };
+    Queue<int> trainingTrack;
 
     public struct Track
     {
@@ -79,15 +56,25 @@ public class RVOPlayerGroup : MonoBehaviour
         court = transform.parent.Find("fancy_court");
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
 
+        var tmp = cam.transform.forward;
         minZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, -m_RVOSettings.courtZ)).z;
         cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
         maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
+        cam.transform.forward = tmp;
 
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
-        currentStep = 0;
-        currentTrack = 0;
 
         LoadPosInTrack();
+        var rnd = new System.Random();
+        trainingTrack = new Queue<int>(Enumerable.Range(0, tracks.Count)
+            .Where(i => !testingTrack.Contains(i))
+            .OrderBy(item => rnd.Next())
+            .ToList());
+        currentStep = 0;
+
+        currentTrack = trainingTrack.Dequeue();
+        trainingTrack.Enqueue(currentTrack);
+
         LoadTrack(currentTrack);
     }
 
@@ -171,7 +158,7 @@ public class RVOPlayerGroup : MonoBehaviour
     private float time = 0.0f;
     private float timeStep = 0.04f;
     List<Metrics> metrics = new List<Metrics>();
-    List<List<HashSet<int>>> occlusionPerStepPerTrack = new List<List<HashSet<int>>>();
+    Dictionary<int, List<HashSet<int>>> occlusionPerStepPerTrack = new Dictionary<int, List<HashSet<int>>>();
     private void FixedUpdate()
     {
         time += Time.fixedDeltaTime;
@@ -188,45 +175,41 @@ public class RVOPlayerGroup : MonoBehaviour
         }
         else
         {
-            var labelAgents = m_playerMap.Select(p => p.GetComponentInChildren<RVOLabelAgent>());
-            // collect the occlusion over time
-            List<HashSet<int>> accumulatedOcclusion = new List<HashSet<int>>();
-            for(int i = 0; i < tracks[currentTrack].totalStep; ++i)
+            if(m_RVOSettings.evaluate)
             {
-                var occluded = new HashSet<int>();
-                foreach (var labelAgent in labelAgents)
+                var labelAgents = m_playerMap.Select(p => p.GetComponentInChildren<RVOLabelAgent>());
+                // collect the occlusion over time
+                List<HashSet<int>> accumulatedOcclusion = new List<HashSet<int>>();
+                for(int i = 0; i < tracks[currentTrack].totalStep; ++i)
                 {
-                    occluded.UnionWith(labelAgent.occludedObjectOverTime[i]);
+                    var occluded = new HashSet<int>();
+                    foreach (var labelAgent in labelAgents)
+                    {
+                        occluded.UnionWith(labelAgent.occludedObjectOverTime[i]);
+                    }
+                    accumulatedOcclusion.Add(occluded);
                 }
-                accumulatedOcclusion.Add(occluded);
-            }
-            if ((currentTrack + 1) > occlusionPerStepPerTrack.Count)
-            {
-                occlusionPerStepPerTrack.Add(accumulatedOcclusion);
-            }
-            else occlusionPerStepPerTrack[currentTrack] = accumulatedOcclusion;
-            // save 
-            using (StreamWriter writer = new StreamWriter("nba_full_split_occlutionRate.txt", false))
-            {
-                string data = "";
-                for(int i = 0; i < occlusionPerStepPerTrack.Count; ++i)
-                {
-                    var track = occlusionPerStepPerTrack[i];
-                    data += string.Join('\n', track.Select(s => i + "," + string.Join(',', s))) + '\n';
-                }
+                occlusionPerStepPerTrack[currentTrack] = accumulatedOcclusion;
 
-                //writer.Write(string.Join('\n', occlusionPerStepPerTrack.Select(t => string.Join('\n', t.Select(s => string.Join(',', s))))));
-                writer.Write(data);
-                writer.Close();
+                // save 
+                using (StreamWriter writer = new StreamWriter("nba_full_split_occlutionRate.txt", false))
+                {
+                    string data = "";
+                    foreach (var entry in occlusionPerStepPerTrack)
+                    {
+                        data += string.Join('\n', entry.Value.Select(s => entry.Key + "," + string.Join(',', s))) + '\n';
+                    }
+                    writer.Write(data);
+                    writer.Close();
+                }
             }
             
             // reset all 
             currentStep = 0;
             m_playerMap.ForEach(p => p.GetComponentInChildren<RVOLabelAgent>().SyncReset());
-            // get the accumulate occlusion over time
-
             // load another track
-            currentTrack = (++currentTrack % tracks.Count);
+            currentTrack = trainingTrack.Dequeue();
+            trainingTrack.Enqueue(currentTrack);
             LoadTrack(currentTrack);
         }
 
