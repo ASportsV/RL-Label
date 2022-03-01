@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311938, g: 0.38074005, b: 0.35872707, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -153,6 +153,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec51f47c5ed0478080c449c74fd9c154, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OriginalGravity: {x: 0, y: 0, z: 0}
+  m_OriginalFixedDeltaTime: 0
+  m_OriginalMaximumDeltaTime: 0
+  m_OriginalSolverIterations: 0
+  m_OriginalSolverVelocityIterations: 0
+  m_OriginalReuseCollisionCallbacks: 0
   gravityMultiplier: 1
   fixedDeltaTime: 0.02
   maximumDeltaTime: 0.33333334
@@ -190,7 +196,8 @@ MonoBehaviour:
   sync: 1
   parallelModeUpdateFreq: 3
   numOfPlayer: 8
-  playerSpeed: 1
+  playerSpeedX: 1
+  playerSppedZ: 1
   courtX: 14
   courtZ: 7
   evaluate: 1
@@ -261,6 +268,25 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1177594224 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 321233322761613511, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
+    type: 3}
+  m_PrefabInstance: {fileID: 6480803810957221126}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1177594227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1177594224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44d428b63affd384a9e23b8bad52e32c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
 --- !u!1 &1754990320 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4974859157397698701, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
@@ -279,9 +305,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2529f3623962a844a4ab61efdc0df74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player_prefab: {fileID: 7823073313924758570, guid: bc0b3ad49060c9d4fb13f8178abe9c54,
-    type: 3}
-  label_prefab: {fileID: 0}
   playerLabel_prefab: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
