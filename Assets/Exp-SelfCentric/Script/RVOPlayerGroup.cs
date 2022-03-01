@@ -209,7 +209,7 @@ public class RVOPlayerGroup : MonoBehaviour
                     foreach (var labelAgent in labelAgents)
                     {
                         occluded.UnionWith(labelAgent.occludedObjectOverTime[i]);
-                        intersected.UnionWith(labelAgent.occludedObjectOverTime[i]);
+                        intersected.UnionWith(labelAgent.intersectionsOverTime[i]);
                     }
                     accumulatedOcclusion.Add(occluded);
                     accumulatedIntersection.Add(intersected);   

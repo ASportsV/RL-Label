@@ -80,6 +80,9 @@ public class RVOLabelAgent : Agent
     {
         transform.localPosition = new Vector3(0f, minY, 0f);
         occludedObjectOverTime.Clear();
+        intersectionsOverTime.Clear();
+        distToTargetOverTime.Clear();
+        posOverTime.Clear();
     }
 
     Vector3 velocity => PlayerLabel.velocity;
@@ -453,7 +456,7 @@ public class RVOLabelAgent : Agent
         var selfSid = PlayerLabel.sid;
         foreach(var sid in intersectedLines.Select(i => i.GetComponent<RVOLabelAgent>().PlayerLabel.sid))
         {
-            intersections.Add(selfSid > sid ? selfSid + "_" + sid : sid + "_" + selfSid);
+            intersections.Add((selfSid > sid) ? (selfSid + "_" + sid) : (sid + "_" + selfSid));
         }
         intersectionsOverTime.Add(intersections);
 
