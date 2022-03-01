@@ -20,13 +20,13 @@ public class RVOPlayerGroup : MonoBehaviour
     float maxZInCam;
     public int currentStep = 0;
     public int currentTrack;
-    int[] testingTrack = { 0, 6, 13, 15 };
+    Queue<int> testingTrack = new Queue<int>(new[] { 0, 6, 13, 15 });
     Queue<int> trainingTrack;
 
     public struct Track
     {
-        public List<Vector3[]> positions;
-        public List<Vector3[]> velocities;
+        public Dictionary<int, Vector3[]> positions;
+        public Dictionary<int, Vector3[]> velocities;
         public int totalStep;
     }
 
@@ -37,12 +37,15 @@ public class RVOPlayerGroup : MonoBehaviour
 
     struct Metrics
     {
-        public float occlusionRate;
-        public int intersections;
-        public override string ToString()
-        {
-            return occlusionRate.ToString() + "," + intersections.ToString();
-        }
+        public int trackId;
+        public List<HashSet<string>> occludedObjPerStep; // sid
+        public List<HashSet<string>> intersectedObjPerStep;
+        public List<string> labelPositions;
+        public List<string> labelDistToTarget;
+        //public override string ToString()
+        //{
+        //    return occlusionRate.ToString() + "," + intersections.ToString();
+        //}
     }
 
 
@@ -62,15 +65,16 @@ public class RVOPlayerGroup : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        minZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, -m_RVOSettings.courtZ)).z;
-        maxZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z;
+        // geometry min and max
+        minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
+        maxZInCam = Vector3.Distance(cam.transform.localPosition, new Vector3(-m_RVOSettings.courtX, cam.transform.localPosition.y, m_RVOSettings.courtZ));
 
-        if(cam.GetComponent<MovingCamera>()) {
-            var tmp = cam.transform.forward;
-            cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
-            maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
-            cam.transform.forward = tmp;
-        }
+        //if(cam.GetComponent<MovingCamera>()) {
+        //    var tmp = cam.transform.forward;
+        //    cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
+        //    maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
+        //    cam.transform.forward = tmp;
+        //}
 
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
@@ -80,16 +84,18 @@ public class RVOPlayerGroup : MonoBehaviour
             .Where(i => !testingTrack.Contains(i))
             .OrderBy(item => rnd.Next())
             .ToList());
-        currentStep = 0;
 
-        currentTrack = trainingTrack.Dequeue();
-        trainingTrack.Enqueue(currentTrack);
-
-        LoadTrack(currentTrack);
+        LoadTrack();
     }
 
-    void LoadTrack(int idx)
+    void LoadTrack()
     {
+        var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
+        currentTrack = queue.Dequeue();
+        // for trainiing
+        if (!m_RVOSettings.evaluate) queue.Enqueue(currentTrack);
+
+        int idx = currentTrack;
         if (idx >= tracks.Count) Debug.LogWarning("Idx " + idx + " out of tracks range");
         var track = tracks[idx];
         int numPlayers = track.positions.Count;
@@ -115,8 +121,8 @@ public class RVOPlayerGroup : MonoBehaviour
         for(int i = 0, len = m_playerMap.Count; i < len; ++i)
         {
             var player = m_playerMap[i];
-            player.positions = track.positions[i];
-            player.velocities = track.velocities[i];
+            player.positions = track.positions[player.sid];
+            player.velocities = track.velocities[player.sid];
         }
 
         currentStep = 0;
@@ -167,8 +173,10 @@ public class RVOPlayerGroup : MonoBehaviour
 
     private float time = 0.0f;
     private float timeStep = 0.04f;
-    List<Metrics> metrics = new List<Metrics>();
-    Dictionary<int, List<HashSet<int>>> occlusionPerStepPerTrack = new Dictionary<int, List<HashSet<int>>>();
+    //List<Metrics> metrics = new List<Metrics>();
+    //Dictionary<int, List<HashSet<string>>> occlusionPerStepPerTrack = new Dictionary<int, List<HashSet<string>>>();
+    Dictionary<int, Metrics> metricsPerTrack = new Dictionary<int, Metrics>();
+
     private void FixedUpdate()
     {
         time += Time.fixedDeltaTime;
@@ -187,40 +195,60 @@ public class RVOPlayerGroup : MonoBehaviour
         {
             if(m_RVOSettings.evaluate)
             {
+                // should calculate the metrix, including occlution rate, intersection rate, distance to the target, moving distance relative to the target
                 var labelAgents = m_playerMap.Select(p => p.GetComponentInChildren<RVOLabelAgent>());
-                // collect the occlusion over time
-                List<HashSet<int>> accumulatedOcclusion = new List<HashSet<int>>();
+
+                // collect the intersection, occlusions over time
+                List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
+                List<HashSet<string>> accumulatedIntersection = new List<HashSet<string>>();
+
                 for(int i = 0; i < tracks[currentTrack].totalStep; ++i)
                 {
-                    var occluded = new HashSet<int>();
+                    var occluded = new HashSet<string>();
+                    var intersected = new HashSet<string>();
                     foreach (var labelAgent in labelAgents)
                     {
                         occluded.UnionWith(labelAgent.occludedObjectOverTime[i]);
+                        intersected.UnionWith(labelAgent.occludedObjectOverTime[i]);
                     }
                     accumulatedOcclusion.Add(occluded);
+                    accumulatedIntersection.Add(intersected);   
                 }
-                occlusionPerStepPerTrack[currentTrack] = accumulatedOcclusion;
+
+                List<string> labelPositions = new List<string>();
+                List<string> labelDistToTarget = new List<string>();
+                foreach (var labelAgent in labelAgents)
+                {
+                    labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
+                    labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
+                }
+
+                // collect
+                Metrics met = new Metrics();
+                met.occludedObjPerStep = accumulatedOcclusion;
+                met.intersectedObjPerStep = accumulatedIntersection;
+                met.labelPositions = labelPositions;
+                met.labelDistToTarget = labelDistToTarget;
+                metricsPerTrack[currentTrack] = met;
+                
 
                 // save 
-                using (StreamWriter writer = new StreamWriter("nba_full_split_occlutionRate.txt", false))
+                using (StreamWriter writer = new StreamWriter("nba_full_split_met.json", false))
                 {
                     string data = "";
-                    foreach (var entry in occlusionPerStepPerTrack)
-                    {
-                        data += string.Join('\n', entry.Value.Select(s => entry.Key + "," + string.Join(',', s))) + '\n';
-                    }
-                    writer.Write(data);
+                    //foreach (var entry in occlusionPerStepPerTrack)
+                    //{
+                    //    data += string.Join('\n', entry.Value.Select(s => entry.Key + "," + string.Join(',', s))) + '\n';
+                    //}
+                    writer.Write(JsonUtility.ToJson(met));
                     writer.Close();
                 }
             }
             
             // reset all 
-            currentStep = 0;
             m_playerMap.ForEach(p => p.GetComponentInChildren<RVOLabelAgent>().SyncReset());
             // load another track
-            currentTrack = trainingTrack.Dequeue();
-            trainingTrack.Enqueue(currentTrack);
-            LoadTrack(currentTrack);
+            LoadTrack();
         }
 
         // -----------> EVALUATION <------------ save occlusion rate
@@ -278,14 +306,14 @@ public class RVOPlayerGroup : MonoBehaviour
         // positions, velocitye, max velocity
         Vector3 maxVel = Vector3.zero;
         Vector3 minVel = new Vector3(Mathf.Infinity, 0, Mathf.Infinity);
-     
-        for(int tIdx = 0; tIdx < tracks.Count; ++tIdx)
+
+        for (int tIdx = 0; tIdx < tracks.Count; ++tIdx)
         {
             var track = tracks[tIdx];
             var trackStruct = new Track();
             int totalStep = track.Max(p => p.Count);
-            List<Vector3[]> positions = track.Select(p => p.ToArray()).ToList();
-            List<Vector3[]> velocities = new List<Vector3[]>();
+            Dictionary<int, Vector3[]> positions = track.Select((p, i) => new { i, p }).ToDictionary(x => x.i, x => x.p.ToArray());
+            Dictionary<int, Vector3[]> velocities = new Dictionary<int, Vector3[]>();
 
             for(int pIdx = 0; pIdx < positions.Count; ++pIdx)
             {
@@ -302,7 +330,7 @@ public class RVOPlayerGroup : MonoBehaviour
 
                 }
                 vel[pos.Length - 1] = vel[pos.Length - 2];
-                velocities.Add(vel);
+                velocities[pIdx] = vel;
             }
 
             trackStruct.totalStep = totalStep;
@@ -316,50 +344,5 @@ public class RVOPlayerGroup : MonoBehaviour
         m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
         m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
 
-    }
-
-
-    void CalBounds(Vector3[] BBox, string tag = "")
-    {
-        Vector3[] anchors = new Vector3[] {
-            new Vector3(-m_RVOSettings.courtX, 0.5f, -m_RVOSettings.courtZ),
-            new Vector3(0, 0.5f, -m_RVOSettings.courtZ),
-            new Vector3(m_RVOSettings.courtX, 0.5f, -m_RVOSettings.courtZ),
-
-            new Vector3(m_RVOSettings.courtX, 0.5f, 0),
-            new Vector3(m_RVOSettings.courtX, 0.5f, m_RVOSettings.courtZ),
-
-            new Vector3(0, 0.5f, m_RVOSettings.courtZ),
-            new Vector3(-m_RVOSettings.courtX, 0.5f, m_RVOSettings.courtZ),
-
-            new Vector3(-m_RVOSettings.courtX, 0.5f, 0)
-        };
-
-
-        Vector3 min = Vector3.zero;
-        Vector3 max = Vector3.zero;
-        // player extent
-        foreach (var anchor in anchors)
-        {
-            // cam lookat
-            cam.transform.LookAt(anchor);
-            // iterate through the bbox points
-            Vector3 localMin = Vector3.zero;
-            Vector3 localMax = Vector3.zero;
-            foreach (var endPoint in BBox)
-            {
-                var pointInCam = cam.transform.InverseTransformPoint(endPoint);
-
-                min = new Vector3(Mathf.Min(min.x, pointInCam.x), Mathf.Min(min.y, pointInCam.y), Mathf.Min(min.z, pointInCam.z));
-                max = new Vector3(Mathf.Max(max.x, pointInCam.x), Mathf.Max(max.y, pointInCam.y), Mathf.Max(max.z, pointInCam.z));
-
-                localMin = new Vector3(Mathf.Min(localMin.x, pointInCam.x), Mathf.Min(localMin.y, pointInCam.y), Mathf.Min(localMin.z, pointInCam.z));
-                localMax = new Vector3(Mathf.Max(localMax.x, pointInCam.x), Mathf.Max(localMax.y, pointInCam.y), Mathf.Max(localMax.z, pointInCam.z));
-                print(tag + "LocalMin: " + localMin.ToString() + ", LocalMax: " + localMax.ToString() + ", extent: " + (localMax - localMin).ToString());
-            }
-
-
-        }
-        print(tag + "Min: " + min.ToString() + ", Max: " + max.ToString() + ", extent: " + (max - min).ToString());
     }
 }
