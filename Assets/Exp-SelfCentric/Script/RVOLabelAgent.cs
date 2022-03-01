@@ -96,6 +96,86 @@ public class RVOLabelAgent : Agent
 
 
     /** ------------------ Observation ---------------------**/
+    void OBPureRel(VectorSensor sensor)
+    {
+        // 6 = 3_camforward + 3_end point
+
+        // 3, screen x y
+        Vector3 posInViewport = cam.WorldToViewportPoint(transform.position);
+        //sensor.AddObservation(posInViewport.x);
+        //sensor.AddObservation(posInViewport.y);
+        //sensor.AddObservation((posInViewport.z - minZInCam) / (maxZInCam - minZInCam));
+
+        // 3, cam to forward
+        sensor.AddObservation(m_Panel.forward);
+
+        // 3. endpoint
+        Vector3 relativeTPosInviewport = cam.WorldToViewportPoint(PlayerLabel.player.transform.position) - posInViewport;
+        sensor.AddObservation(relativeTPosInviewport.x);
+        sensor.AddObservation(relativeTPosInviewport.y);
+        sensor.AddObservation((relativeTPosInviewport.z) / (maxZInCam - minZInCam));
+
+        //// 1, z forward
+        //sensor.AddObservation(transform.forward);
+        //// theta
+        //sensor.AddObservation(normalizedAngle);
+
+        // attentions to others
+        foreach (Transform other in transform.parent.parent)
+        {
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+
+            // 11 = 1_type + 3_pos + 3_camforward + 2_vel + 2_endpoint
+            Transform player = other.Find("player");
+
+            List<float> playerOBs = new List<float>();
+            // 1_type
+            playerOBs.Add(1);
+            // 3_relative pos
+            Vector3 playerRelativePos = cam.WorldToViewportPoint(player.position) - posInViewport;
+            playerOBs.Add(playerRelativePos.x);
+            playerOBs.Add(playerRelativePos.y);
+            playerOBs.Add(playerRelativePos.z / (maxZInCam - minZInCam));
+
+            // 3_cam forward for occlusion
+            playerOBs.Add(player.forward.x);
+            playerOBs.Add(player.forward.y);
+            playerOBs.Add(player.forward.z);
+            // 2_relative vel
+            Vector3 playerRelativeVel = other.GetComponent<RVOplayer>().velocity - velocity;
+            playerOBs.Add(playerRelativeVel.x / (m_RVOSettings.playerSpeedX));
+            playerOBs.Add(playerRelativeVel.z / (m_RVOSettings.playerSppedZ));
+
+            RVOLabelAgent labelAgent = other.GetComponentInChildren<RVOLabelAgent>();
+            List<float> labelOBs = new List<float>();
+            // 1_type
+            labelOBs.Add(0);
+            // 3_relative pos
+            Vector3 labelRelativePos = cam.WorldToViewportPoint(player.position) - posInViewport;
+            labelOBs.Add(labelRelativePos.x);
+            labelOBs.Add(labelRelativePos.y);
+            labelOBs.Add(labelRelativePos.z / (maxZInCam - minZInCam));
+            // 3_cam forward for occlusion
+            labelOBs.Add(labelAgent.m_Panel.forward.x);
+            labelOBs.Add(labelAgent.m_Panel.forward.y);
+            labelOBs.Add(labelAgent.m_Panel.forward.z);
+            // 2_relative vel
+            Vector3 labelRelativeVel = other.GetComponent<RVOplayer>().velocity - velocity;
+            labelOBs.Add(labelRelativeVel.x / (m_RVOSettings.playerSpeedX));
+            labelOBs.Add(labelRelativeVel.z / (m_RVOSettings.playerSppedZ));
+
+            // another endpoints
+            playerOBs.Add(labelRelativePos.x);
+            playerOBs.Add(labelRelativePos.y);
+            bSensor.AppendObservation(playerOBs.ToArray());
+
+            labelOBs.Add(playerRelativePos.x);
+            labelOBs.Add(playerRelativePos.y);
+            bSensor.AppendObservation(labelOBs.ToArray());
+
+        }
+    }
+
     void OBRichzplus(VectorSensor sensor, bool z = false)
     {
         // 9 = 3_pos + 3_camforward + 3_end point
@@ -178,7 +258,8 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        this.OBRichzplus(sensor, true);
+        //this.OBRichzplus(sensor, true);
+        OBPureRel(sensor);
     }
 
     /*-----------------------Action-----------------------*/
