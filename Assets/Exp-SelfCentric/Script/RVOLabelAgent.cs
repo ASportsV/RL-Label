@@ -193,7 +193,7 @@ public class RVOLabelAgent : Agent
         Vector3 relativeTPosInviewport = cam.WorldToViewportPoint(PlayerLabel.player.transform.position) - posInViewport;
         sensor.AddObservation(relativeTPosInviewport.x);
         sensor.AddObservation(relativeTPosInviewport.y);
-        if (z) sensor.AddObservation((relativeTPosInviewport.z - minZInCam) / (maxZInCam - minZInCam));
+        if (z) sensor.AddObservation((relativeTPosInviewport.z) / (maxZInCam - minZInCam));
 
         //// 1, z forward
         //sensor.AddObservation(transform.forward);
