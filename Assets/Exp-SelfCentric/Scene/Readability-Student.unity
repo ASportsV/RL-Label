@@ -172,18 +172,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec51f47c5ed0478080c449c74fd9c154, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_OriginalGravity: {x: 0, y: 0, z: 0}
-  m_OriginalFixedDeltaTime: 0
-  m_OriginalMaximumDeltaTime: 0
-  m_OriginalSolverIterations: 0
-  m_OriginalSolverVelocityIterations: 0
-  m_OriginalReuseCollisionCallbacks: 0
-  gravityMultiplier: 1
-  fixedDeltaTime: 0.02
-  maximumDeltaTime: 0.33333334
-  solverIterations: 6
-  solverVelocityIterations: 1
-  reuseCollisionCallbacks: 1
 --- !u!4 &365723532
 Transform:
   m_ObjectHideFlags: 0
@@ -293,7 +281,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 6480803810957221126}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1754990322
+--- !u!114 &1754990323
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -302,12 +290,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1754990320}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2529f3623962a844a4ab61efdc0df74, type: 3}
+  m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   playerLabel_prefab: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
-  redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
+  redLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
   court: {fileID: 0}
   cam: {fileID: 0}
