@@ -67,14 +67,10 @@ public class RVOPlayerGroup : MonoBehaviour
     {
         // geometry min and max
         minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
-        maxZInCam = Vector3.Distance(cam.transform.localPosition, new Vector3(-m_RVOSettings.courtX, cam.transform.localPosition.y, m_RVOSettings.courtZ));
-
-        //if(cam.GetComponent<MovingCamera>()) {
-        //    var tmp = cam.transform.forward;
-        //    cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
-        //    maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
-        //    cam.transform.forward = tmp;
-        //}
+        var tmp = cam.transform.forward;
+        cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
+        maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
+        cam.transform.forward = tmp;
 
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
@@ -225,15 +221,15 @@ public class RVOPlayerGroup : MonoBehaviour
 
                 // collect
                 Metrics met = new Metrics();
+                met.trackId = currentTrack;
                 met.occludedObjPerStep = accumulatedOcclusion;
                 met.intersectedObjPerStep = accumulatedIntersection;
                 met.labelPositions = labelPositions;
                 met.labelDistToTarget = labelDistToTarget;
                 metricsPerTrack[currentTrack] = met;
                 
-
                 // save 
-                using (StreamWriter writer = new StreamWriter("nba_full_split_met.json", false))
+                using (StreamWriter writer = new StreamWriter("nba_track" + currentTrack + "_met.json", false))
                 {
                     string data = "";
                     //foreach (var entry in occlusionPerStepPerTrack)
