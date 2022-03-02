@@ -494,6 +494,57 @@ PrefabInstance:
       propertyPath: m_IsTrigger
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3758111257795555507, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_text
+      value: 55
+      objectReference: {fileID: 0}
+    - target: {fileID: 3758111257795555507, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_fontSize
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3758111257795555507, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_fontSizeBase
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4910338059948655423, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_text
+      value: 55
+      objectReference: {fileID: 0}
+    - target: {fileID: 4910338059948655423, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_fontSize
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4910338059948655423, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee,
+        type: 2}
+    - target: {fileID: 4910338059948655423, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4910338059948655423, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_fontSizeBase
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4910338059948655423, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 4910338059948655423, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7822932160195070186, guid: ff8546d662b540648afc0b45b953f89c,
         type: 3}
       propertyPath: m_Layer
