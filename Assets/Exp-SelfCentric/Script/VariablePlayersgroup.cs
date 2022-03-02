@@ -237,8 +237,14 @@ public class VariablePlayersgroup : MonoBehaviour
         {
             var p = entry.Value;
             p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+        }
+
+        foreach (var entry in m_playerMap)
+        {
+            var p = entry.Value;
             Destroy(p.gameObject);
         }
+
         m_playerMap.Clear();
 
         var students = tracks[idx];
