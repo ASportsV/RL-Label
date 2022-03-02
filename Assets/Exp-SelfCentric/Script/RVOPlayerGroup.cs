@@ -6,6 +6,16 @@ using System.IO;
 using UnityEditor;
 using Unity.MLAgents;
 
+
+public struct Metrics
+{
+    public int trackId;
+    public List<string> occludedObjPerStep; // sid
+    public List<string> intersectedObjPerStep;
+    public List<string> labelPositions;
+    public List<string> labelDistToTarget;
+
+}
 public class RVOPlayerGroup : MonoBehaviour
 {
     RVOSettings m_RVOSettings;
@@ -20,7 +30,7 @@ public class RVOPlayerGroup : MonoBehaviour
     float maxZInCam;
     public int currentStep = 0;
     public int currentTrack;
-    Queue<int> testingTrack = new Queue<int>(new[] { 0, 5, 13, 15, 21, 22 });
+    Queue<int> testingTrack = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
     Queue<int> trainingTrack;
 
     public struct Track
@@ -35,14 +45,7 @@ public class RVOPlayerGroup : MonoBehaviour
 
     private List<RVOplayer> m_playerMap = new List<RVOplayer>();
 
-    struct Metrics
-    {
-        public int trackId;
-        public List<string> occludedObjPerStep; // sid
-        public List<string> intersectedObjPerStep;
-        public List<string> labelPositions;
-        public List<string> labelDistToTarget;
-    }
+
 
 
     private void Awake()
