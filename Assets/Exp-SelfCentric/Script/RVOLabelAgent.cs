@@ -80,6 +80,9 @@ public class RVOLabelAgent : Agent
     {
         transform.localPosition = new Vector3(0f, minY, 0f);
         occludedObjectOverTime.Clear();
+        intersectionsOverTime.Clear();
+        distToTargetOverTime.Clear();
+        posOverTime.Clear();
     }
 
     Vector3 velocity => PlayerLabel.velocity;
@@ -196,7 +199,7 @@ public class RVOLabelAgent : Agent
         Vector3 relativeTPosInviewport = cam.WorldToViewportPoint(PlayerLabel.player.transform.position) - posInViewport;
         sensor.AddObservation(relativeTPosInviewport.x);
         sensor.AddObservation(relativeTPosInviewport.y);
-        if (z) sensor.AddObservation((relativeTPosInviewport.z) / (maxZInCam - minZInCam));
+        if (z) sensor.AddObservation((relativeTPosInviewport.z - minZInCam) / (maxZInCam - minZInCam));
 
         //// 1, z forward
         //sensor.AddObservation(transform.forward);
@@ -218,7 +221,7 @@ public class RVOLabelAgent : Agent
             Vector3 playerRelativePos = cam.WorldToViewportPoint(player.position) - posInViewport;
             playerOBs.Add(playerRelativePos.x);
             playerOBs.Add(playerRelativePos.y);
-            if (z) playerOBs.Add(playerRelativePos.z / (maxZInCam - minZInCam));
+            if (z) playerOBs.Add((playerRelativePos.z -minZInCam) / (maxZInCam - minZInCam));
             
             // 3_cam forward for occlusion
             playerOBs.Add(player.forward.x);
@@ -261,8 +264,8 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        //this.OBRichzplus(sensor, true);
-        OBPureRel(sensor);
+        this.OBRichzplus(sensor, true);
+        // OBPureRel(sensor);
     }
 
     /*-----------------------Action-----------------------*/

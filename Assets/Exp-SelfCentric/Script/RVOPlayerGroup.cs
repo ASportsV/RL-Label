@@ -38,8 +38,8 @@ public class RVOPlayerGroup : MonoBehaviour
     struct Metrics
     {
         public int trackId;
-        public List<HashSet<string>> occludedObjPerStep; // sid
-        public List<HashSet<string>> intersectedObjPerStep;
+        public List<string> occludedObjPerStep; // sid
+        public List<string> intersectedObjPerStep;
         public List<string> labelPositions;
         public List<string> labelDistToTarget;
         //public override string ToString()
@@ -55,6 +55,7 @@ public class RVOPlayerGroup : MonoBehaviour
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
         
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
+        // movingCam = true;
         if(movingCam) 
         {
             cam.gameObject.AddComponent<MovingCamera>();
@@ -66,7 +67,8 @@ public class RVOPlayerGroup : MonoBehaviour
     void Start()
     {
         // geometry min and max
-        minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
+        // minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
+        minZInCam = cam.WorldToViewportPoint(new Vector3(0, 0, -m_RVOSettings.courtZ)).z;
         var tmp = cam.transform.forward;
         cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
         maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
@@ -87,7 +89,8 @@ public class RVOPlayerGroup : MonoBehaviour
     void LoadTrack()
     {
         var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
-        currentTrack = queue.Dequeue();
+        if(queue.Count() > 0)
+           currentTrack = queue.Dequeue();
         // for trainiing
         if (!m_RVOSettings.evaluate) queue.Enqueue(currentTrack);
 
@@ -205,7 +208,7 @@ public class RVOPlayerGroup : MonoBehaviour
                     foreach (var labelAgent in labelAgents)
                     {
                         occluded.UnionWith(labelAgent.occludedObjectOverTime[i]);
-                        intersected.UnionWith(labelAgent.occludedObjectOverTime[i]);
+                        intersected.UnionWith(labelAgent.intersectionsOverTime[i]);
                     }
                     accumulatedOcclusion.Add(occluded);
                     accumulatedIntersection.Add(intersected);   
@@ -222,8 +225,8 @@ public class RVOPlayerGroup : MonoBehaviour
                 // collect
                 Metrics met = new Metrics();
                 met.trackId = currentTrack;
-                met.occludedObjPerStep = accumulatedOcclusion;
-                met.intersectedObjPerStep = accumulatedIntersection;
+                met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
+                met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
                 met.labelPositions = labelPositions;
                 met.labelDistToTarget = labelDistToTarget;
                 metricsPerTrack[currentTrack] = met;
