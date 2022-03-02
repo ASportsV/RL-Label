@@ -25,6 +25,12 @@ public class RVOSettings : MonoBehaviour
 
     internal bool evaluate = false;
 
+    internal bool trackFinished = false;
+    internal bool trackStarted = false;
+
+    internal Queue<int> testingTrack;
+
+
     private void Awake()
     {
         CrossingMode = Academy.Instance.EnvironmentParameters.GetWithDefault("crossing", 0.0f) != 0f;

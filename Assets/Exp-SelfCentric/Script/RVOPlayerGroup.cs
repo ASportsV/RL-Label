@@ -30,7 +30,6 @@ public class RVOPlayerGroup : MonoBehaviour
     float maxZInCam;
     public int currentStep = 0;
     public int currentTrack;
-    Queue<int> testingTrack = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
     Queue<int> trainingTrack;
 
     public struct Track
@@ -42,23 +41,21 @@ public class RVOPlayerGroup : MonoBehaviour
 
     public List<Track> tracks = new List<Track>();
 
-
     private List<RVOplayer> m_playerMap = new List<RVOplayer>();
-
-
-
 
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
-        
+
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
         if(movingCam) 
         {
             cam.gameObject.AddComponent<MovingCamera>();
         }
         court = transform.parent.Find("fancy_court");
+        Debug.Log("Awake at group");
+        m_RVOSettings.testingTrack = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
     }
 
     // Start is called before the first frame update
@@ -76,16 +73,16 @@ public class RVOPlayerGroup : MonoBehaviour
         LoadPosInTrack();
         var rnd = new System.Random();
         trainingTrack = new Queue<int>(Enumerable.Range(0, tracks.Count)
-            .Where(i => !testingTrack.Contains(i))
+            .Where(i => !m_RVOSettings.testingTrack.Contains(i))
             .OrderBy(item => rnd.Next())
             .ToList());
 
         LoadTrack();
     }
 
-    void LoadTrack()
+    public void LoadTrack()
     {
-        var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
+        var queue = m_RVOSettings.testingTrack;
         if(queue.Count > 0)
             currentTrack = queue.Dequeue();
         // for trainiing
@@ -135,6 +132,12 @@ public class RVOPlayerGroup : MonoBehaviour
         text.text = sid.ToString();
         text = playerObj.transform.Find("player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = sid.ToString();
+        text = playerObj.transform.Find("player/FrontCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = sid.ToString();
+        text = playerObj.transform.Find("player/LeftCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = sid.ToString();
+        text = playerObj.transform.Find("player/RightCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = sid.ToString();
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
 
@@ -173,6 +176,8 @@ public class RVOPlayerGroup : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (m_RVOSettings.trackFinished || !m_RVOSettings.trackStarted) return;
+
         time += Time.fixedDeltaTime;
 
         if (time >= timeStep)
@@ -237,7 +242,9 @@ public class RVOPlayerGroup : MonoBehaviour
             // reset all 
             m_playerMap.ForEach(p => p.GetComponentInChildren<RVOLabelAgent>().SyncReset());
             // load another track
-            LoadTrack();
+            //trackFinished = true;
+            currentStep = 0;
+            //LoadTrack();
         }
     }
 
