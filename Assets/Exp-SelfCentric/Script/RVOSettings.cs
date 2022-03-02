@@ -23,7 +23,7 @@ public class RVOSettings : MonoBehaviour
     public int courtX = 14;
     public int courtZ = 7;
 
-    public bool evaluate = false;
+    internal bool evaluate = false;
 
     private void Awake()
     {

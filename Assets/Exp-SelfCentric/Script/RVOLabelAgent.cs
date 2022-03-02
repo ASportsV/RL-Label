@@ -130,6 +130,7 @@ public class RVOLabelAgent : Agent
         foreach (Transform other in transform.parent.parent)
         {
             if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+            if (!other.gameObject.activeSelf) continue;
 
             // 11 = 1_type + 3_pos + 3_camforward + 2_vel + 2_endpoint
             Transform player = other.Find("player");
@@ -506,7 +507,7 @@ public class RVOLabelAgent : Agent
 
     void UpdateReward(int academyStepCount)
     {
-        if (academyStepCount == 0)
+        if (academyStepCount == 0 || !gameObject.activeSelf)
         {
             return;
         }
@@ -531,6 +532,7 @@ public class RVOLabelAgent : Agent
         CollectOccluding();
         CollectDistToTarget();
         CollectPos();
+
     }
 
     public Vector3 GetSizeInWorld()
