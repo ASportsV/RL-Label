@@ -20,7 +20,7 @@ public class RVOPlayerGroup : MonoBehaviour
     float maxZInCam;
     public int currentStep = 0;
     public int currentTrack;
-    Queue<int> testingTrack = new Queue<int>(new[] { 0, 6, 13, 15 });
+    Queue<int> testingTrack = new Queue<int>(new[] { 0, 5, 13, 15, 21, 22 });
     Queue<int> trainingTrack;
 
     public struct Track
@@ -38,14 +38,10 @@ public class RVOPlayerGroup : MonoBehaviour
     struct Metrics
     {
         public int trackId;
-        public List<HashSet<string>> occludedObjPerStep; // sid
-        public List<HashSet<string>> intersectedObjPerStep;
+        public List<string> occludedObjPerStep; // sid
+        public List<string> intersectedObjPerStep;
         public List<string> labelPositions;
         public List<string> labelDistToTarget;
-        //public override string ToString()
-        //{
-        //    return occlusionRate.ToString() + "," + intersections.ToString();
-        //}
     }
 
 
@@ -87,7 +83,8 @@ public class RVOPlayerGroup : MonoBehaviour
     void LoadTrack()
     {
         var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
-        currentTrack = queue.Dequeue();
+        if(queue.Count > 0)
+            currentTrack = queue.Dequeue();
         // for trainiing
         if (!m_RVOSettings.evaluate) queue.Enqueue(currentTrack);
 
@@ -169,8 +166,6 @@ public class RVOPlayerGroup : MonoBehaviour
 
     private float time = 0.0f;
     private float timeStep = 0.04f;
-    //List<Metrics> metrics = new List<Metrics>();
-    //Dictionary<int, List<HashSet<string>>> occlusionPerStepPerTrack = new Dictionary<int, List<HashSet<string>>>();
     Dictionary<int, Metrics> metricsPerTrack = new Dictionary<int, Metrics>();
 
     private void FixedUpdate()
@@ -222,8 +217,8 @@ public class RVOPlayerGroup : MonoBehaviour
                 // collect
                 Metrics met = new Metrics();
                 met.trackId = currentTrack;
-                met.occludedObjPerStep = accumulatedOcclusion;
-                met.intersectedObjPerStep = accumulatedIntersection;
+                met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
+                met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
                 met.labelPositions = labelPositions;
                 met.labelDistToTarget = labelDistToTarget;
                 metricsPerTrack[currentTrack] = met;
@@ -231,11 +226,6 @@ public class RVOPlayerGroup : MonoBehaviour
                 // save 
                 using (StreamWriter writer = new StreamWriter("nba_track" + currentTrack + "_met.json", false))
                 {
-                    string data = "";
-                    //foreach (var entry in occlusionPerStepPerTrack)
-                    //{
-                    //    data += string.Join('\n', entry.Value.Select(s => entry.Key + "," + string.Join(',', s))) + '\n';
-                    //}
                     writer.Write(JsonUtility.ToJson(met));
                     writer.Close();
                 }
@@ -246,30 +236,10 @@ public class RVOPlayerGroup : MonoBehaviour
             // load another track
             LoadTrack();
         }
-
-        // -----------> EVALUATION <------------ save occlusion rate
-        // calculate occlusion rate here
-        //if (m_RVOSettings.evaluate)
-        //{
-        //    GameObject[] occluded = m_playerMap
-        //        .SelectMany(p => p.GetComponentInChildren<RVOLabelAgent>().occluding())
-        //        .Distinct().ToArray();
-
-        //    int numOfOcclusion = occluded
-        //        .Count();
-
-        //    Metrics m = new Metrics();
-        //    m.occlusionRate = (float)numOfOcclusion / (2 * m_RVOSettings.numOfPlayer - 1);
-        //    int numOfIntersection = (int) (m_playerMap.Sum(p => p.GetComponentInChildren<RVOLabelAgent>().numOfIntersection()) * 0.5f);
-        //    m.intersections = numOfIntersection;
-        //    metrics.Add(m);
-        //}
     }
 
     private void LoadPosInTrack()
     {
-
-        //string fileName = Path.Combine(Application.streamingAssetsPath, "student_20_100.csv");
         string fileName = Path.Combine(Application.streamingAssetsPath, "nba_full_split.csv");
         StreamReader r = new StreamReader(fileName);
         string pos_data = r.ReadToEnd();
