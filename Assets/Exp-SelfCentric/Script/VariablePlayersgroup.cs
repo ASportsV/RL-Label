@@ -33,7 +33,7 @@ public class VariablePlayersgroup : MonoBehaviour
     public List<List<Student>> tracks = new List<List<Student>>();
   
     public int currentTrack;
-    Queue<int> testingTrack = new Queue<int>(new[] { 1, 3, 10, 11, 19, 20});
+    Queue<int> testingTrack = new Queue<int>(new[] { 0, 1, 3, 10, 11, 20});
     Queue<int> trainingTrack;
 
     private Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
