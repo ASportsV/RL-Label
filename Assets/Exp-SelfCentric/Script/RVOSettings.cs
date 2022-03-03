@@ -3,6 +3,16 @@ using System.Collections.Generic;
 using Unity.MLAgents;
 using UnityEngine;
 
+struct Task
+{
+    public int trackIdx;
+    public string task;
+    public Task(string q, int tIdx)
+    {
+        task = q;
+        trackIdx = tIdx;
+    }
+}
 
 [System.Serializable]
 public class RVOSettings : MonoBehaviour
@@ -26,6 +36,8 @@ public class RVOSettings : MonoBehaviour
     internal bool trackStarted = false;
 
     internal Queue<int> testingTrack;
+    internal List<Task> tasks;
+    internal int currentTaskIdx = 0;
 
 
     private void Awake()

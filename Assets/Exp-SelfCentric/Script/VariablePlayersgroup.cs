@@ -33,7 +33,6 @@ public class VariablePlayersgroup : MonoBehaviour
     public List<List<Student>> tracks = new List<List<Student>>();
   
     public int currentTrack;
-    Queue<int> testingTrack = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
     Queue<int> trainingTrack;
 
     private Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
@@ -49,11 +48,18 @@ public class VariablePlayersgroup : MonoBehaviour
             cam.gameObject.AddComponent<MovingCamera>();
         }
         court = transform.parent.Find("fancy_court");
-    }
+        m_RVOSettings.testingTrack = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
+        m_RVOSettings.tasks = new List<Task>() {
+            new Task("Whose label value is XXX?", 4),
+            new Task("who has the highest value in blue team?", 4),
+            new Task("In average, which team has the highest value?", 4),
 
-    // Start is called before the first frame update
-    void Start()
-    {
+            new Task("Whose label value is XXX?", 8),
+            new Task("who has the highest value in blue team?", 8),
+            new Task("In average, which team has the highest value?", 8),
+
+        };
+
         // geometry min and max
         minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
         var tmp = cam.transform.forward;
@@ -65,13 +71,12 @@ public class VariablePlayersgroup : MonoBehaviour
 
         LoadPosInTrack();
 
-        var rnd = new System.Random();
-        trainingTrack = new Queue<int>(Enumerable.Range(0, tracks.Count)
-            .Where(i => !testingTrack.Contains(i))
-            .OrderBy(item => rnd.Next())
-            .ToList());
+    }
 
-        LoadTrack();
+    // Start is called before the first frame update
+    void Start()
+    {
+
     }
 
     public void CreatePlayerLabelFromPos(Student student)
@@ -215,22 +220,18 @@ public class VariablePlayersgroup : MonoBehaviour
                     }
                 }
 
-                LoadTrack();
+                //LoadTrack();
             }
         }
     }
 
-    void LoadTrack()
+    void LoadTrack(int trackId)
     {
-        var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
-        if (queue.Count > 0)
-            currentTrack = queue.Dequeue();
-        // for trainiing
-        if (!m_RVOSettings.evaluate) queue.Enqueue(currentTrack);
-
-        int idx = currentTrack;
-        if (idx >= tracks.Count) Debug.LogWarning("Idx " + idx + " out of tracks range");
-        currentStep = 0;
+        //var queue = m_RVOSettings.testingTrack;
+        //if (queue.Count > 0)
+        //    currentTrack = queue.Dequeue();
+        //// for trainiing
+        //if (!m_RVOSettings.evaluate) queue.Enqueue(currentTrack);
 
         foreach (var entry in m_playerMap.Where(p => p.Value.gameObject.activeSelf))
         {
@@ -255,7 +256,9 @@ public class VariablePlayersgroup : MonoBehaviour
 
         m_playerMap.Clear();
 
-        var students = tracks[idx];
+        currentTrack = trackId;
+        currentStep = 0;
+        var students = tracks[currentTrack];
         for (int i = 0, len = students.Count; i < len; ++i)
         {
             var student = students[i];

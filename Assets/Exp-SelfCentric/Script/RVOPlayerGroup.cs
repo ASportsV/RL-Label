@@ -54,13 +54,22 @@ public class RVOPlayerGroup : MonoBehaviour
             cam.gameObject.AddComponent<MovingCamera>();
         }
         court = transform.parent.Find("fancy_court");
-        Debug.Log("Awake at group");
         m_RVOSettings.testingTrack = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
-    }
+        m_RVOSettings.tasks = new List<Task>() {
+            new Task("Whose label value is XXX?", 0),
+            new Task("who has the highest value in blue team?", 0),
+            new Task("In average, which team has the highest value?", 0),
 
-    // Start is called before the first frame update
-    void Start()
-    {
+            new Task("Whose label value is XXX?", 13),
+            new Task("who has the highest value in blue team?", 13),
+            new Task("In average, which team has the highest value?", 13),
+
+            //{ 15, new Task()},
+            //{ 16, new Task()},
+            //{ 21, new Task()},
+            //{ 22, new Task()}
+        };
+
         // geometry min and max
         minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
         var tmp = cam.transform.forward;
@@ -71,26 +80,26 @@ public class RVOPlayerGroup : MonoBehaviour
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
         LoadPosInTrack();
-        var rnd = new System.Random();
-        trainingTrack = new Queue<int>(Enumerable.Range(0, tracks.Count)
-            .Where(i => !m_RVOSettings.testingTrack.Contains(i))
-            .OrderBy(item => rnd.Next())
-            .ToList());
-
-        LoadTrack();
     }
 
-    public void LoadTrack()
+    // Start is called before the first frame update
+    void Start()
     {
-        var queue = m_RVOSettings.testingTrack;
-        if(queue.Count > 0)
-            currentTrack = queue.Dequeue();
-        // for trainiing
-        if (!m_RVOSettings.evaluate) queue.Enqueue(currentTrack);
+    }
 
-        int idx = currentTrack;
-        if (idx >= tracks.Count) Debug.LogWarning("Idx " + idx + " out of tracks range");
-        var track = tracks[idx];
+    public void LoadTrack(int trackId)
+    {
+        //if(trackIdx != -1)
+        //{
+        //    var queue = m_RVOSettings.testingTrack;
+        //    if(queue.Count > 0)
+        //        currentTrack = queue.Dequeue();
+        //    // for trainiing
+        //    if (!m_RVOSettings.evaluate) queue.Enqueue(currentTrack);
+        //}
+
+        currentTrack = trackId;
+        var track = tracks[currentTrack];
         int numPlayers = track.positions.Count;
         int curNumPlayers = m_playerMap.Count;
 

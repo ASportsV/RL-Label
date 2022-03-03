@@ -13,6 +13,8 @@ public class UIControl : MonoBehaviour
 
     Transform playergroup;
 
+    bool init = false;
+
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
@@ -36,46 +38,84 @@ public class UIControl : MonoBehaviour
         dropdown.value = dropdown.options
             .FindIndex(o => o.text.Contains(playergroup.GetComponent<RVOPlayerGroup>().currentTrack.ToString()));
             
-        
+        // button
         btn.GetComponent<Button>().onClick.AddListener(finishTrack);
-
+        // deactivate
         playergroup.gameObject.SetActive(false);
+
+        m_RVOSettings.currentTaskIdx = 0;
+        LoadTaskQuestion();
+    }
+
+    void LoadTaskQuestion()
+    {
+        var task = m_RVOSettings.tasks[m_RVOSettings.currentTaskIdx];
+        dropdown.value = dropdown.options
+            .FindIndex(o => o.text.Contains(task.trackIdx.ToString()));
+
+        // update question
+        var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = task.task;
     }
 
     void finishTrack()
     {
+
         if (!m_RVOSettings.trackStarted && !m_RVOSettings.trackFinished)
-            // 
         {
             m_RVOSettings.trackStarted = true;
+            playergroup.gameObject.SetActive(true);
             panel.gameObject.SetActive(false);
+            
+            // btn
             var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
             text.text = "Answer";
-            playergroup.gameObject.SetActive(true);
+
+            //
+            var task = m_RVOSettings.tasks[m_RVOSettings.currentTaskIdx];
+            var groupControl = playergroup.GetComponent<RVOPlayerGroup>();
+            groupControl.LoadTrack(task.trackIdx);
             // start to count the time
 
         } 
         else if (m_RVOSettings.trackStarted && !m_RVOSettings.trackFinished)
         {
             m_RVOSettings.trackFinished = true;
+            playergroup.gameObject.SetActive(false);
+            panel.gameObject.SetActive(true);
+
+            // btn
             var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
             text.text = "Next";
+            
             // clean the scene
-            playergroup.gameObject.SetActive(false);
+            text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
+            text.text = "Your answer is ____ ";
+
         }
         else if (m_RVOSettings.trackStarted && m_RVOSettings.trackFinished)
         {
-            panel.gameObject.SetActive(true);
             // should load the next scene
             m_RVOSettings.trackStarted = false;
             m_RVOSettings.trackFinished = false;
+            
+            panel.gameObject.SetActive(true);
             var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
             text.text = "Start";
 
             // load the next track
-            playergroup.GetComponent<RVOPlayerGroup>().LoadTrack();
-            dropdown.value = dropdown.options
-                .FindIndex(o => o.text.Contains(playergroup.GetComponent<RVOPlayerGroup>().currentTrack.ToString()));
+            if(m_RVOSettings.currentTaskIdx < m_RVOSettings.tasks.Count - 1)
+            {
+                m_RVOSettings.currentTaskIdx += 1;
+                LoadTaskQuestion();
+            }
+            else
+            {
+                // update question
+                text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
+                text.text = "Finished! Thanks!";
+                btn.GetComponent<Button>().interactable = false;
+            }
 
             playergroup.gameObject.SetActive(false);
         }
