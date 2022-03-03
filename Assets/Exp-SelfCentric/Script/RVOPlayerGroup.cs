@@ -45,9 +45,6 @@ public class RVOPlayerGroup : MonoBehaviour
 
     private List<RVOplayer> m_playerMap = new List<RVOplayer>();
 
-
-
-
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
