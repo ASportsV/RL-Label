@@ -13,8 +13,6 @@ public class UIControl : MonoBehaviour
 
     Transform playergroup;
 
-    bool init = false;
-
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
@@ -31,50 +29,53 @@ public class UIControl : MonoBehaviour
         var trackSelect = transform.Find("TrackSelect");
         dropdown = trackSelect.GetComponent<TMPro.TMP_Dropdown>();
         dropdown.options.Clear();
-        foreach (var testId in m_RVOSettings.testingTrack)
+        foreach (var testId in m_RVOSettings.testingScenes)
         {
             dropdown.options.Add(new TMPro.TMP_Dropdown.OptionData("track_" + testId));
         }
 
-        var groupControl = playergroup.GetComponent<RVOPlayerGroup>();
+        var groupControl = playergroup.GetComponent<NBAPlayerGroup>();
         int currentTrack;
         if(groupControl)
         {
-            currentTrack = groupControl.currentTrack;
+            currentTrack = groupControl.currentScene;
         }
         else
         {
-            currentTrack = playergroup.GetComponent<VariablePlayersgroup>().currentTrack;
+            currentTrack = playergroup.GetComponent<STUPlayersGroup>().currentScene;
         }
         dropdown.value = dropdown.options
             .FindIndex(o => o.text.Contains(currentTrack.ToString()));
             
         // button
-        btn.GetComponent<Button>().onClick.AddListener(finishTrack);
+        btn.GetComponent<Button>().onClick.AddListener(ClickButton);
         // deactivate
         playergroup.gameObject.SetActive(false);
 
         m_RVOSettings.currentTaskIdx = 0;
-        LoadTaskQuestion();
+        LoadTaskQuestion(m_RVOSettings.currentTaskIdx);
     }
 
-    void LoadTaskQuestion()
+    void LoadTaskQuestion(int taskIdx)
     {
-        var task = m_RVOSettings.tasks[m_RVOSettings.currentTaskIdx];
+        var task = m_RVOSettings.tasks[taskIdx];
         dropdown.value = dropdown.options
             .FindIndex(o => o.text.Contains(task.trackIdx.ToString()));
+
+        // need to update the technique, scene, and task
 
         // update question
         var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = task.task;
+        
     }
 
-    void finishTrack()
+    void ClickButton()
     {
 
-        if (!m_RVOSettings.trackStarted && !m_RVOSettings.trackFinished)
+        if (!m_RVOSettings.sceneStarted && !m_RVOSettings.sceneFinished)
         {
-            m_RVOSettings.trackStarted = true;
+            m_RVOSettings.sceneStarted = true;
             playergroup.gameObject.SetActive(true);
             panel.gameObject.SetActive(false);
             
@@ -84,22 +85,22 @@ public class UIControl : MonoBehaviour
 
             //
             var task = m_RVOSettings.tasks[m_RVOSettings.currentTaskIdx];
-            var groupControl = playergroup.GetComponent<RVOPlayerGroup>();
+            var groupControl = playergroup.GetComponent<NBAPlayerGroup>();
             if(groupControl)
             {
-                groupControl.LoadTrack(task.trackIdx);
+                groupControl.LoadScene(task.trackIdx);
 
             }
             else
             {
-                playergroup.GetComponent<VariablePlayersgroup>().LoadTrack(task.trackIdx);
+                playergroup.GetComponent<STUPlayersGroup>().LoadScene(task.trackIdx);
             }
 
             // start to count the time
         } 
-        else if (m_RVOSettings.trackStarted && !m_RVOSettings.trackFinished)
+        else if (m_RVOSettings.sceneStarted && !m_RVOSettings.sceneFinished)
         {
-            m_RVOSettings.trackFinished = true;
+            m_RVOSettings.sceneFinished = true;
             playergroup.gameObject.SetActive(false);
             panel.gameObject.SetActive(true);
 
@@ -112,11 +113,11 @@ public class UIControl : MonoBehaviour
             text.text = "Your answer is ____ ";
 
         }
-        else if (m_RVOSettings.trackStarted && m_RVOSettings.trackFinished)
+        else if (m_RVOSettings.sceneStarted && m_RVOSettings.sceneFinished)
         {
             // should load the next scene
-            m_RVOSettings.trackStarted = false;
-            m_RVOSettings.trackFinished = false;
+            m_RVOSettings.sceneStarted = false;
+            m_RVOSettings.sceneFinished = false;
             
             panel.gameObject.SetActive(true);
             var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
@@ -126,7 +127,7 @@ public class UIControl : MonoBehaviour
             if(m_RVOSettings.currentTaskIdx < m_RVOSettings.tasks.Count - 1)
             {
                 m_RVOSettings.currentTaskIdx += 1;
-                LoadTaskQuestion();
+                LoadTaskQuestion(m_RVOSettings.currentTaskIdx);
             }
             else
             {

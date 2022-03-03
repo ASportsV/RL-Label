@@ -7,7 +7,7 @@ using UnityEditor;
 using Unity.MLAgents;
 
 
-public class VariablePlayersgroup : MonoBehaviour
+public class STUPlayersGroup : MonoBehaviour
 {
     RVOSettings m_RVOSettings;
     // player + label
@@ -30,10 +30,9 @@ public class VariablePlayersgroup : MonoBehaviour
         public int startStep;
     }
 
-    public List<List<Student>> tracks = new List<List<Student>>();
+    public List<List<Student>> scenes = new List<List<Student>>();
   
-    public int currentTrack;
-    Queue<int> trainingTrack;
+    public int currentScene;
 
     private Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
 
@@ -48,7 +47,9 @@ public class VariablePlayersgroup : MonoBehaviour
             cam.gameObject.AddComponent<MovingCamera>();
         }
         court = transform.parent.Find("fancy_court");
-        m_RVOSettings.testingTrack = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
+
+        // load the study data
+        m_RVOSettings.testingScenes = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
         m_RVOSettings.tasks = new List<Task>() {
             new Task("Whose label value is XXX?", 4),
             new Task("who has the highest value in blue team?", 4),
@@ -69,7 +70,7 @@ public class VariablePlayersgroup : MonoBehaviour
 
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
-        LoadPosInTrack();
+        LoadDataset();
 
     }
 
@@ -79,7 +80,7 @@ public class VariablePlayersgroup : MonoBehaviour
 
     }
 
-    public void CreatePlayerLabelFromPos(Student student)
+    void CreatePlayerLabelFromPos(Student student)
     {
         int sid = student.id;
         var pos = student.positions[0];
@@ -135,13 +136,12 @@ public class VariablePlayersgroup : MonoBehaviour
             time -= timeStep;
             currentStep += 1;
 
-            var students = tracks[currentTrack];
+            var students = scenes[currentScene];
             int totalStep = students.Max(s => s.startStep + s.totalStep);
 
-            //for (int i = 0, len = students.Count; i < len; ++i)
+            // add or move the student
             foreach(var student in students)
             {
-                //var student = students[i];
                 if (currentStep == student.startStep)
                 {
                     CreatePlayerLabelFromPos(student);
@@ -164,10 +164,9 @@ public class VariablePlayersgroup : MonoBehaviour
 
             if (currentStep >= totalStep)
             {
+                // evaluation
                 if (m_RVOSettings.evaluate)
                 {
-                    // should calculate the metrix, including occlution rate, intersection rate, distance to the target, moving distance relative to the target
-
                     // collect the intersection, occlusions over time
                     List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
                     List<HashSet<string>> accumulatedIntersection = new List<HashSet<string>>();
@@ -206,33 +205,29 @@ public class VariablePlayersgroup : MonoBehaviour
 
                     // collect
                     Metrics met = new Metrics();
-                    met.trackId = currentTrack;
+                    met.trackId = currentScene;
                     met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
                     met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
                     met.labelPositions = labelPositions;
                     met.labelDistToTarget = labelDistToTarget;
 
                     // save 
-                    using (StreamWriter writer = new StreamWriter("student_track" + currentTrack + "_met.json", false))
+                    using (StreamWriter writer = new StreamWriter("student_track" + currentScene + "_met.json", false))
                     {
                         writer.Write(JsonUtility.ToJson(met));
                         writer.Close();
                     }
                 }
 
-                LoadTrack(currentTrack);
+                // replay the scene
+                LoadScene(currentScene);
             }
         }
     }
 
-    public void LoadTrack(int trackId)
+    public void LoadScene(int sceneId)
     {
-        //var queue = m_RVOSettings.testingTrack;
-        //if (queue.Count > 0)
-        //    currentTrack = queue.Dequeue();
-        //// for trainiing
-        //if (!m_RVOSettings.evaluate) queue.Enqueue(currentTrack);
-
+        // clean the old students
         foreach (var entry in m_playerMap.Where(p => p.Value.gameObject.activeSelf))
         {
             var p = entry.Value;
@@ -253,12 +248,12 @@ public class VariablePlayersgroup : MonoBehaviour
             var p = entry.Value;
             Destroy(p.gameObject);
         }
-
         m_playerMap.Clear();
 
-        currentTrack = trackId;
+        // reset
+        currentScene = sceneId;
         currentStep = 0;
-        var students = tracks[currentTrack];
+        var students = scenes[currentScene];
         for (int i = 0, len = students.Count; i < len; ++i)
         {
             var student = students[i];
@@ -270,7 +265,7 @@ public class VariablePlayersgroup : MonoBehaviour
     }
 
 
-    private void LoadPosInTrack()
+    private void LoadDataset()
     {
         string fileName = Path.Combine(Application.streamingAssetsPath, "student_full.csv");
         StreamReader r = new StreamReader(fileName);
@@ -339,7 +334,7 @@ public class VariablePlayersgroup : MonoBehaviour
                 student.totalStep = pos.Length;
                 track.Add(student);
             }
-            this.tracks.Add(track);
+            this.scenes.Add(track);
         }
 
         Debug.Log("Max Vel:" + maxVel.ToString());

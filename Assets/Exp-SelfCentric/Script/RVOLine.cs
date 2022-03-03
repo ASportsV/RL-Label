@@ -7,7 +7,6 @@ using UnityEngine.UI;
 [RequireComponent(typeof(LineRenderer))]
 public class RVOLine : MonoBehaviour
 {
-    public Transform overlay;
     public Transform end;
     // Start is called before the first frame update
     LineRenderer line;
@@ -16,13 +15,6 @@ public class RVOLine : MonoBehaviour
     private void Start()
     {
         line = GetComponent<LineRenderer>();
-        overlay = transform.parent.parent.parent.Find("Canvas");
-        //debugPoint = new GameObject();
-        //debugPoint.name = "debug_line_" + this.name;
-        //debugPoint.transform.SetParent(overlay, false);
-
-        //Image image = debugPoint.AddComponent<Image>();
-        //image.color = new Color(0.0F, 1.0F, 0.0F, 0.2f);
     }
 
     // Update is called once per frame
@@ -82,23 +74,4 @@ public class RVOLine : MonoBehaviour
 
         return true;
     }
-
-    //GameObject debugPoint;
-    //private void OnDrawGizmos()
-    //{
-    //    if (overlay == null) return;
-
-    //    RectTransform canvasRT = overlay.GetComponent<RectTransform>();
-    //    RectTransform bboxRT = debugPoint.GetComponent<RectTransform>();
-
-    //    bboxRT.localPosition = new Vector3(
-    //        debugIntersection.x * canvasRT.sizeDelta.x - canvasRT.sizeDelta.x * 0.5f,
-    //        debugIntersection.y * canvasRT.sizeDelta.y - canvasRT.sizeDelta.y * 0.5f, 0f);
-    //    bboxRT.sizeDelta = new Vector2(0.005f * canvasRT.sizeDelta.x, 0.01f * canvasRT.sizeDelta.y);
-
-    //    //bboxRT.localPosition = new Vector3(
-    //    //    debugIntersection.x,
-    //    //    debugIntersection.y, 0f);
-    //    //bboxRT.sizeDelta = new Vector2(0.01f * canvasRT.sizeDelta.x, 0.01f * canvasRT.sizeDelta.y);
-    //}
 }

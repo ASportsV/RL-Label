@@ -32,10 +32,10 @@ public class RVOSettings : MonoBehaviour
 
     internal bool evaluate = false;
 
-    internal bool trackFinished = false;
-    internal bool trackStarted = false;
+    internal bool sceneFinished = false;
+    internal bool sceneStarted = false;
 
-    internal Queue<int> testingTrack;
+    internal Queue<int> testingScenes;
     internal List<Task> tasks;
     internal int currentTaskIdx = 0;
 
