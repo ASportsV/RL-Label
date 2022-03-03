@@ -35,8 +35,19 @@ public class UIControl : MonoBehaviour
         {
             dropdown.options.Add(new TMPro.TMP_Dropdown.OptionData("track_" + testId));
         }
+
+        var groupControl = playergroup.GetComponent<RVOPlayerGroup>();
+        int currentTrack;
+        if(groupControl)
+        {
+            currentTrack = groupControl.currentTrack;
+        }
+        else
+        {
+            currentTrack = playergroup.GetComponent<VariablePlayersgroup>().currentTrack;
+        }
         dropdown.value = dropdown.options
-            .FindIndex(o => o.text.Contains(playergroup.GetComponent<RVOPlayerGroup>().currentTrack.ToString()));
+            .FindIndex(o => o.text.Contains(currentTrack.ToString()));
             
         // button
         btn.GetComponent<Button>().onClick.AddListener(finishTrack);
@@ -74,9 +85,17 @@ public class UIControl : MonoBehaviour
             //
             var task = m_RVOSettings.tasks[m_RVOSettings.currentTaskIdx];
             var groupControl = playergroup.GetComponent<RVOPlayerGroup>();
-            groupControl.LoadTrack(task.trackIdx);
-            // start to count the time
+            if(groupControl)
+            {
+                groupControl.LoadTrack(task.trackIdx);
 
+            }
+            else
+            {
+                playergroup.GetComponent<VariablePlayersgroup>().LoadTrack(task.trackIdx);
+            }
+
+            // start to count the time
         } 
         else if (m_RVOSettings.trackStarted && !m_RVOSettings.trackFinished)
         {

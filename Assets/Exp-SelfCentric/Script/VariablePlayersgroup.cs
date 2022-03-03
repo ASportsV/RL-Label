@@ -220,12 +220,12 @@ public class VariablePlayersgroup : MonoBehaviour
                     }
                 }
 
-                //LoadTrack();
+                LoadTrack(currentTrack);
             }
         }
     }
 
-    void LoadTrack(int trackId)
+    public void LoadTrack(int trackId)
     {
         //var queue = m_RVOSettings.testingTrack;
         //if (queue.Count > 0)

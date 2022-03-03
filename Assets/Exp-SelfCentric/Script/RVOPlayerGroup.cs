@@ -253,8 +253,7 @@ public class RVOPlayerGroup : MonoBehaviour
             m_playerMap.ForEach(p => p.GetComponentInChildren<RVOLabelAgent>().SyncReset());
             // load another track
             //trackFinished = true;
-            currentStep = 0;
-            //LoadTrack();
+            LoadTrack(currentTrack);
         }
     }
 
