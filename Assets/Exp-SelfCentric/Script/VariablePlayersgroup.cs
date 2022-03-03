@@ -33,7 +33,7 @@ public class VariablePlayersgroup : MonoBehaviour
     public List<List<Student>> tracks = new List<List<Student>>();
   
     public int currentTrack;
-    Queue<int> testingTrack = new Queue<int>(new[] { 0, 1, 3, 10, 11, 20});
+    Queue<int> testingTrack = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
     Queue<int> trainingTrack;
 
     private Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
@@ -232,13 +232,21 @@ public class VariablePlayersgroup : MonoBehaviour
         if (idx >= tracks.Count) Debug.LogWarning("Idx " + idx + " out of tracks range");
         currentStep = 0;
 
-        // remove all existing
         foreach (var entry in m_playerMap.Where(p => p.Value.gameObject.activeSelf))
         {
             var p = entry.Value;
-            p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+            if(p.gameObject.activeSelf)
+            {
+                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+            }
+            else
+            {
+                p.transform.GetChild(1).gameObject.SetActive(true);
+            }
+            p.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
         }
 
+        // remove all existing
         foreach (var entry in m_playerMap)
         {
             var p = entry.Value;
