@@ -79,10 +79,7 @@ public class RVOLabelAgent : Agent
     public override void OnEpisodeBegin()
     {
         transform.localPosition = new Vector3(0f, minY, 0f);
-        occludedObjectOverTime.Clear();
-        intersectionsOverTime.Clear();
-        distToTargetOverTime.Clear();
-        posOverTime.Clear();
+
     }
 
     Vector3 velocity => PlayerLabel.velocity;
@@ -384,6 +381,14 @@ public class RVOLabelAgent : Agent
     {
         x = x / maxX;
         return Mathf.Pow(1 - Mathf.Pow(x, 1.5f), 2);
+    }
+
+    public void cleanMetrics()
+    {
+        occludedObjectOverTime.Clear();
+        intersectionsOverTime.Clear();
+        distToTargetOverTime.Clear();
+        posOverTime.Clear();
     }
 
     public void SyncReset()

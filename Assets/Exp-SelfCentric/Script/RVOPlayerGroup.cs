@@ -116,6 +116,7 @@ public class RVOPlayerGroup : MonoBehaviour
             var player = m_playerMap[i];
             player.positions = track.positions[player.sid];
             player.velocities = track.velocities[player.sid];
+            player.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
         }
 
         currentStep = 0;
