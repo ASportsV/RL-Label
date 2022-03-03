@@ -57,13 +57,13 @@ public class NBAPlayerGroup : MonoBehaviour
 
         m_RVOSettings.testingScenes = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
         m_RVOSettings.tasks = new List<Task>() {
-            new Task("Whose label value is XXX?", 0),
-            new Task("who has the highest value in blue team?", 0),
-            new Task("In average, which team has the highest value?", 0),
+            new Task(0, "Whose label value is XXX?"),
+            new Task(0, "who has the highest value in blue team?"),
+            new Task(0, "In average, which team has the highest value?"),
 
-            new Task("Whose label value is XXX?", 13),
-            new Task("who has the highest value in blue team?", 13),
-            new Task("In average, which team has the highest value?", 13),
+            new Task(13, "Whose label value is XXX?"),
+            new Task(13, "who has the highest value in blue team?"),
+            new Task(13, "In average, which team has the highest value?"),
 
             //{ 15, new Task()},
             //{ 16, new Task()},

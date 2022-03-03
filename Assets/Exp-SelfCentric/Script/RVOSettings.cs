@@ -5,12 +5,13 @@ using UnityEngine;
 
 struct Task
 {
-    public int trackIdx;
+    public int sceneIdx;
     public string task;
-    public Task(string q, int tIdx)
+ 
+    public Task(int sIdx, string q)
     {
         task = q;
-        trackIdx = tIdx;
+        sceneIdx = sIdx;
     }
 }
 

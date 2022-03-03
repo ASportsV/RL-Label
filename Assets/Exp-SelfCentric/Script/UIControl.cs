@@ -21,7 +21,7 @@ public class UIControl : MonoBehaviour
 
         playergroup = transform.parent.Find("PlayerGroup");
     }
-    // Start is called before the first frame update
+
     void Start()
     {
         Debug.Log("start at UI");
@@ -53,16 +53,14 @@ public class UIControl : MonoBehaviour
         playergroup.gameObject.SetActive(false);
 
         m_RVOSettings.currentTaskIdx = 0;
-        LoadTaskQuestion(m_RVOSettings.currentTaskIdx);
+        LoadTaskQuestionInUI(m_RVOSettings.currentTaskIdx);
     }
 
-    void LoadTaskQuestion(int taskIdx)
+    void LoadTaskQuestionInUI(int taskIdx)
     {
         var task = m_RVOSettings.tasks[taskIdx];
         dropdown.value = dropdown.options
-            .FindIndex(o => o.text.Contains(task.trackIdx.ToString()));
-
-        // need to update the technique, scene, and task
+            .FindIndex(o => o.text.Contains(task.sceneIdx.ToString()));
 
         // update question
         var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
@@ -72,72 +70,81 @@ public class UIControl : MonoBehaviour
 
     void ClickButton()
     {
+        bool beforeTrial = !m_RVOSettings.sceneStarted && !m_RVOSettings.sceneFinished;
+        bool inTrial = m_RVOSettings.sceneStarted && !m_RVOSettings.sceneFinished;
+        bool afterTrial = m_RVOSettings.sceneStarted && m_RVOSettings.sceneFinished;
 
-        if (!m_RVOSettings.sceneStarted && !m_RVOSettings.sceneFinished)
+        if (beforeTrial)
         {
             m_RVOSettings.sceneStarted = true;
+            // show the scene
             playergroup.gameObject.SetActive(true);
+            // hide the panel
             panel.gameObject.SetActive(false);
             
-            // btn
+            // update the text in the btn
             var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
             text.text = "Answer";
 
-            //
+            // load and start the scene
             var task = m_RVOSettings.tasks[m_RVOSettings.currentTaskIdx];
             var groupControl = playergroup.GetComponent<NBAPlayerGroup>();
             if(groupControl)
             {
-                groupControl.LoadScene(task.trackIdx);
+                groupControl.LoadScene(task.sceneIdx);
 
             }
             else
             {
-                playergroup.GetComponent<STUPlayersGroup>().LoadScene(task.trackIdx);
+                playergroup.GetComponent<STUPlayersGroup>().LoadScene(task.sceneIdx);
             }
 
             // start to count the time
         } 
-        else if (m_RVOSettings.sceneStarted && !m_RVOSettings.sceneFinished)
+        else if (inTrial)
         {
             m_RVOSettings.sceneFinished = true;
+            // hide the scene
             playergroup.gameObject.SetActive(false);
+            // show the panel
             panel.gameObject.SetActive(true);
 
-            // btn
+            // update the text in the btn
             var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
             text.text = "Next";
             
-            // clean the scene
+            // update the text in the panel
             text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
             text.text = "Your answer is ____ ";
 
         }
-        else if (m_RVOSettings.sceneStarted && m_RVOSettings.sceneFinished)
+        else if (afterTrial)
         {
-            // should load the next scene
             m_RVOSettings.sceneStarted = false;
             m_RVOSettings.sceneFinished = false;
             
+            // show the panel
             panel.gameObject.SetActive(true);
+            // hide the scene
+            playergroup.gameObject.SetActive(false);
+
+            // update the text in the btn
             var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
             text.text = "Start";
 
-            // load the next track
+            // load the next task, only update the UI question, but not load and start the scene
             if(m_RVOSettings.currentTaskIdx < m_RVOSettings.tasks.Count - 1)
             {
                 m_RVOSettings.currentTaskIdx += 1;
-                LoadTaskQuestion(m_RVOSettings.currentTaskIdx);
+                LoadTaskQuestionInUI(m_RVOSettings.currentTaskIdx);
             }
             else
             {
-                // update question
+                // finish
                 text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
                 text.text = "Finished! Thanks!";
                 btn.GetComponent<Button>().interactable = false;
             }
-
-            playergroup.gameObject.SetActive(false);
         }
     }
 }

@@ -51,13 +51,13 @@ public class STUPlayersGroup : MonoBehaviour
         // load the study data
         m_RVOSettings.testingScenes = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
         m_RVOSettings.tasks = new List<Task>() {
-            new Task("Whose label value is XXX?", 4),
-            new Task("who has the highest value in blue team?", 4),
-            new Task("In average, which team has the highest value?", 4),
+            new Task(4, "Whose label value is XXX?"),
+            new Task(4, "who has the highest value in blue team?"),
+            new Task(4, "In average, which team has the highest value?"),
 
-            new Task("Whose label value is XXX?", 8),
-            new Task("who has the highest value in blue team?", 8),
-            new Task("In average, which team has the highest value?", 8),
+            new Task(8, "Whose label value is XXX?"),
+            new Task(8, "who has the highest value in blue team?"),
+            new Task(8, "In average, which team has the highest value?"),
 
         };
 
@@ -78,6 +78,45 @@ public class STUPlayersGroup : MonoBehaviour
     void Start()
     {
 
+    }
+
+    public void LoadScene(int sceneId)
+    {
+        // clean the old students
+        foreach (var entry in m_playerMap.Where(p => p.Value.gameObject.activeSelf))
+        {
+            var p = entry.Value;
+            if (p.gameObject.activeSelf)
+            {
+                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+            }
+            else
+            {
+                p.transform.GetChild(1).gameObject.SetActive(true);
+            }
+            p.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
+        }
+
+        // remove all existing
+        foreach (var entry in m_playerMap)
+        {
+            var p = entry.Value;
+            Destroy(p.gameObject);
+        }
+        m_playerMap.Clear();
+
+        // reset
+        currentScene = sceneId;
+        currentStep = 0;
+        var students = scenes[currentScene];
+        for (int i = 0, len = students.Count; i < len; ++i)
+        {
+            var student = students[i];
+            if (currentStep == student.startStep)
+            {
+                CreatePlayerLabelFromPos(student);
+            }
+        }
     }
 
     void CreatePlayerLabelFromPos(Student student)
@@ -224,46 +263,6 @@ public class STUPlayersGroup : MonoBehaviour
             }
         }
     }
-
-    public void LoadScene(int sceneId)
-    {
-        // clean the old students
-        foreach (var entry in m_playerMap.Where(p => p.Value.gameObject.activeSelf))
-        {
-            var p = entry.Value;
-            if(p.gameObject.activeSelf)
-            {
-                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
-            }
-            else
-            {
-                p.transform.GetChild(1).gameObject.SetActive(true);
-            }
-            p.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
-        }
-
-        // remove all existing
-        foreach (var entry in m_playerMap)
-        {
-            var p = entry.Value;
-            Destroy(p.gameObject);
-        }
-        m_playerMap.Clear();
-
-        // reset
-        currentScene = sceneId;
-        currentStep = 0;
-        var students = scenes[currentScene];
-        for (int i = 0, len = students.Count; i < len; ++i)
-        {
-            var student = students[i];
-            if (currentStep == student.startStep)
-            {
-                CreatePlayerLabelFromPos(student);
-            }
-        }
-    }
-
 
     private void LoadDataset()
     {
