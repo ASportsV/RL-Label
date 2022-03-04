@@ -15,6 +15,13 @@ struct Task
     }
 }
 
+enum Tech
+{
+    Ours,
+    Opti,
+    No,
+}
+
 [System.Serializable]
 public class RVOSettings : MonoBehaviour
 {
@@ -38,12 +45,38 @@ public class RVOSettings : MonoBehaviour
 
     internal Queue<int> testingScenes;
     internal List<Task> tasks;
-    internal int currentTaskIdx = 0;
-
+    List<Tech> techOrders = new List<Tech>();
+    int _currentTaskIdx = 0;
+    internal int currentTaskIdx { get { return _currentTaskIdx; } }
+    internal Task CurrentTask => tasks[currentTaskIdx];
+    internal Tech CurrentTech => techOrders[currentTaskIdx];
 
     private void Awake()
     {
         maxNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("maxPlayerNum", 10);
         minNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("minPlayerNum", 6);
+
+        // decide which order the user use
+        var orders = getOrderByUserId(0);
+        for(int i = 0; i < 12; ++i) // 3 * 12 trials
+        {
+            techOrders.AddRange(orders);
+        }
     }
+
+    Tech[] getOrderByUserId(int userId)
+    {
+        Tech[] order1 = new[] { Tech.No, Tech.Opti, Tech.Ours };
+        Tech[] order2 = new[] { Tech.Opti, Tech.Ours, Tech.No };
+        Tech[] order3 = new[] { Tech.Ours, Tech.No, Tech.Opti };
+
+        return order1;
+    }
+
+    public void NextTask()
+    {
+        this._currentTaskIdx += 1;
+        if (this._currentTaskIdx > tasks.Count) this._currentTaskIdx = -1;
+    }
+
 }

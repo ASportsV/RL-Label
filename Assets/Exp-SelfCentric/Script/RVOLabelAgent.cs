@@ -168,14 +168,12 @@ public class RVOLabelAgent : Agent
     /*-----------------------Action-----------------------*/
     void addForceMove(ActionBuffers actionBuffers)
     {
+        // do nothing if in Tech.No
+        if (m_RVOSettings.CurrentTech == Tech.No) return;
+
         float moveUnit = 3f;
         float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * moveUnit;
 
-        // var moveZ = actionBuffers.DiscreteActions[0] == 1
-        //    ? moveUnit
-        //    : actionBuffers.DiscreteActions[0] == 2
-        //    ? -moveUnit
-        //    : 0;
         if (Mathf.Abs(moveZ) > 0.001f)
         {
             AddReward(rwd.rew_z);
@@ -188,11 +186,6 @@ public class RVOLabelAgent : Agent
         }
 
         float moveX = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f) * moveUnit;
-        // var moveX = actionBuffers.DiscreteActions[1] == 1
-        //     ? -moveUnit
-        //     : actionBuffers.DiscreteActions[1] == 2
-        //     ? +moveUnit
-        //     : 0;
         if (Mathf.Abs(moveX) > 0.001f)
         {
             AddReward(rwd.rew_x);

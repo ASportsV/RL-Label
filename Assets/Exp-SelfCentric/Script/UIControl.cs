@@ -52,13 +52,11 @@ public class UIControl : MonoBehaviour
         // deactivate
         playergroup.gameObject.SetActive(false);
 
-        m_RVOSettings.currentTaskIdx = 0;
-        LoadTaskQuestionInUI(m_RVOSettings.currentTaskIdx);
+        LoadTaskQuestionInUI(m_RVOSettings.CurrentTask);
     }
 
-    void LoadTaskQuestionInUI(int taskIdx)
+    void LoadTaskQuestionInUI(Task task)
     {
-        var task = m_RVOSettings.tasks[taskIdx];
         dropdown.value = dropdown.options
             .FindIndex(o => o.text.Contains(task.sceneIdx.ToString()));
 
@@ -87,7 +85,7 @@ public class UIControl : MonoBehaviour
             text.text = "Answer";
 
             // load and start the scene
-            var task = m_RVOSettings.tasks[m_RVOSettings.currentTaskIdx];
+            var task = m_RVOSettings.CurrentTask;
             var groupControl = playergroup.GetComponent<NBAPlayerGroup>();
             if(groupControl)
             {
@@ -133,10 +131,10 @@ public class UIControl : MonoBehaviour
             text.text = "Start";
 
             // load the next task, only update the UI question, but not load and start the scene
-            if(m_RVOSettings.currentTaskIdx < m_RVOSettings.tasks.Count - 1)
+            if(m_RVOSettings.currentTaskIdx != - 1)
             {
-                m_RVOSettings.currentTaskIdx += 1;
-                LoadTaskQuestionInUI(m_RVOSettings.currentTaskIdx);
+                m_RVOSettings.NextTask();
+                LoadTaskQuestionInUI(m_RVOSettings.CurrentTask);
             }
             else
             {
