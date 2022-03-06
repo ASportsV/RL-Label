@@ -87,6 +87,7 @@ public class Baseline : MonoBehaviour
             InitPlanes();
         }
 
+        spheresInit = true;
 
         ResetPositions();
     }
@@ -540,6 +541,9 @@ public class Baseline : MonoBehaviour
     {
         foreach (var pp in planes)
         {
+            Debug.Log(pp.player);
+            Debug.Log(pp.plane);
+
             pp.plane.transform.position =
                 pp.player.GetComponent<Renderer>().bounds.center;
             Vector3 dir = pp.plane.GetComponent<Renderer>().bounds.center -
@@ -713,8 +717,6 @@ public class Baseline : MonoBehaviour
         {
             AddMiddleSphere(l);
         }
-
-        spheresInit = true;
     }
 
     private void AddMiddleSphere(GameObject l)

@@ -38,12 +38,14 @@ public class NBAPlayerGroup : PlayerGroup
 
     public void LoadScene(int sceneIdx)
     {
-
         // reset all 
         foreach (var entry in m_playerMap)
         {
-            var p = entry.Value;
-            p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+            if (!useBaseline)
+            {
+                var p = entry.Value;
+                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+            }
         }
 
         currentScene = sceneIdx;
@@ -51,12 +53,18 @@ public class NBAPlayerGroup : PlayerGroup
         var students = scenes[currentScene];
         int numPlayers = students.Count;
         int curNumPlayers = m_playerMap.Count;
+        List<GameObject> labelGroups = new List<GameObject>(),
+            labels = new List<GameObject>();
 
         if (numPlayers > curNumPlayers)
         {
             // should spawn
             for (int i = curNumPlayers; i < numPlayers; ++i)
-                CreatePlayerLabelFromPos(students[i]);
+            {
+                var playerLab = CreatePlayerLabelFromPos(students[i]);
+                labelGroups.Add(playerLab.Item1);
+                labels.Add(playerLab.Item2);
+            }
         }
 
         for (int i = 0, len = m_playerMap.Count; i < len; ++i)
@@ -65,7 +73,16 @@ public class NBAPlayerGroup : PlayerGroup
             var student = students[i];
             player.positions = student.positions;
             player.velocities = student.velocities;
-            player.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
+
+            if(!useBaseline)
+            {
+                player.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
+            }
+        }
+
+        if (useBaseline)
+        {
+            b.InitFrom(labelGroups, labels);
         }
 
     }
@@ -92,7 +109,7 @@ public class NBAPlayerGroup : PlayerGroup
         }
         else
         {
-            if (m_RVOSettings.evaluate)
+            if (!useBaseline && m_RVOSettings.evaluate)
             {
                 // should calculate the metrix, including occlution rate, intersection rate, distance to the target, moving distance relative to the target
                 var labelAgents = m_playerMap.Select(p => p.Value.GetComponentInChildren<RVOLabelAgent>());
