@@ -6,23 +6,17 @@ public class RVOplayer : MonoBehaviour
 {
 
     [HideInInspector] public int sid = -1;
+    [HideInInspector] public string root;
     public int currentStep = 0;
 
-    //Vector3 destination;
-    //RVOSettings m_RVOSettings;
-    //Rigidbody m_Rbody;
-    /** Random number generator. */
-    //private System.Random m_random = new System.Random();
     public Transform player;
     
     public Vector3[] positions;
     public Vector3[] velocities;
 
-    private void Awake()
+    public void Init()
     {
-        //m_RVOSettings = FindObjectOfType<RVOSettings>();
-        player = transform.Find("player");
-        //m_Rbody = player.GetComponent<Rigidbody>();
+        player = transform.Find(root);
     }
 
     public Vector3 velocity => velocities[currentStep];

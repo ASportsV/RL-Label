@@ -1,11 +1,10 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Unity.MLAgents;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using System.IO;
-using UnityEditor;
-using Unity.MLAgents;
-
 
 public struct Metrics
 {
@@ -16,7 +15,8 @@ public struct Metrics
     public List<string> labelDistToTarget;
 
 }
-public class RVOPlayerGroup : MonoBehaviour
+
+public class NBAPlayerGroup : MonoBehaviour
 {
     RVOSettings m_RVOSettings;
     // player + label
@@ -29,38 +29,48 @@ public class RVOPlayerGroup : MonoBehaviour
     float minZInCam;
     float maxZInCam;
     public int currentStep = 0;
-    public int currentTrack;
-    Queue<int> testingTrack = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
-    Queue<int> trainingTrack;
+    public int currentScene;
 
-    public struct Track
+    public struct Scene
     {
         public Dictionary<int, Vector3[]> positions;
         public Dictionary<int, Vector3[]> velocities;
         public int totalStep;
     }
 
-    public List<Track> tracks = new List<Track>();
+    public List<Scene> scenes = new List<Scene>();
 
-
-    private List<RVOplayer> m_playerMap = new List<RVOplayer>();
+    private List<RVOplayer> playerList = new List<RVOplayer>();
 
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
-        
+
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
         if(movingCam) 
         {
             cam.gameObject.AddComponent<MovingCamera>();
         }
         court = transform.parent.Find("fancy_court");
-    }
 
-    // Start is called before the first frame update
-    void Start()
-    {
+
+        m_RVOSettings.testingScenes = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
+        m_RVOSettings.tasks = new List<Task>() {
+            new Task(0, "Whose label value is XXX?"),
+            new Task(0, "who has the highest value in blue team?"),
+            new Task(0, "In average, which team has the highest value?"),
+
+            new Task(13, "Whose label value is XXX?"),
+            new Task(13, "who has the highest value in blue team?"),
+            new Task(13, "In average, which team has the highest value?"),
+
+            //{ 15, new Task()},
+            //{ 16, new Task()},
+            //{ 21, new Task()},
+            //{ 22, new Task()}
+        };
+
         // geometry min and max
         minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
         var tmp = cam.transform.forward;
@@ -70,29 +80,21 @@ public class RVOPlayerGroup : MonoBehaviour
 
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
-        LoadPosInTrack();
-        var rnd = new System.Random();
-        trainingTrack = new Queue<int>(Enumerable.Range(0, tracks.Count)
-            .Where(i => !testingTrack.Contains(i))
-            .OrderBy(item => rnd.Next())
-            .ToList());
-
-        LoadTrack();
+        LoadDataset();
     }
 
-    void LoadTrack()
+    // Start is called before the first frame update
+    void Start()
     {
-        var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
-        if(queue.Count > 0)
-            currentTrack = queue.Dequeue();
-        // for trainiing
-        if (!m_RVOSettings.evaluate) queue.Enqueue(currentTrack);
+    }
 
-        int idx = currentTrack;
-        if (idx >= tracks.Count) Debug.LogWarning("Idx " + idx + " out of tracks range");
-        var track = tracks[idx];
+    public void LoadScene(int sceneIdx)
+    {
+
+        currentScene = sceneIdx;
+        var track = scenes[currentScene];
         int numPlayers = track.positions.Count;
-        int curNumPlayers = m_playerMap.Count;
+        int curNumPlayers = playerList.Count;
 
         if(numPlayers > curNumPlayers)
         {
@@ -103,17 +105,17 @@ public class RVOPlayerGroup : MonoBehaviour
         else if (numPlayers < curNumPlayers)
         {
             // should destory
-            for(int i = m_playerMap.Count -1; i >= numPlayers; --i)
+            for(int i = playerList.Count -1; i >= numPlayers; --i)
             {
-                var p = m_playerMap[i];
-                m_playerMap.RemoveAt(i);
+                var p = playerList[i];
+                playerList.RemoveAt(i);
                 Destroy(p.gameObject);
             }
         }
 
-        for(int i = 0, len = m_playerMap.Count; i < len; ++i)
+        for(int i = 0, len = playerList.Count; i < len; ++i)
         {
-            var player = m_playerMap[i];
+            var player = playerList[i];
             player.positions = track.positions[player.sid];
             player.velocities = track.velocities[player.sid];
             player.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
@@ -122,7 +124,7 @@ public class RVOPlayerGroup : MonoBehaviour
         currentStep = 0;
     }
 
-    public void CreatePlayerLabelFromPos(int sid, Vector3 pos)
+    void CreatePlayerLabelFromPos(int sid, Vector3 pos)
     {
 
         GameObject playerObj = Instantiate(playerLabel_prefab, pos, Quaternion.identity);
@@ -133,11 +135,17 @@ public class RVOPlayerGroup : MonoBehaviour
         text.text = sid.ToString();
         text = playerObj.transform.Find("player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = sid.ToString();
+        text = playerObj.transform.Find("player/FrontCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = sid.ToString();
+        text = playerObj.transform.Find("player/LeftCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = sid.ToString();
+        text = playerObj.transform.Find("player/RightCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = sid.ToString();
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
 
         player.sid = sid;
-        m_playerMap.Add(player);
+        playerList.Add(player);
 
         Transform label = playerObj.gameObject.transform.Find("label");
         label.name = sid + "_label";
@@ -171,6 +179,8 @@ public class RVOPlayerGroup : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (m_RVOSettings.sceneFinished || !m_RVOSettings.sceneStarted) return;
+
         time += Time.fixedDeltaTime;
 
         if (time >= timeStep)
@@ -179,22 +189,22 @@ public class RVOPlayerGroup : MonoBehaviour
             currentStep += 1;
         }
 
-        if(currentStep < tracks[currentTrack].totalStep)
+        if(currentStep < scenes[currentScene].totalStep)
         {
-            m_playerMap.ForEach(p => p.step(currentStep));
+            playerList.ForEach(p => p.step(currentStep));
         }
         else
         {
             if(m_RVOSettings.evaluate)
             {
                 // should calculate the metrix, including occlution rate, intersection rate, distance to the target, moving distance relative to the target
-                var labelAgents = m_playerMap.Select(p => p.GetComponentInChildren<RVOLabelAgent>());
+                var labelAgents = playerList.Select(p => p.GetComponentInChildren<RVOLabelAgent>());
 
                 // collect the intersection, occlusions over time
                 List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
                 List<HashSet<string>> accumulatedIntersection = new List<HashSet<string>>();
 
-                for(int i = 0; i < tracks[currentTrack].totalStep; ++i)
+                for(int i = 0; i < scenes[currentScene].totalStep; ++i)
                 {
                     var occluded = new HashSet<string>();
                     var intersected = new HashSet<string>();
@@ -217,15 +227,15 @@ public class RVOPlayerGroup : MonoBehaviour
 
                 // collect
                 Metrics met = new Metrics();
-                met.trackId = currentTrack;
+                met.trackId = currentScene;
                 met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
                 met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
                 met.labelPositions = labelPositions;
                 met.labelDistToTarget = labelDistToTarget;
-                metricsPerTrack[currentTrack] = met;
+                metricsPerTrack[currentScene] = met;
                 
                 // save 
-                using (StreamWriter writer = new StreamWriter("nba_track" + currentTrack + "_met.json", false))
+                using (StreamWriter writer = new StreamWriter("nba_track" + currentScene + "_met.json", false))
                 {
                     writer.Write(JsonUtility.ToJson(met));
                     writer.Close();
@@ -233,13 +243,13 @@ public class RVOPlayerGroup : MonoBehaviour
             }
             
             // reset all 
-            m_playerMap.ForEach(p => p.GetComponentInChildren<RVOLabelAgent>().SyncReset());
-            // load another track
-            LoadTrack();
+            playerList.ForEach(p => p.GetComponentInChildren<RVOLabelAgent>().SyncReset());
+            // reload the scene
+            LoadScene(currentScene);
         }
     }
 
-    private void LoadPosInTrack()
+    private void LoadDataset()
     {
         string fileName = Path.Combine(Application.streamingAssetsPath, "nba_full_split.csv");
         StreamReader r = new StreamReader(fileName);
@@ -277,7 +287,7 @@ public class RVOPlayerGroup : MonoBehaviour
         for (int tIdx = 0; tIdx < tracks.Count; ++tIdx)
         {
             var track = tracks[tIdx];
-            var trackStruct = new Track();
+            var trackStruct = new Scene();
             int totalStep = track.Max(p => p.Count);
             Dictionary<int, Vector3[]> positions = track.Select((p, i) => new { i, p }).ToDictionary(x => x.i, x => x.p.ToArray());
             Dictionary<int, Vector3[]> velocities = new Dictionary<int, Vector3[]>();
@@ -303,7 +313,7 @@ public class RVOPlayerGroup : MonoBehaviour
             trackStruct.totalStep = totalStep;
             trackStruct.positions = positions;
             trackStruct.velocities = velocities;
-            this.tracks.Add(trackStruct);
+            this.scenes.Add(trackStruct);
         }
 
         Debug.Log("Max Vel:" + maxVel.ToString());
