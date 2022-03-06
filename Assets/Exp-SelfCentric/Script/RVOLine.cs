@@ -31,6 +31,10 @@ public class RVOLine : MonoBehaviour
         return new Vector3[] { start, end.position };
     }
 
+    public float GetLineLength()
+    {
+        return Vector3.Distance(line.GetPosition(0), line.GetPosition(1));
+    }
 
     Vector2 debugIntersection;
     public bool isIntersected(RVOLine line, Camera cam)
