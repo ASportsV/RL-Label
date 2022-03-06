@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3933635731914576204}
   - component: {fileID: 966761223852352586}
   m_Layer: 0
-  m_Name: AgentLabel1
+  m_Name: AgentLabel_RL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sid: -1
+  root: 
   currentStep: 0
   player: {fileID: 0}
   positions: []
@@ -62,7 +63,8 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 5022602860645237092, guid: a206c6e34cf2efd4bb66d828f9665d8e,
+        type: 3}
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_BehaviorName
@@ -465,7 +467,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ae6fb9d0fd8ae443aaf50269148762b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  overlay: {fileID: 0}
   end: {fileID: 2976346511293885445}
 --- !u!1001 &5032460194982985697
 PrefabInstance:
@@ -474,6 +475,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3933635731914576204}
     m_Modifications:
+    - target: {fileID: 428667426107046654, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_text
+      value: 55
+      objectReference: {fileID: 0}
     - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
         type: 3}
       propertyPath: m_Size.x
@@ -724,6 +730,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 8686375635928033403, guid: ff8546d662b540648afc0b45b953f89c,
+        type: 3}
+      propertyPath: m_text
+      value: 55
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6577344889220897337, guid: ff8546d662b540648afc0b45b953f89c, type: 3}
