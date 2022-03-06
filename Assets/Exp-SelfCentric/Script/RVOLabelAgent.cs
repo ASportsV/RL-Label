@@ -5,6 +5,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class RVOLabelAgent : Agent
 {
@@ -42,6 +43,7 @@ public class RVOLabelAgent : Agent
     float yDistThres = 0.0f;
     float xzDistThres;
     float maxDist;
+    float moveUnit;
     public float minZInCam;
     public float maxZInCam;
 
@@ -51,11 +53,12 @@ public class RVOLabelAgent : Agent
         Academy.Instance.AgentPreStep += UpdateReward;
 
         m_Rbody = GetComponent<Rigidbody>();
+        var m_Scene = SceneManager.GetActiveScene();
 
         rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
         rwd.rew_x = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_x", -0.00025f);
-        xzDistThres =  Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.8f);
-        moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
+        xzDistThres =  Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", m_Scene.name == "STU" ? 1f : 1.8f);
+        moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", m_Scene.name == "STU" ? 1f : 3f);
         rwd.rew_occlude = -0.1f;
         rwd.rew_intersets = -0.1f;
         rwd.rew_dist = -0.01f;
