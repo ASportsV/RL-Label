@@ -12,7 +12,7 @@ public class RVOLine : MonoBehaviour
     LineRenderer line;
     float yOffset = 0.0f;
 
-    private void Start()
+    void Start()
     {
         line = GetComponent<LineRenderer>();
     }
@@ -31,6 +31,13 @@ public class RVOLine : MonoBehaviour
         return new Vector3[] { start, end.position };
     }
 
+    public float GetLineLength()
+    {
+        if(line == null) {
+            line = GetComponent<LineRenderer>();
+        }
+        return Vector3.Distance(line.GetPosition(0), line.GetPosition(1));
+    }
 
     Vector2 debugIntersection;
     public bool isIntersected(RVOLine line, Camera cam)
