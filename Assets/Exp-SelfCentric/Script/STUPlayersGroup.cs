@@ -42,7 +42,7 @@ public class STUPlayersGroup : MonoBehaviour
 
     private void Awake()
     {
-        root = useBaseline ? "player_prefab/player" : "player";
+        root = useBaseline ? "player_parent/player" : "player";
 
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
@@ -150,6 +150,15 @@ public class STUPlayersGroup : MonoBehaviour
             .GetComponent<TMPro.TextMeshProUGUI>();
         text.text = playerObj.transform.GetSiblingIndex().ToString(); //sid.ToString();
         text = playerObj.transform.Find(string.Format("{0}/TopCanvas/Text", root))
+            .GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = playerObj.transform.GetSiblingIndex().ToString();
+        text = playerObj.transform.Find(string.Format("{0}/FrontCanvas/Text", root))
+            .GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = playerObj.transform.GetSiblingIndex().ToString();
+        text = playerObj.transform.Find(string.Format("{0}/LeftCanvas/Text", root))
+            .GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = playerObj.transform.GetSiblingIndex().ToString();
+        text = playerObj.transform.Find(string.Format("{0}/RightCanvas/Text", root))
             .GetComponent<TMPro.TextMeshProUGUI>();
         text.text = playerObj.transform.GetSiblingIndex().ToString();
 
