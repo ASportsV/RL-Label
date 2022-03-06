@@ -11,9 +11,11 @@ public class STUPlayersGroup : MonoBehaviour
 {
     RVOSettings m_RVOSettings;
     // player + label
-    public GameObject playerLabel_prefab;
+    public GameObject playerLabel_prefab, playerLabel_prefab_rl;
     public Sprite redLabel;
     public Sprite blueLabel;
+    public bool useBaseline;
+    [HideInInspector] public string root;
 
     public Transform court;
     public Camera cam;
@@ -40,6 +42,8 @@ public class STUPlayersGroup : MonoBehaviour
 
     private void Awake()
     {
+        root = useBaseline ? "player_prefab/player" : "player";
+
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
 
@@ -83,15 +87,20 @@ public class STUPlayersGroup : MonoBehaviour
             var p = entry.Value;
             if (p.gameObject.activeSelf)
             {
-                // RVOLABELAGENT
-                // p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+                if(!useBaseline)
+                {
+                    p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+                }
             }
             else
             {
                 p.transform.GetChild(1).gameObject.SetActive(true);
             }
-            // RVOLABELAGENT
-            // p.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
+
+            if(!useBaseline)
+            {
+                p.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
+            }
         }
 
         // remove all existing
@@ -122,24 +131,32 @@ public class STUPlayersGroup : MonoBehaviour
             }
         }
 
-        b.InitFrom(labelGroups, labels);
+        if(useBaseline)
+        {
+            b.InitFrom(labelGroups, labels);
+        }
     }
 
     (GameObject, GameObject) CreatePlayerLabelFromPos(Student student)
     {
         int sid = student.id;
         var pos = student.positions[0];
-        GameObject playerObj = Instantiate(playerLabel_prefab, pos, Quaternion.identity);
+        GameObject toInstantiate = useBaseline ? playerLabel_prefab : playerLabel_prefab_rl;
+        GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = sid + "_PlayerLabel";
 
-        var text = playerObj.transform.Find("player_parent/player/BackCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        var text = playerObj.transform.Find(string.Format("{0}/BackCanvas/Text", root))
+            .GetComponent<TMPro.TextMeshProUGUI>();
         text.text = playerObj.transform.GetSiblingIndex().ToString(); //sid.ToString();
-        text = playerObj.transform.Find("player_parent/player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text = playerObj.transform.Find(string.Format("{0}/TopCanvas/Text", root))
+            .GetComponent<TMPro.TextMeshProUGUI>();
         text.text = playerObj.transform.GetSiblingIndex().ToString();
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
 
+        player.root = root;
+        player.Init();
         player.sid = sid;
         m_playerMap[sid] = player;
         player.velocities = student.velocities;
@@ -153,14 +170,15 @@ public class STUPlayersGroup : MonoBehaviour
         name.text = Random.Range(10, 99).ToString();
         var image = label.Find("panel/Player_info").GetComponent<Image>();
 
-        /* RVOLABELAGENT
-        RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
-        agent.PlayerLabel = player;
-        agent.court = court;
-        agent.cam = cam;
-        agent.minZInCam = minZInCam;
-        agent.maxZInCam = maxZInCam;
-        */
+        if(!useBaseline)
+        {
+            RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
+            agent.PlayerLabel = player;
+            agent.court = court;
+            agent.cam = cam;
+            agent.minZInCam = minZInCam;
+            agent.maxZInCam = maxZInCam;
+        }
 
         image.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
 
@@ -194,7 +212,10 @@ public class STUPlayersGroup : MonoBehaviour
                 if (currentStep == student.startStep)
                 {
                     var playerLab = CreatePlayerLabelFromPos(student);
-                    b.AddLabel(playerLab.Item1, playerLab.Item2);
+                    if(useBaseline)
+                    {
+                        b.AddLabel(playerLab.Item1, playerLab.Item2);
+                    }
                 }
                 else if (currentStep > student.startStep && currentStep < (student.startStep + student.totalStep))
                 {
@@ -205,10 +226,11 @@ public class STUPlayersGroup : MonoBehaviour
                     // deactivate
                     var go = m_playerMap[student.id].gameObject;
 
-                    /* RVOLABELAGENT
-                    var labelAgent = go.GetComponentInChildren<RVOLabelAgent>();
-                    labelAgent.SyncReset();
-                    */
+                    if(!useBaseline)
+                    {
+                        var labelAgent = go.GetComponentInChildren<RVOLabelAgent>();
+                        labelAgent.SyncReset();
+                    }
 
                     go.SetActive(false);
                     foreach (Transform child in go.transform)
@@ -219,65 +241,65 @@ public class STUPlayersGroup : MonoBehaviour
 
             if (currentStep >= totalStep)
             {
-                /* RVOLABELAGENT
-                // evaluation
-                if (m_RVOSettings.evaluate)
+                if(!useBaseline)
                 {
-                    // collect the intersection, occlusions over time
-                    List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
-                    List<HashSet<string>> accumulatedIntersection = new List<HashSet<string>>();
-                    foreach(var entry in m_playerMap)
+                    // evaluation
+                    if (m_RVOSettings.evaluate)
                     {
-                        foreach (Transform child in entry.Value.transform)
-                            child.gameObject.SetActive(true);
-                    }
-
-                    for (int i = 0; i < totalStep; ++i)
-                    {
-                        var occluded = new HashSet<string>();
-                        var intersected = new HashSet<string>();
- 
-                        foreach (var student in students.Where(s => i >= s.startStep && i < (s.startStep + s.totalStep)))
+                        // collect the intersection, occlusions over time
+                        List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
+                        List<HashSet<string>> accumulatedIntersection = new List<HashSet<string>>();
+                        foreach (var entry in m_playerMap)
                         {
-                            var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<RVOLabelAgent>();
-
-                            occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
-                            intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
+                            foreach (Transform child in entry.Value.transform)
+                                child.gameObject.SetActive(true);
                         }
-                        accumulatedOcclusion.Add(occluded);
-                        accumulatedIntersection.Add(intersected);
-                    }
 
-                    List<string> labelPositions = new List<string>();
-                    List<string> labelDistToTarget = new List<string>();
-                    foreach(var student in students)
-                    {
-                        var labelAgent = m_playerMap[student.id].GetComponentInChildren<RVOLabelAgent>();
-                        labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
-                        labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
-                        Debug.Log("Occ Step of " + student.id + " is " + labelAgent.occludedObjectOverTime.Count + " / " + student.totalStep);
+                        for (int i = 0; i < totalStep; ++i)
+                        {
+                            var occluded = new HashSet<string>();
+                            var intersected = new HashSet<string>();
 
-                    }
+                            foreach (var student in students.Where(s => i >= s.startStep && i < (s.startStep + s.totalStep)))
+                            {
+                                var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<RVOLabelAgent>();
 
-                    // collect
-                    Metrics met = new Metrics();
-                    met.trackId = currentScene;
-                    met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
-                    met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
-                    met.labelPositions = labelPositions;
-                    met.labelDistToTarget = labelDistToTarget;
+                                occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
+                                intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
+                            }
+                            accumulatedOcclusion.Add(occluded);
+                            accumulatedIntersection.Add(intersected);
+                        }
 
-                    // save 
-                    using (StreamWriter writer = new StreamWriter("student_track" + currentScene + "_met.json", false))
-                    {
-                        writer.Write(JsonUtility.ToJson(met));
-                        writer.Close();
+                        List<string> labelPositions = new List<string>();
+                        List<string> labelDistToTarget = new List<string>();
+                        foreach (var student in students)
+                        {
+                            var labelAgent = m_playerMap[student.id].GetComponentInChildren<RVOLabelAgent>();
+                            labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
+                            labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
+                            Debug.Log("Occ Step of " + student.id + " is " + labelAgent.occludedObjectOverTime.Count + " / " + student.totalStep);
+
+                        }
+
+                        // collect
+                        Metrics met = new Metrics();
+                        met.trackId = currentScene;
+                        met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
+                        met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
+                        met.labelPositions = labelPositions;
+                        met.labelDistToTarget = labelDistToTarget;
+
+                        // save 
+                        using (StreamWriter writer = new StreamWriter("student_track" + currentScene + "_met.json", false))
+                        {
+                            writer.Write(JsonUtility.ToJson(met));
+                            writer.Close();
+                        }
                     }
                 }
-                */
-
-                    // replay the scene
-                    LoadScene(currentScene);
+                // replay the scene
+                LoadScene(currentScene);
             }
         }
     }

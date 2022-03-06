@@ -6,6 +6,7 @@ public class RVOplayer : MonoBehaviour
 {
 
     [HideInInspector] public int sid = -1;
+    [HideInInspector] public string root;
     public int currentStep = 0;
 
     public Transform player;
@@ -13,9 +14,9 @@ public class RVOplayer : MonoBehaviour
     public Vector3[] positions;
     public Vector3[] velocities;
 
-    private void Awake()
+    public void Init()
     {
-        player = transform.Find("player_parent/player");
+        player = transform.Find(root);
     }
 
     public Vector3 velocity => velocities[currentStep];

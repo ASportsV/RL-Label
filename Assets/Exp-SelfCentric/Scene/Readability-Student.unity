@@ -454,8 +454,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerLabel_prefab: {fileID: 4009644357339790710, guid: 519291690fe2846c6a66b8bbd2e59f8a,
     type: 3}
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+    type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
+  useBaseline: 1
+  root: 
   court: {fileID: 0}
   cam: {fileID: 0}
   currentStep: 0
