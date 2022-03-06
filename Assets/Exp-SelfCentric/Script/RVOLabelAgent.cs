@@ -173,7 +173,7 @@ public class RVOLabelAgent : Agent
     void addForceMove(ActionBuffers actionBuffers)
     {
         // do nothing if in Tech.No
-        if (m_RVOSettings.CurrentTech == Tech.No) return;
+        if (m_RVOSettings.CurrentTech != Tech.Ours) return;
 
         float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * moveUnit;
 
