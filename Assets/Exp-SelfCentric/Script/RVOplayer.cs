@@ -15,7 +15,7 @@ public class RVOplayer : MonoBehaviour
 
     private void Awake()
     {
-        player = transform.Find("player");
+        player = transform.Find("player_parent/player");
     }
 
     public Vector3 velocity => velocities[currentStep];
