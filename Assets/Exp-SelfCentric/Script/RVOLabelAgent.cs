@@ -54,7 +54,8 @@ public class RVOLabelAgent : Agent
 
         rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
         rwd.rew_x = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_x", -0.00025f);
-        xzDistThres =  Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 2f);
+        xzDistThres =  Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.8f);
+        moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
         rwd.rew_occlude = -0.1f;
         rwd.rew_intersets = -0.1f;
         rwd.rew_dist = -0.01f;
@@ -171,7 +172,6 @@ public class RVOLabelAgent : Agent
         // do nothing if in Tech.No
         if (m_RVOSettings.CurrentTech == Tech.No) return;
 
-        float moveUnit = 3f;
         float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * moveUnit;
 
         if (Mathf.Abs(moveZ) > 0.001f)
