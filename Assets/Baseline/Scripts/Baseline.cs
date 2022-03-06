@@ -253,7 +253,7 @@ public class Baseline : MonoBehaviour
                     if (!hit.collider.CompareTag("label") &&
                         !hit.collider.CompareTag("player"))
                     {
-                        Debug.LogFormat("name: {0}, tag: {1}", hit.collider.name, hit.collider.tag);
+                        // Debug.LogFormat("name: {0}, tag: {1}", hit.collider.name, hit.collider.tag);
                     }
                     return true;
                 }
@@ -386,8 +386,8 @@ public class Baseline : MonoBehaviour
     {
         Vector3 oldPos = obj.transform.position;
         float step = movementSpeed * Time.deltaTime;
-        Debug.LogFormat("Calling movement helper {6} - oldPos: {0},{1},{2}; newPos: {3},{4},{5}",
-            oldPos.x, oldPos.y, oldPos.z, targetPos.x, targetPos.y, targetPos.z, obj.name);
+        // Format("Calling movement helper {6} - oldPos: {0},{1},{2}; newPos: {3},{4},{5}",
+            // oldPos.x, oldPos.y, oldPos.z, targetPos.x, targetPos.y, targetPos.z, obj.name);
         obj.transform.position = Vector3.MoveTowards(oldPos, targetPos, step);
     }
 
@@ -415,7 +415,7 @@ public class Baseline : MonoBehaviour
         float lL = labelGroups[lId].GetComponentInChildren<RVOLine>().GetLineLength();
         if(debug && (lL > lineMax))
         {
-            Debug.LogFormat("{0} lower counts: {1} - length: {2}", lId, (lL < lineMax), lL);
+            // Format("{0} lower counts: {1} - length: {2}", lId, (lL < lineMax), lL);
         }
         return (lL < threshold);
     }
