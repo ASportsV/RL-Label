@@ -21,6 +21,8 @@ public class STUPlayersGroup : MonoBehaviour
     float maxZInCam;
     public int currentStep = 0;
 
+    public Baseline b;
+
     public struct Student
     {
         public int id;
@@ -71,13 +73,6 @@ public class STUPlayersGroup : MonoBehaviour
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
         LoadDataset();
-
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
     }
 
     public void LoadScene(int sceneId)
@@ -88,13 +83,15 @@ public class STUPlayersGroup : MonoBehaviour
             var p = entry.Value;
             if (p.gameObject.activeSelf)
             {
-                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
+                // RVOLABELAGENT
+                // p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
             }
             else
             {
                 p.transform.GetChild(1).gameObject.SetActive(true);
             }
-            p.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
+            // RVOLABELAGENT
+            // p.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
         }
 
         // remove all existing
@@ -105,21 +102,30 @@ public class STUPlayersGroup : MonoBehaviour
         }
         m_playerMap.Clear();
 
+
+
         // reset
         currentScene = sceneId;
         currentStep = 0;
         var students = scenes[currentScene];
+        List<GameObject> labelGroups = new List<GameObject>(),
+            labels = new List<GameObject>();
+
         for (int i = 0, len = students.Count; i < len; ++i)
         {
             var student = students[i];
             if (currentStep == student.startStep)
             {
-                CreatePlayerLabelFromPos(student);
+                var playerLab = CreatePlayerLabelFromPos(student);
+                labelGroups.Add(playerLab.Item1);
+                labels.Add(playerLab.Item2);
             }
         }
+
+        b.InitFrom(labelGroups, labels);
     }
 
-    void CreatePlayerLabelFromPos(Student student)
+    (GameObject, GameObject) CreatePlayerLabelFromPos(Student student)
     {
         int sid = student.id;
         var pos = student.positions[0];
@@ -127,9 +133,9 @@ public class STUPlayersGroup : MonoBehaviour
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = sid + "_PlayerLabel";
 
-        var text = playerObj.transform.Find("player/BackCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        var text = playerObj.transform.Find("player_parent/player/BackCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = playerObj.transform.GetSiblingIndex().ToString(); //sid.ToString();
-        text = playerObj.transform.Find("player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        text = playerObj.transform.Find("player_parent/player/TopCanvas/Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = playerObj.transform.GetSiblingIndex().ToString();
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
@@ -145,17 +151,18 @@ public class STUPlayersGroup : MonoBehaviour
         //Debug.Log("Finish initialize " + label.name);
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         name.text = Random.Range(10, 99).ToString();
-        var iamge = label.Find("panel/Player_info").GetComponent<Image>();
+        var image = label.Find("panel/Player_info").GetComponent<Image>();
 
+        /* RVOLABELAGENT
         RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
         agent.PlayerLabel = player;
         agent.court = court;
         agent.cam = cam;
         agent.minZInCam = minZInCam;
         agent.maxZInCam = maxZInCam;
+        */
 
-
-        iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
+        image.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
 
         if (sid % 2 != 0)
         {
@@ -163,10 +170,13 @@ public class STUPlayersGroup : MonoBehaviour
             var cubeRenderer = player.player.GetComponent<Renderer>();
             cubeRenderer.material.SetColor("_Color", color);
         }
+
+        return (playerObj, label.gameObject);
     }
 
     private float time = 0.0f;
     private float timeStep = 0.04f;
+
     private void FixedUpdate()
     {
         time += Time.fixedDeltaTime;
@@ -183,7 +193,8 @@ public class STUPlayersGroup : MonoBehaviour
             {
                 if (currentStep == student.startStep)
                 {
-                    CreatePlayerLabelFromPos(student);
+                    var playerLab = CreatePlayerLabelFromPos(student);
+                    b.AddLabel(playerLab.Item1, playerLab.Item2);
                 }
                 else if (currentStep > student.startStep && currentStep < (student.startStep + student.totalStep))
                 {
@@ -193,16 +204,22 @@ public class STUPlayersGroup : MonoBehaviour
                 {
                     // deactivate
                     var go = m_playerMap[student.id].gameObject;
+
+                    /* RVOLABELAGENT
                     var labelAgent = go.GetComponentInChildren<RVOLabelAgent>();
                     labelAgent.SyncReset();
+                    */
+
                     go.SetActive(false);
                     foreach (Transform child in go.transform)
                         child.gameObject.SetActive(false);
                 }
             }
 
+
             if (currentStep >= totalStep)
             {
+                /* RVOLABELAGENT
                 // evaluation
                 if (m_RVOSettings.evaluate)
                 {
@@ -257,9 +274,10 @@ public class STUPlayersGroup : MonoBehaviour
                         writer.Close();
                     }
                 }
+                */
 
-                // replay the scene
-                LoadScene(currentScene);
+                    // replay the scene
+                    LoadScene(currentScene);
             }
         }
     }
