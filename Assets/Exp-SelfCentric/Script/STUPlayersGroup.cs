@@ -1,59 +1,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 using System.IO;
 using UnityEditor;
-using Unity.MLAgents;
 
-
-public class STUPlayersGroup : MonoBehaviour
+public struct Student
 {
-    RVOSettings m_RVOSettings;
-    // player + label
-    public GameObject playerLabel_prefab, playerLabel_prefab_rl;
-    public Sprite redLabel;
-    public Sprite blueLabel;
-    public bool useBaseline;
-    [HideInInspector] public string root;
+    public int id;
+    public Vector3[] positions;
+    public Vector3[] velocities;
+    public int totalStep;
+    public int startStep;
+}
 
-    public Transform court;
-    public Camera cam;
-    float minZInCam;
-    float maxZInCam;
-    public int currentStep = 0;
+public class STUPlayersGroup : PlayerGroup
+{
 
-    public Baseline b;
 
-    public struct Student
+    protected override void LoadTasks()
     {
-        public int id;
-        public Vector3[] positions;
-        public Vector3[] velocities;
-        public int totalStep;
-        public int startStep;
-    }
-
-    public List<List<Student>> scenes = new List<List<Student>>();
-  
-    public int currentScene;
-
-    private Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
-
-    private void Awake()
-    {
-        root = useBaseline ? "player_parent/player" : "player";
-
-        m_RVOSettings = FindObjectOfType<RVOSettings>();
-        cam = transform.parent.Find("Camera").GetComponent<Camera>();
-
-        bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
-        if (movingCam)
-        {
-            cam.gameObject.AddComponent<MovingCamera>();
-        }
-        court = transform.parent.Find("fancy_court");
-
         // load the study data
         m_RVOSettings.testingScenes = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
         m_RVOSettings.tasks = new List<Task>() {
@@ -66,17 +31,6 @@ public class STUPlayersGroup : MonoBehaviour
             new Task(8, "In average, which team has the highest value?"),
 
         };
-
-        // geometry min and max
-        minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
-        var tmp = cam.transform.forward;
-        cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
-        maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
-        cam.transform.forward = tmp;
-
-        Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
-
-        LoadDataset();
     }
 
     public void LoadScene(int sceneId)
@@ -111,8 +65,6 @@ public class STUPlayersGroup : MonoBehaviour
         }
         m_playerMap.Clear();
 
-
-
         // reset
         currentScene = sceneId;
         currentStep = 0;
@@ -136,73 +88,6 @@ public class STUPlayersGroup : MonoBehaviour
             b.InitFrom(labelGroups, labels);
         }
     }
-
-    (GameObject, GameObject) CreatePlayerLabelFromPos(Student student)
-    {
-        int sid = student.id;
-        var pos = student.positions[0];
-        GameObject toInstantiate = useBaseline ? playerLabel_prefab : playerLabel_prefab_rl;
-        GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
-        playerObj.transform.SetParent(gameObject.transform, false);
-        playerObj.name = sid + "_PlayerLabel";
-
-        var text = playerObj.transform.Find(string.Format("{0}/BackCanvas/Text", root))
-            .GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = playerObj.transform.GetSiblingIndex().ToString(); //sid.ToString();
-        text = playerObj.transform.Find(string.Format("{0}/TopCanvas/Text", root))
-            .GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = playerObj.transform.GetSiblingIndex().ToString();
-        text = playerObj.transform.Find(string.Format("{0}/FrontCanvas/Text", root))
-            .GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = playerObj.transform.GetSiblingIndex().ToString();
-        text = playerObj.transform.Find(string.Format("{0}/LeftCanvas/Text", root))
-            .GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = playerObj.transform.GetSiblingIndex().ToString();
-        text = playerObj.transform.Find(string.Format("{0}/RightCanvas/Text", root))
-            .GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = playerObj.transform.GetSiblingIndex().ToString();
-
-        RVOplayer player = playerObj.GetComponent<RVOplayer>();
-
-        player.root = root;
-        player.Init();
-        player.sid = sid;
-        m_playerMap[sid] = player;
-        player.velocities = student.velocities;
-        player.positions = student.positions;
-
-        Transform label = playerObj.gameObject.transform.Find("label");
-        label.name = sid + "_label";
-
-        //Debug.Log("Finish initialize " + label.name);
-        var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
-        name.text = Random.Range(10, 99).ToString();
-        var image = label.Find("panel/Player_info").GetComponent<Image>();
-
-        if(!useBaseline)
-        {
-            RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
-            agent.PlayerLabel = player;
-            agent.court = court;
-            agent.cam = cam;
-            agent.minZInCam = minZInCam;
-            agent.maxZInCam = maxZInCam;
-        }
-
-        image.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
-
-        if (sid % 2 != 0)
-        {
-            Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
-            var cubeRenderer = player.player.GetComponent<Renderer>();
-            cubeRenderer.material.SetColor("_Color", color);
-        }
-
-        return (playerObj, label.gameObject);
-    }
-
-    private float time = 0.0f;
-    private float timeStep = 0.04f;
 
     private void FixedUpdate()
     {
@@ -313,15 +198,14 @@ public class STUPlayersGroup : MonoBehaviour
         }
     }
 
-    private void LoadDataset()
+    protected override void LoadDataset()
     {
         string fileName = Path.Combine(Application.streamingAssetsPath, "student_full.csv");
         StreamReader r = new StreamReader(fileName);
         string pos_data = r.ReadToEnd();
-
         string[] records = pos_data.Split('\n');
+
         List<Dictionary<int, List<Vector3>>> tracks = new List<Dictionary<int, List<Vector3>>>();
-        List<int> trackStarted = new List<int>();
         Dictionary<string, int> playerStartedInTrack = new Dictionary<string, int>();
         
         for(int i = 0; i < records.Length; ++i)
@@ -333,13 +217,9 @@ public class STUPlayersGroup : MonoBehaviour
             float px = float.Parse(array[3]);
             float py = float.Parse(array[4]);
 
-            if ((trackIdx + 1) > tracks.Count)
-            {
-                tracks.Add(new Dictionary<int, List<Vector3>>());
-                trackStarted.Add(i);
-            }
-
+            if ((trackIdx + 1) > tracks.Count) tracks.Add(new Dictionary<int, List<Vector3>>());
             var track = tracks[trackIdx];
+
             if (!track.ContainsKey(playerIdx))
             {
                 track[playerIdx] = new List<Vector3>();
