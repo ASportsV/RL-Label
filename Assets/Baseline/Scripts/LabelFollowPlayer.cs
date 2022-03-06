@@ -5,12 +5,17 @@ using UnityEngine;
 public class LabelFollowPlayer : MonoBehaviour
 {
     public GameObject player;
-    public bool followX = true;
+    public bool followX = true, planeBased = false;
     private Vector3 lastPosition = new Vector3();
     private float resetY = 2f;
 
     void Start()
     {
+        if (planeBased)
+        {
+            return;
+        }
+
         ResetPosition();
         if (!followX)
         {
@@ -20,6 +25,11 @@ public class LabelFollowPlayer : MonoBehaviour
 
     void Update()
     {
+        if (planeBased)
+        {
+            return;
+        }
+
         Vector3 playerPos = player.transform.position;
         if (followX)
         {

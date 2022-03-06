@@ -12,17 +12,17 @@ public class Baseline : MonoBehaviour
     private List<GameObject[]> labelsCorners, labelsMiddles;
     private Vector3 sphereScale = new Vector3(.3f, .3f, .3f),
         planeScale = new Vector3(.8f, .8f, .8f);
-    private bool spheresInit = false, planesInit = false, toInit = false;
+    private bool spheresInit = false, toInit = false;
     public bool hideSpheres, hidePlanes, hidePlaneSpheres;
     private float yThreshold = 3f, step = .2f, bigStep = 2f,
         lineMax = 3f, lineThresh = 2f,
         positiveStep, negativeStep, movementSpeed = .25f;
-    private List<(float, float)> planeXY;
+    public List<(float, float)> planeXY;
 
     private struct PlanePlayer
     {
         public GameObject player, plane,
-            sphereUp, sphereForward, sphereRight, sphereCt; // forward: y; right: x;
+            sphereUp, sphereForward, sphereRight, sphereCt;
     }
     private List<PlanePlayer> planes;
 
@@ -98,7 +98,6 @@ public class Baseline : MonoBehaviour
         labelsCorners = null;
         labelsMiddles = null;
         spheresInit = false;
-        planesInit = false;
         toInit = false;
         planeXY = null;
     }
@@ -142,7 +141,14 @@ public class Baseline : MonoBehaviour
         negativeStep = -1 * step;
         foreach (var l in labelGroups)
         {
-            l.GetComponentInChildren<LabelFollowPlayer>().followX = (algo == UpdateAlgo.OneDim);
+            if (algo == UpdateAlgo.PlaneBased)
+            {
+                l.GetComponentInChildren<LabelFollowPlayer>().planeBased = true;
+            }
+            else
+            {
+                l.GetComponentInChildren<LabelFollowPlayer>().followX = (algo == UpdateAlgo.OneDim);
+            }
         }
         spheresInit = false;
         labelsCorners = new List<GameObject[]>();
@@ -160,9 +166,20 @@ public class Baseline : MonoBehaviour
 
     public void ResetPositions()
     {
-        foreach (var l in labelGroups)
+        if(algo == UpdateAlgo.PlaneBased)
         {
-            l.GetComponentInChildren<LabelFollowPlayer>().ResetPosition();
+            for (int i = 0; i < planeXY.Count; i++)
+            {
+                planeXY[i] = (0f, 1f);
+            }
+            UpdatePlanes();
+        }
+        else
+        {
+            foreach (var l in labelGroups)
+            {
+                l.GetComponentInChildren<LabelFollowPlayer>().ResetPosition();
+            }
         }
         UpdateSpheres();
     }
@@ -171,7 +188,10 @@ public class Baseline : MonoBehaviour
     {
         for (int i = 0; i < labels.Count; i++)
         {
-            AdjustLabelThreeDimPlane(i, isPlane);
+            if(labelGroups[i].activeInHierarchy)
+            {
+                AdjustLabelThreeDimPlane(i, isPlane);
+            }
         }
     }
 
@@ -179,7 +199,10 @@ public class Baseline : MonoBehaviour
     {
         for (int i = 0; i < labels.Count; i++)
         {
-            AdjustLabelOneDim(i);
+            if(labelGroups[i].activeInHierarchy)
+            {
+                AdjustLabelOneDim(i);
+            }
         }
     }
 
@@ -363,6 +386,8 @@ public class Baseline : MonoBehaviour
     {
         Vector3 oldPos = obj.transform.position;
         float step = movementSpeed * Time.deltaTime;
+        Debug.LogFormat("Calling movement helper {6} - oldPos: {0},{1},{2}; newPos: {3},{4},{5}",
+            oldPos.x, oldPos.y, oldPos.z, targetPos.x, targetPos.y, targetPos.z, obj.name);
         obj.transform.position = Vector3.MoveTowards(oldPos, targetPos, step);
     }
 
@@ -389,7 +414,9 @@ public class Baseline : MonoBehaviour
     {
         float lL = labelGroups[lId].GetComponentInChildren<RVOLine>().GetLineLength();
         if(debug && (lL > lineMax))
+        {
             Debug.LogFormat("{0} lower counts: {1} - length: {2}", lId, (lL < lineMax), lL);
+        }
         return (lL < threshold);
     }
 
@@ -507,8 +534,6 @@ public class Baseline : MonoBehaviour
             GameObject l = labels[i], lG = labelGroups[i];
             CreatePlane(lG, l);
         }
-
-        planesInit = true;
     }
 
     private void UpdatePlanes()
@@ -539,7 +564,10 @@ public class Baseline : MonoBehaviour
     {
         for (int lId = 0; lId < labelGroups.Count; lId++)
         {
-            MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1, planeXY[lId].Item2);
+            if (labelGroups[lId].activeInHierarchy)
+            {
+                MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1, planeXY[lId].Item2);
+            }
         }
     }
 
@@ -579,8 +607,7 @@ public class Baseline : MonoBehaviour
         {
             if (algo == UpdateAlgo.PlaneBased)
             {
-                // var xyUpdate = planeXY[lId];
-                planeXY[lId] = (1f, 1f);
+                planeXY[lId] = (0f, 1f);
                 MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1, planeXY[lId].Item2);
             }
             else
@@ -593,7 +620,10 @@ public class Baseline : MonoBehaviour
     {
         for (int i = 0; i < labelGroups.Count; i++)
         {
-            LabelRealignment(i);
+            if(labelGroups[i].activeInHierarchy)
+            {
+                LabelRealignment(i);
+            }
         }
     }
 

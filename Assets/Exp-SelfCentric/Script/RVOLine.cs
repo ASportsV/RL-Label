@@ -12,7 +12,7 @@ public class RVOLine : MonoBehaviour
     LineRenderer line;
     float yOffset = 0.0f;
 
-    private void Start()
+    void Start()
     {
         line = GetComponent<LineRenderer>();
     }
@@ -33,6 +33,9 @@ public class RVOLine : MonoBehaviour
 
     public float GetLineLength()
     {
+        if(line == null) {
+            line = GetComponent<LineRenderer>();
+        }
         return Vector3.Distance(line.GetPosition(0), line.GetPosition(1));
     }
 
