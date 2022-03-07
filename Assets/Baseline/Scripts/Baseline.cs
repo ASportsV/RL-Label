@@ -92,7 +92,7 @@ public class Baseline : MonoBehaviour
         ResetPositions();
     }
 
-    private void CleanEverything()
+    public void CleanEverything()
     {
         labelGroups = null;
         labels = null;
@@ -547,7 +547,7 @@ public class Baseline : MonoBehaviour
             pp.plane.transform.position =
                 pp.player.GetComponent<Renderer>().bounds.center;
             Vector3 dir = pp.plane.GetComponent<Renderer>().bounds.center -
-            Camera.main.transform.position;
+                Camera.main.transform.position;
             pp.plane.transform.up = -dir;
 
             pp.sphereCt.transform.position =

@@ -91,6 +91,18 @@ public class RVOLabelAgent : Agent
             new Vector3(PlayerLabel.transform.position.x, minY + PlayerLabel.transform.position.y, PlayerLabel.transform.position.z)
     ) / maxDist;
 
+    private bool IsTherePlayer(Transform t)
+    {
+        foreach (Transform child in t)
+        {
+            if (child.name == "player")
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /** ------------------ Observation ---------------------**/
     void OBPureRel(VectorSensor sensor)
@@ -110,8 +122,10 @@ public class RVOLabelAgent : Agent
         // attentions to others
         foreach (Transform other in transform.parent.parent)
         {
-            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
-            if (!other.gameObject.activeSelf) continue;
+            Debug.Log(other.name);
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject) ||
+                !other.gameObject.activeSelf ||
+                !IsTherePlayer(other)) continue;
 
             // 11 = 1_type + 3_pos + 3_camforward + 2_vel + 2_endpoint
             Transform player = other.Find("player");

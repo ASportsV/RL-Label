@@ -89,11 +89,14 @@ public class UIControl : MonoBehaviour
             var groupControl = playergroup.GetComponent<NBAPlayerGroup>();
             if(groupControl)
             {
+                groupControl.useBaseline = m_RVOSettings.CurrentTech == Tech.Opti;
                 groupControl.LoadScene(task.sceneIdx);
 
             }
             else
             {
+                playergroup.GetComponent<STUPlayersGroup>().useBaseline =
+                    m_RVOSettings.CurrentTech == Tech.Opti;
                 playergroup.GetComponent<STUPlayersGroup>().LoadScene(task.sceneIdx);
             }
 

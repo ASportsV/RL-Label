@@ -70,7 +70,7 @@ public class RVOSettings : MonoBehaviour
         Tech[] order2 = new[] { Tech.Opti, Tech.Ours, Tech.No };
         Tech[] order3 = new[] { Tech.Ours, Tech.No, Tech.Opti };
 
-        return order3;
+        return order2;
     }
 
     public void NextTask()

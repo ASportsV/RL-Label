@@ -32,11 +32,21 @@ public abstract class PlayerGroup : MonoBehaviour
     protected float time = 0.0f;
     protected float timeStep = 0.04f;
 
+    abstract protected void LoadTasks();
+    abstract protected void LoadDataset();
+
     private void Awake()
+    {
+        m_RVOSettings = FindObjectOfType<RVOSettings>();
+        Init();
+        LoadTasks();
+        LoadDataset();
+    }
+
+    protected void Init()
     {
         root = useBaseline ? "player_parent/player" : "player";
 
-        m_RVOSettings = FindObjectOfType<RVOSettings>();
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
 
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
@@ -54,13 +64,7 @@ public abstract class PlayerGroup : MonoBehaviour
         cam.transform.forward = tmp;
 
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
-
-        LoadTasks();
-        LoadDataset();
     }
-
-    abstract protected void LoadTasks();
-    abstract protected void LoadDataset();
 
     protected (GameObject, GameObject) CreatePlayerLabelFromPos(Student student)
     {
@@ -123,5 +127,10 @@ public abstract class PlayerGroup : MonoBehaviour
             cubeRenderer.material.SetColor("_Color", color);
         }
         return (playerObj, label.gameObject);
+    }
+
+    protected virtual void Clean()
+    {
+        m_playerMap = new Dictionary<int, RVOplayer>();
     }
 }

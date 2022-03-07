@@ -16,6 +16,7 @@ public struct Metrics
 
 public class NBAPlayerGroup : PlayerGroup
 {
+    Dictionary<int, Metrics> metricsPerTrack = new Dictionary<int, Metrics>();
 
     protected override void LoadTasks()
     {
@@ -38,15 +39,8 @@ public class NBAPlayerGroup : PlayerGroup
 
     public void LoadScene(int sceneIdx)
     {
-        // reset all 
-        foreach (var entry in m_playerMap)
-        {
-            if (!useBaseline)
-            {
-                var p = entry.Value;
-                p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
-            }
-        }
+        Clean();
+        Init();
 
         currentScene = sceneIdx;
         currentStep = 0;
@@ -86,8 +80,6 @@ public class NBAPlayerGroup : PlayerGroup
         }
 
     }
-
-    Dictionary<int, Metrics> metricsPerTrack = new Dictionary<int, Metrics>();
 
     private void FixedUpdate()
     {
@@ -229,4 +221,17 @@ public class NBAPlayerGroup : PlayerGroup
         m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
         m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
     }
+
+    protected override void Clean()
+    {
+        b.CleanEverything();
+        for (int i = 0; i < m_playerMap.Count; i++)
+        {
+            Destroy(m_playerMap[i].gameObject);
+        }
+
+        base.Clean();
+        metricsPerTrack = null;
+    }
+
 }
