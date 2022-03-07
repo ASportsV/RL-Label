@@ -13,6 +13,8 @@ public class UIControl : MonoBehaviour
 
     Transform playergroup;
 
+    PlayerGroup groupControl;
+
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
@@ -34,18 +36,18 @@ public class UIControl : MonoBehaviour
             dropdown.options.Add(new TMPro.TMP_Dropdown.OptionData("track_" + testId));
         }
 
-        var groupControl = playergroup.GetComponent<NBAPlayerGroup>();
-        int currentTrack;
-        if(groupControl)
-        {
-            currentTrack = groupControl.currentScene;
-        }
-        else
-        {
-            currentTrack = playergroup.GetComponent<STUPlayersGroup>().currentScene;
-        }
+        groupControl = playergroup.GetComponent<PlayerGroup>();
+        // if(groupControl)
+        // {
+        //     currentTrack = groupControl.currentScene;
+        // }
+        // else
+        // {
+        //     currentTrack = playergroup.GetComponent<STUPlayersGroup>().currentScene;
+        // }
+        int currentScene = groupControl.currentScene;
         dropdown.value = dropdown.options
-            .FindIndex(o => o.text.Contains(currentTrack.ToString()));
+            .FindIndex(o => o.text.Contains(currentScene.ToString()));
             
         // button
         btn.GetComponent<Button>().onClick.AddListener(ClickButton);
@@ -63,7 +65,6 @@ public class UIControl : MonoBehaviour
         // update question
         var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = task.task;
-        
     }
 
     void ClickButton()
@@ -72,7 +73,7 @@ public class UIControl : MonoBehaviour
         bool inTrial = m_RVOSettings.sceneStarted && !m_RVOSettings.sceneFinished;
         bool afterTrial = m_RVOSettings.sceneStarted && m_RVOSettings.sceneFinished;
 
-        if (beforeTrial)
+        if (beforeTrial) // -> exectue the code for the next
         {
             m_RVOSettings.sceneStarted = true;
             // show the scene
@@ -86,23 +87,20 @@ public class UIControl : MonoBehaviour
 
             // load and start the scene
             var task = m_RVOSettings.CurrentTask;
-            var groupControl = playergroup.GetComponent<NBAPlayerGroup>();
-            if(groupControl)
-            {
-                groupControl.useBaseline = m_RVOSettings.CurrentTech == Tech.Opti;
-                groupControl.LoadScene(task.sceneIdx);
-
-            }
-            else
-            {
-                playergroup.GetComponent<STUPlayersGroup>().useBaseline =
-                    m_RVOSettings.CurrentTech == Tech.Opti;
-                playergroup.GetComponent<STUPlayersGroup>().LoadScene(task.sceneIdx);
-            }
+            groupControl.LoadScene(task.sceneIdx);
+            // if(groupControl)
+            // {
+            // }
+            // else
+            // {
+            //     playergroup.GetComponent<STUPlayersGroup>().useBaseline =
+            //         m_RVOSettings.CurrentTech == Tech.Opti;
+            //     playergroup.GetComponent<STUPlayersGroup>().LoadScene(task.sceneIdx);
+            // }
 
             // start to count the time
         } 
-        else if (inTrial)
+        else if (inTrial) // -> exectue the code for the next
         {
             m_RVOSettings.sceneFinished = true;
             // hide the scene
@@ -119,7 +117,7 @@ public class UIControl : MonoBehaviour
             text.text = "Your answer is ____ ";
 
         }
-        else if (afterTrial)
+        else if (afterTrial) // -> exectue the code for the next
         {
             m_RVOSettings.sceneStarted = false;
             m_RVOSettings.sceneFinished = false;

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 public struct Metrics
@@ -16,7 +15,7 @@ public struct Metrics
 
 public class NBAPlayerGroup : PlayerGroup
 {
-    Dictionary<int, Metrics> metricsPerTrack = new Dictionary<int, Metrics>();
+    // Dictionary<int, Metrics> metricsPerTrack = new Dictionary<int, Metrics>();
 
     protected override void LoadTasks()
     {
@@ -37,7 +36,7 @@ public class NBAPlayerGroup : PlayerGroup
         };
     }
 
-    public void LoadScene(int sceneIdx)
+    public override void LoadScene(int sceneIdx)
     {
         Clean();
         Init();
@@ -46,32 +45,16 @@ public class NBAPlayerGroup : PlayerGroup
         currentStep = 0;
         var students = scenes[currentScene];
         int numPlayers = students.Count;
-        int curNumPlayers = m_playerMap.Count;
+        
         List<GameObject> labelGroups = new List<GameObject>(),
             labels = new List<GameObject>();
 
-        if (numPlayers > curNumPlayers)
+        // should spawn
+        for (int i = 0; i < numPlayers; ++i)
         {
-            // should spawn
-            for (int i = curNumPlayers; i < numPlayers; ++i)
-            {
-                var playerLab = CreatePlayerLabelFromPos(students[i]);
-                labelGroups.Add(playerLab.Item1);
-                labels.Add(playerLab.Item2);
-            }
-        }
-
-        for (int i = 0, len = m_playerMap.Count; i < len; ++i)
-        {
-            var player = m_playerMap[i];
-            var student = students[i];
-            player.positions = student.positions;
-            player.velocities = student.velocities;
-
-            if(!useBaseline)
-            {
-                player.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
-            }
+            var playerLab = CreatePlayerLabelFromPos(students[i]);
+            labelGroups.Add(playerLab.Item1);
+            labels.Add(playerLab.Item2);
         }
 
         if (useBaseline)
@@ -86,69 +69,26 @@ public class NBAPlayerGroup : PlayerGroup
         if (m_RVOSettings.sceneFinished || !m_RVOSettings.sceneStarted) return;
 
         time += Time.fixedDeltaTime;
+        if(time < timeStep) return;
+        // update step
+        time -= timeStep;
+        currentStep += 1;
 
-        if (time >= timeStep)
-        {
-            time -= timeStep;
-            currentStep += 1;
-        }
-
-        var students = scenes[currentScene];
-        int totalStep = students.Max(s => s.startStep + s.totalStep);
+        var players = scenes[currentScene];
+        int totalStep = players.Max(s => s.startStep + s.totalStep);
         if (currentStep < totalStep)
         {
             foreach (var player in m_playerMap.Values) player.step(currentStep);
         }
         else
         {
-            if (!useBaseline && m_RVOSettings.evaluate)
+            if(!useBaseline && m_RVOSettings.evaluate)
             {
-                // should calculate the metrix, including occlution rate, intersection rate, distance to the target, moving distance relative to the target
-                var labelAgents = m_playerMap.Select(p => p.Value.GetComponentInChildren<RVOLabelAgent>());
-
-                // collect the intersection, occlusions over time
-                List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
-                List<HashSet<string>> accumulatedIntersection = new List<HashSet<string>>();
-
-                for (int i = 0; i < totalStep; ++i)
-                {
-                    var occluded = new HashSet<string>();
-                    var intersected = new HashSet<string>();
-                    foreach (var labelAgent in labelAgents)
-                    {
-                        occluded.UnionWith(labelAgent.occludedObjectOverTime[i]);
-                        intersected.UnionWith(labelAgent.intersectionsOverTime[i]);
-                    }
-                    accumulatedOcclusion.Add(occluded);
-                    accumulatedIntersection.Add(intersected);
-                }
-
-                List<string> labelPositions = new List<string>();
-                List<string> labelDistToTarget = new List<string>();
-                foreach (var labelAgent in labelAgents)
-                {
-                    labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
-                    labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
-                }
-
-                // collect
-                Metrics met = new Metrics();
-                met.trackId = currentScene;
-                met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
-                met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
-                met.labelPositions = labelPositions;
-                met.labelDistToTarget = labelDistToTarget;
-                metricsPerTrack[currentScene] = met;
-
-                // save 
-                using (StreamWriter writer = new StreamWriter("nba_track" + currentScene + "_met.json", false))
-                {
-                    writer.Write(JsonUtility.ToJson(met));
-                    writer.Close();
-                }
+                // save metrics
+                SaveMetricToJson("stu", totalStep, players);
             }
 
-            // reload the scene
+            // replay the scene
             LoadScene(currentScene);
         }
     }
@@ -224,14 +164,8 @@ public class NBAPlayerGroup : PlayerGroup
 
     protected override void Clean()
     {
-        b.CleanEverything();
-        for (int i = 0; i < m_playerMap.Count; i++)
-        {
-            Destroy(m_playerMap[i].gameObject);
-        }
-
         base.Clean();
-        metricsPerTrack = null;
+        // metricsPerTrack.Clear();
     }
 
 }

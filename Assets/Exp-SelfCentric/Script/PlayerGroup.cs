@@ -1,9 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Unity.Barracuda;
-using Unity.MLAgents;
 using UnityEngine;
 using UnityEngine.UI;
+
+public struct Student
+{
+    public int id;
+    public Vector3[] positions;
+    public Vector3[] velocities;
+    public int totalStep;
+    public int startStep;
+}
 
 public abstract class PlayerGroup : MonoBehaviour
 {
@@ -22,7 +32,7 @@ public abstract class PlayerGroup : MonoBehaviour
     public int currentScene;
     public NNModel brain;
 
-    public bool useBaseline;
+    protected bool useBaseline => m_RVOSettings.CurrentTech == Tech.Opti;
     [HideInInspector] public string root;
     public Baseline b;
 
@@ -34,6 +44,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     abstract protected void LoadTasks();
     abstract protected void LoadDataset();
+    abstract public void LoadScene(int sceneIdx);
 
     private void Awake()
     {
@@ -48,12 +59,6 @@ public abstract class PlayerGroup : MonoBehaviour
         root = useBaseline ? "player_parent/player" : "player";
 
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
-
-        bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
-        if (movingCam)
-        {
-            cam.gameObject.AddComponent<MovingCamera>();
-        }
         court = transform.parent.Find("fancy_court");
 
         // geometry min and max
@@ -131,6 +136,72 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected virtual void Clean()
     {
-        m_playerMap = new Dictionary<int, RVOplayer>();
+        b.CleanEverything();
+        // remove all existing
+        foreach (var entry in m_playerMap)
+        {
+            var p = entry.Value;
+            // if the player still exit, sync if it doesn't use baseline
+            if (p.gameObject.activeSelf) p.GetComponentInChildren<RVOLabelAgent>()?.SyncReset();
+            // else, ensure the agent is active
+            else p.transform.GetChild(1).gameObject.SetActive(true);
+  
+            p.GetComponentInChildren<RVOLabelAgent>()?.cleanMetrics();
+            Destroy(p.gameObject);
+        }
+
+        m_playerMap.Clear();
+    }
+
+    protected void SaveMetricToJson(string prefix, int totalStep, List<Student> players)
+    {
+        // collect the intersection, occlusions over time
+        List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
+        List<HashSet<string>> accumulatedIntersection = new List<HashSet<string>>();
+        foreach (var entry in m_playerMap)
+        {
+            foreach (Transform child in entry.Value.transform)
+                child.gameObject.SetActive(true);
+        }
+
+        for (int i = 0; i < totalStep; ++i)
+        {
+            var occluded = new HashSet<string>();
+            var intersected = new HashSet<string>();
+
+            foreach (var student in players.Where(s => i >= s.startStep && i < (s.startStep + s.totalStep)))
+            {
+                var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<RVOLabelAgent>();
+
+                occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
+                intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
+            }
+            accumulatedOcclusion.Add(occluded);
+            accumulatedIntersection.Add(intersected);
+        }
+
+        List<string> labelPositions = new List<string>();
+        List<string> labelDistToTarget = new List<string>();
+        foreach (var student in players)
+        {
+            var labelAgent = m_playerMap[student.id].GetComponentInChildren<RVOLabelAgent>();
+            labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
+            labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
+            // Debug.Log("Occ Step of " + student.id + " is " + labelAgent.occludedObjectOverTime.Count + " / " + student.totalStep);
+        }
+    
+        Metrics met = new Metrics();
+        met.trackId = currentScene;
+        met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
+        met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
+        met.labelPositions = labelPositions;
+        met.labelDistToTarget = labelDistToTarget;
+
+        // save 
+        using (StreamWriter writer = new StreamWriter(prefix + "_track" + currentScene + "_met.json", false))
+        {
+            writer.Write(JsonUtility.ToJson(met));
+            writer.Close();
+        }
     }
 }

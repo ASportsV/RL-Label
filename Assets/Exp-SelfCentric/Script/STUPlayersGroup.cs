@@ -2,21 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.IO;
-using UnityEditor;
-
-public struct Student
-{
-    public int id;
-    public Vector3[] positions;
-    public Vector3[] velocities;
-    public int totalStep;
-    public int startStep;
-}
 
 public class STUPlayersGroup : PlayerGroup
 {
-
-
     protected override void LoadTasks()
     {
         // load the study data
@@ -33,37 +21,10 @@ public class STUPlayersGroup : PlayerGroup
         };
     }
 
-    public void LoadScene(int sceneId)
+    public override void LoadScene(int sceneId)
     {
-        // clean the old students
-        foreach (var entry in m_playerMap.Where(p => p.Value.gameObject.activeSelf))
-        {
-            var p = entry.Value;
-            if (p.gameObject.activeSelf)
-            {
-                if(!useBaseline)
-                {
-                    p.GetComponentInChildren<RVOLabelAgent>().SyncReset();
-                }
-            }
-            else
-            {
-                p.transform.GetChild(1).gameObject.SetActive(true);
-            }
-
-            if(!useBaseline)
-            {
-                p.GetComponentInChildren<RVOLabelAgent>().cleanMetrics();
-            }
-        }
-
-        // remove all existing
-        foreach (var entry in m_playerMap)
-        {
-            var p = entry.Value;
-            Destroy(p.gameObject);
-        }
-        m_playerMap.Clear();
+        Clean();
+        Init();
 
         // reset
         currentScene = sceneId;
@@ -91,110 +52,58 @@ public class STUPlayersGroup : PlayerGroup
 
     private void FixedUpdate()
     {
+        if (m_RVOSettings.sceneFinished || !m_RVOSettings.sceneStarted) return;
+
         time += Time.fixedDeltaTime;
-        if (time >= timeStep)
+        if(time < timeStep) return;
+        // update step
+        time -= timeStep;
+        currentStep += 1;
+
+        var players = scenes[currentScene];
+        int totalStep = players.Max(s => s.startStep + s.totalStep);
+
+        // add or move the student
+        foreach(var player in players)
         {
-            time -= timeStep;
-            currentStep += 1;
-
-            var students = scenes[currentScene];
-            int totalStep = students.Max(s => s.startStep + s.totalStep);
-
-            // add or move the student
-            foreach(var student in students)
+            // enter a player
+            if (currentStep == player.startStep)
             {
-                if (currentStep == student.startStep)
-                {
-                    var playerLab = CreatePlayerLabelFromPos(student);
-                    if(useBaseline)
-                    {
-                        b.AddLabel(playerLab.Item1, playerLab.Item2);
-                    }
-                }
-                else if (currentStep > student.startStep && currentStep < (student.startStep + student.totalStep))
-                {
-                    m_playerMap[student.id].step(currentStep - student.startStep);
-                }
-                else if (currentStep >= (student.startStep + student.totalStep) && m_playerMap[student.id].gameObject.activeSelf)
-                {
-                    // deactivate
-                    var go = m_playerMap[student.id].gameObject;
-
-                    if(!useBaseline)
-                    {
-                        var labelAgent = go.GetComponentInChildren<RVOLabelAgent>();
-                        labelAgent.SyncReset();
-                    }
-
-                    go.SetActive(false);
-                    foreach (Transform child in go.transform)
-                        child.gameObject.SetActive(false);
-                }
+                var playerLab = CreatePlayerLabelFromPos(player);
+                if(useBaseline) b.AddLabel(playerLab.Item1, playerLab.Item2);
             }
-
-
-            if (currentStep >= totalStep)
+            // move a player
+            else if (currentStep > player.startStep && currentStep < (player.startStep + player.totalStep))
             {
+                m_playerMap[player.id].step(currentStep - player.startStep);
+            }
+            // exit a player
+            else if (currentStep >= (player.startStep + player.totalStep) && m_playerMap[player.id].gameObject.activeSelf)
+            {
+                var go = m_playerMap[player.id].gameObject;
+                // save RL data
                 if(!useBaseline)
                 {
-                    // evaluation
-                    if (m_RVOSettings.evaluate)
-                    {
-                        // collect the intersection, occlusions over time
-                        List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
-                        List<HashSet<string>> accumulatedIntersection = new List<HashSet<string>>();
-                        foreach (var entry in m_playerMap)
-                        {
-                            foreach (Transform child in entry.Value.transform)
-                                child.gameObject.SetActive(true);
-                        }
-
-                        for (int i = 0; i < totalStep; ++i)
-                        {
-                            var occluded = new HashSet<string>();
-                            var intersected = new HashSet<string>();
-
-                            foreach (var student in students.Where(s => i >= s.startStep && i < (s.startStep + s.totalStep)))
-                            {
-                                var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<RVOLabelAgent>();
-
-                                occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
-                                intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
-                            }
-                            accumulatedOcclusion.Add(occluded);
-                            accumulatedIntersection.Add(intersected);
-                        }
-
-                        List<string> labelPositions = new List<string>();
-                        List<string> labelDistToTarget = new List<string>();
-                        foreach (var student in students)
-                        {
-                            var labelAgent = m_playerMap[student.id].GetComponentInChildren<RVOLabelAgent>();
-                            labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
-                            labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
-                            Debug.Log("Occ Step of " + student.id + " is " + labelAgent.occludedObjectOverTime.Count + " / " + student.totalStep);
-
-                        }
-
-                        // collect
-                        Metrics met = new Metrics();
-                        met.trackId = currentScene;
-                        met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
-                        met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
-                        met.labelPositions = labelPositions;
-                        met.labelDistToTarget = labelDistToTarget;
-
-                        // save 
-                        using (StreamWriter writer = new StreamWriter("student_track" + currentScene + "_met.json", false))
-                        {
-                            writer.Write(JsonUtility.ToJson(met));
-                            writer.Close();
-                        }
-                    }
+                    var labelAgent = go.GetComponentInChildren<RVOLabelAgent>();
+                    labelAgent.SyncReset();
                 }
-                // replay the scene
-                LoadScene(currentScene);
+                // deactivate
+                go.SetActive(false);
+                foreach (Transform child in go.transform)
+                    child.gameObject.SetActive(false);
             }
+        }
+
+        // scene finished
+        if (currentStep >= totalStep)
+        {
+            if(!useBaseline && m_RVOSettings.evaluate)
+            {
+                // save metrics
+                SaveMetricToJson("stu", totalStep, players);
+            }
+            // replay the scene
+            LoadScene(currentScene);
         }
     }
 
@@ -270,4 +179,5 @@ public class STUPlayersGroup : PlayerGroup
         m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
         m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
     }
+
 }
