@@ -201,13 +201,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxSteps: 1500
   sync: 1
-  parallelModeUpdateFreq: 3
   numOfPlayer: 8
   playerSpeedX: 1
   playerSppedZ: 1
   courtX: 14
   courtZ: 7
-  evaluate: 1
 --- !u!1 &1124511748
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,7 +279,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 6480803810957221126}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1754990323
+--- !u!114 &1754990322
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -290,17 +288,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1754990320}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
+  m_Script: {fileID: 11500000, guid: e2529f3623962a844a4ab61efdc0df74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLabel_prefab: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
   court: {fileID: 0}
   cam: {fileID: 0}
   currentStep: 0
-  currentTrack: 0
+  currentScene: 0
+  root: 
 --- !u!1001 &6480803810957221126
 PrefabInstance:
   m_ObjectHideFlags: 0

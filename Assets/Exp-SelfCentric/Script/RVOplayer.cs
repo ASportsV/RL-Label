@@ -5,24 +5,36 @@ using UnityEngine;
 public class RVOplayer : MonoBehaviour
 {
 
-    [HideInInspector] public int sid = -1;
+    [HideInInspector] public int sid { get; private set; }
+    [HideInInspector] public string root;
     public int currentStep = 0;
 
-    //Vector3 destination;
-    //RVOSettings m_RVOSettings;
-    //Rigidbody m_Rbody;
-    /** Random number generator. */
-    //private System.Random m_random = new System.Random();
     public Transform player;
     
     public Vector3[] positions;
     public Vector3[] velocities;
 
-    private void Awake()
+    public void Init(int sId)
     {
-        //m_RVOSettings = FindObjectOfType<RVOSettings>();
+        this.sid = sId;
         player = transform.Find("player");
-        //m_Rbody = player.GetComponent<Rigidbody>();
+
+        var text = transform.Find(string.Format("{0}/BackCanvas/Text", root))
+            .GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = transform.GetSiblingIndex().ToString(); //sid.ToString();
+        
+        text = transform.Find(string.Format("{0}/TopCanvas/Text", root))
+            .GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = transform.GetSiblingIndex().ToString();
+        //text = playerObj.transform.Find(string.Format("{0}/FrontCanvas/Text", root))
+        //    .GetComponent<TMPro.TextMeshProUGUI>();
+        //text.text = playerObj.transform.GetSiblingIndex().ToString();
+        //text = playerObj.transform.Find(string.Format("{0}/LeftCanvas/Text", root))
+        //    .GetComponent<TMPro.TextMeshProUGUI>();
+        //text.text = playerObj.transform.GetSiblingIndex().ToString();
+        //text = playerObj.transform.Find(string.Format("{0}/RightCanvas/Text", root))
+        //    .GetComponent<TMPro.TextMeshProUGUI>();
+        //text.text = playerObj.transform.GetSiblingIndex().ToString();
     }
 
     public Vector3 velocity => velocities[currentStep];

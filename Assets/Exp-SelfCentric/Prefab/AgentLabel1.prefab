@@ -47,8 +47,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sid: -1
+  root: 
   currentStep: 0
-  player: {fileID: 0}
+  player: {fileID: 2976346511293885445}
   positions: []
   velocities: []
 --- !u!1001 &4460626032237765154
