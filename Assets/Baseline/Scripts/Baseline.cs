@@ -14,7 +14,7 @@ public class Baseline : MonoBehaviour
         planeScale = new Vector3(.8f, .8f, .8f);
     private bool spheresInit = false, toInit = false;
     public bool hideSpheres, hidePlanes, hidePlaneSpheres;
-    private float yThreshold = 3f, step = .2f, bigStep = 2f,
+    private float yThreshold = 3f, step = 1f, bigStep = 2f,
         lineMax = 3f, lineThresh = 2f,
         positiveStep, negativeStep, movementSpeed = .25f;
     public List<(float, float)> planeXY;
@@ -26,6 +26,9 @@ public class Baseline : MonoBehaviour
     }
     private List<PlanePlayer> planes;
 
+    // TO REMOVE salvarsi xUpdate, yUpdate opposti e mandare l'altro oggetto in quella direzione!
+    // TO REMOVE
+    // TO REMOVE loggare e debuggare gli updates con nomi delle labels
     public enum UpdateAlgo
     {
         OneDim,
@@ -140,8 +143,10 @@ public class Baseline : MonoBehaviour
     {
         positiveStep = step;
         negativeStep = -1 * step;
+        int counter = 0;
         foreach (var l in labelGroups)
         {
+            l.GetComponentInChildren<LabelIdHandler>().lId = counter++;
             if (algo == UpdateAlgo.PlaneBased)
             {
                 l.GetComponentInChildren<LabelFollowPlayer>().planeBased = true;
@@ -207,19 +212,20 @@ public class Baseline : MonoBehaviour
         }
     }
 
-    private int CheckHitFromCorners(GameObject[] corners, string myName,
+    private (int, int) CheckHitFromCorners(GameObject[] corners, string myName,
         bool draw, bool lowerCounts)
     {
         int counter = 0;
         foreach (var c in corners)
         {
-            if ((lowerCounts || (counter > 1)) && CheckHit(c.GetComponent<Renderer>(), c.transform, myName, draw))
+            var checkHit = CheckHit(c.GetComponent<Renderer>(), c.transform, myName, draw);
+            if ((lowerCounts || (counter > 1)) && checkHit.Item1)
             {
-                return counter;
+                return (counter, checkHit.Item2);
             }
             counter++;
         }
-        return -1;
+        return (-1, -1);
     }
 
     private bool[] CheckHitFromMiddles(GameObject[] middles, string myName, bool draw)
@@ -229,12 +235,12 @@ public class Baseline : MonoBehaviour
         foreach (var m in middles)
         {
             hits[counter++] = CheckHit(m.GetComponent<Renderer>(),
-                m.transform, myName, draw);
+                m.transform, myName, draw).Item1;
         }
         return hits;
     }
 
-    private bool CheckHit(Renderer r, Transform t, string myName, bool draw = false)
+    private (bool, int) CheckHit(Renderer r, Transform t, string myName, bool draw = false)
     {
         if (r.isVisible)
         {
@@ -256,11 +262,14 @@ public class Baseline : MonoBehaviour
                     {
                         // Debug.LogFormat("name: {0}, tag: {1}", hit.collider.name, hit.collider.tag);
                     }
-                    return true;
+
+                    int lId2 = hit.collider.CompareTag("label") ?
+                        hit.collider.GetComponent<LabelIdHandler>().lId : -1;
+                    return (true, lId2);
                 }
             }
         }
-        return false;
+        return (false, -1);
     }
 
     private (float, float) ComputeUpdatesFromHits(int cornerHit, bool[] middleHits)
@@ -347,34 +356,50 @@ public class Baseline : MonoBehaviour
     {
         float yUpdate = 0, xUpdate = 0;
         bool draw = lId == 0 ? true : false;
-        int cornerHit = CheckHitFromCorners(labelsCorners[lId], labels[lId].name,
-            draw, CheckLowerCounts(lId, lineMax)),
-            counter = 10;
-        while(cornerHit != -1 && counter > 0)
+        var cornerHit = CheckHitFromCorners(labelsCorners[lId], labels[lId].name,
+            draw, CheckLowerCounts(lId, lineMax));
+        int counter = 10;
+        while(cornerHit.Item1 != -1 && counter > 0)
         {
             Vector3 oldPosition = labels[lId].transform.position;
-            if (cornerHit == 4 || labels[lId].transform.position.y < yThreshold)
+            if (cornerHit.Item1 == 4 || labels[lId].transform.position.y < yThreshold)
             {
                 yUpdate = bigStep;
                 xUpdate = 0;
             }
-            else if ((yUpdate == bigStep && cornerHit != 4) || (yUpdate == 0 && xUpdate == 0))
+            else if ((yUpdate == bigStep && cornerHit.Item1 != 4) || (yUpdate == 0 && xUpdate == 0))
             {
                 bool[] middleHits = CheckHitFromMiddles(labelsMiddles[lId], labels[lId].name, draw);
-                var updateTuple = ComputeUpdatesFromHits(cornerHit, middleHits);
+                var updateTuple = ComputeUpdatesFromHits(cornerHit.Item1, middleHits);
                 xUpdate = updateTuple.Item1;
                 yUpdate = updateTuple.Item2;
             }
             yUpdate = oldPosition.y < 1f ? bigStep : yUpdate;
-            if(isPlane)
+            float xUpdateNeg = xUpdate * (-1f),
+                    yUpdateNeg = yUpdate * (-1f);
+            int lId2 = cornerHit.Item2;
+            if (isPlane)
             {
                 var xyUpdate = planeXY[lId];
                 planeXY[lId] = (xyUpdate.Item1 + xUpdate,
                     xyUpdate.Item2 + yUpdate);
                 MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1, planeXY[lId].Item2);
+
+                if(lId2 != -1)
+                {
+                    var xyUpdate2 = planeXY[lId2];
+                    planeXY[lId2] = (xyUpdate2.Item1 + xUpdateNeg,
+                        xyUpdate2.Item2 + yUpdateNeg);
+                    MovementWithPlane(labels[lId2], planes[lId2], planeXY[lId2].Item1, planeXY[lId2].Item2);
+                }
             } else
             {
                 MovementWithUpdates(labels[lId], xUpdate, yUpdate);
+
+                if(lId2 != -1)
+                {
+                    MovementWithUpdates(labels[lId2], xUpdateNeg, yUpdateNeg);
+                }
             }
             UpdateSpheres();
             cornerHit = CheckHitFromCorners(labelsCorners[lId], labels[lId].name,
@@ -394,6 +419,9 @@ public class Baseline : MonoBehaviour
 
     private void MovementWithPlane(GameObject obj, PlanePlayer pp, float xUpdate, float yUpdate)
     {
+        if(xUpdate < 0f || yUpdate < 1f) {
+            return;
+        }
         Vector3 oldPos = pp.sphereCt.transform.position;
         Vector3 targetPos = oldPos +
             (xUpdate * pp.plane.transform.right) +
@@ -425,22 +453,30 @@ public class Baseline : MonoBehaviour
     {
         float yUpdate = 8;
         bool draw = lId == 0 ? true : false;
-        int cornerHit = CheckHitFromCorners(labelsCorners[lId], labels[lId].name,
-            draw, CheckLowerCounts(lId, lineMax)),
-            counter = 10;
-        while (cornerHit != -1 && counter > 0)
+        var cornerHit = CheckHitFromCorners(labelsCorners[lId], labels[lId].name,
+            draw, CheckLowerCounts(lId, lineMax));
+        int counter = 20;
+        while (cornerHit.Item1 != -1 && counter > 0)
         {
-            if (yUpdate == 8 || (yUpdate == bigStep && cornerHit != 4))
+            if (yUpdate == 8 || (yUpdate == bigStep && cornerHit.Item1 != 4))
             {
-                yUpdate = cornerHit < 2 ? positiveStep : negativeStep;
+                yUpdate = cornerHit.Item1 < 2 ? positiveStep : negativeStep;
             }
-            if (cornerHit == 4 || labels[lId].transform.position.y < yThreshold)
+            if (cornerHit.Item1 == 4 || labels[lId].transform.position.y < yThreshold)
             {
                 yUpdate = bigStep;
             }
             Vector3 oldPosition = labels[lId].transform.position;
             yUpdate = oldPosition.y < 1f ? bigStep : yUpdate;
+            float yUpdateNeg = yUpdate * (-1f);
+
             MovementWithUpdates(labels[lId], 0f, yUpdate);
+
+            if(cornerHit.Item2 != -1)
+            {
+                MovementWithUpdates(labels[cornerHit.Item2], 0f, yUpdateNeg);
+            }
+
             UpdateSpheres();
             cornerHit = CheckHitFromCorners(labelsCorners[lId], labels[lId].name,
                 draw, CheckLowerCounts(lId, lineMax));
@@ -541,9 +577,6 @@ public class Baseline : MonoBehaviour
     {
         foreach (var pp in planes)
         {
-            Debug.Log(pp.player);
-            Debug.Log(pp.plane);
-
             pp.plane.transform.position =
                 pp.player.GetComponent<Renderer>().bounds.center;
             Vector3 dir = pp.plane.GetComponent<Renderer>().bounds.center -
@@ -607,7 +640,8 @@ public class Baseline : MonoBehaviour
 
     private void LabelRealignment(int lId)
     {
-        if (!CheckLowerCounts(lId, lineThresh) && IsLineEmpty(lId))
+        if (!CheckLowerCounts(lId, lineThresh) && IsLineEmpty(lId)
+                || (algo == UpdateAlgo.PlaneBased && (planeXY[lId].Item1 < 0f || planeXY[lId].Item2 < 1f)))
         {
             if (algo == UpdateAlgo.PlaneBased)
             {
@@ -635,6 +669,7 @@ public class Baseline : MonoBehaviour
     {
         labelGroups.Add(lG);
         labels.Add(l);
+        lG.GetComponentInChildren<LabelIdHandler>().lId = labelGroups.Count - 1;
 
         AddCornerSphere(l);
         AddMiddleSphere(l);
