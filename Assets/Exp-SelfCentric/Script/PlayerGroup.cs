@@ -123,6 +123,12 @@ public abstract class PlayerGroup : MonoBehaviour
             agent.maxZInCam = maxZInCam;
             agent.SetModel("RVOLabel", brain);
         }
+        else
+        {
+            ComputeMetrics metrics = player.GetComponentInChildren<ComputeMetrics>();
+            metrics.PlayerLabel = player;
+            metrics.cam = cam;
+        }
 
         iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
         if (sid % 2 != 0)
@@ -153,7 +159,7 @@ public abstract class PlayerGroup : MonoBehaviour
         m_playerMap.Clear();
     }
 
-    protected void SaveMetricToJson(string prefix, int totalStep, List<Student> players)
+    protected void SaveMetricToJson(string prefix, int totalStep, List<Student> players, bool isBaseline = false)
     {
         // collect the intersection, occlusions over time
         List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
@@ -171,10 +177,18 @@ public abstract class PlayerGroup : MonoBehaviour
 
             foreach (var student in players.Where(s => i >= s.startStep && i < (s.startStep + s.totalStep)))
             {
-                var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<RVOLabelAgent>();
-
-                occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
-                intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
+                if(isBaseline)
+                {
+                    var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<ComputeMetrics>();
+                    occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
+                    intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
+                }
+                else
+                {
+                    var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<RVOLabelAgent>();
+                    occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
+                    intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
+                }
             }
             accumulatedOcclusion.Add(occluded);
             accumulatedIntersection.Add(intersected);
@@ -184,9 +198,18 @@ public abstract class PlayerGroup : MonoBehaviour
         List<string> labelDistToTarget = new List<string>();
         foreach (var student in players)
         {
-            var labelAgent = m_playerMap[student.id].GetComponentInChildren<RVOLabelAgent>();
-            labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
-            labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
+            if (isBaseline)
+            {
+                var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<ComputeMetrics>();
+                labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
+                labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
+            }
+            else
+            {
+                var labelAgent = m_playerMap[student.id].GetComponentInChildren<RVOLabelAgent>();
+                labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
+                labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
+            }
             // Debug.Log("Occ Step of " + student.id + " is " + labelAgent.occludedObjectOverTime.Count + " / " + student.totalStep);
         }
     

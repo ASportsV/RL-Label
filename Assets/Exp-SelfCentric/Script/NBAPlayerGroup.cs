@@ -82,10 +82,10 @@ public class NBAPlayerGroup : PlayerGroup
         }
         else
         {
-            if(!useBaseline && m_RVOSettings.evaluate)
+            if(m_RVOSettings.evaluate)
             {
                 // save metrics
-                SaveMetricToJson("stu", totalStep, players);
+                SaveMetricToJson("stu", totalStep, players, useBaseline);
             }
 
             // replay the scene
