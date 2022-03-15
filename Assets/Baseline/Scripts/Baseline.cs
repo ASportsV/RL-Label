@@ -14,9 +14,10 @@ public class Baseline : MonoBehaviour
         planeScale = new Vector3(.8f, .8f, .8f);
     private bool spheresInit = false, toInit = false;
     public bool hideSpheres, hidePlanes, hidePlaneSpheres;
-    private float yThreshold = 3f, step = 1f, bigStep = 2f,
+    private float yThreshold = 3f, step = 1.5f, bigStep = 2f,
         lineMax = 3f, lineThresh = 2f,
         positiveStep, negativeStep, movementSpeed = .25f;
+    private int countMoves = 1;
     public List<(float, float)> planeXY;
 
     private struct PlanePlayer
@@ -248,12 +249,6 @@ public class Baseline : MonoBehaviour
             Vector3 direction = t.position - Camera.main.transform.position;
             if (Physics.Raycast(Camera.main.transform.position, direction, out hit))
             {
-                if (draw)
-                {
-                    // Debug.DrawRay(Camera.main.transform.position, direction, Color.yellow);
-                    // Debug.LogFormat("{0} collided with --> name: {1}, tag: {2}",
-                        // t.name, hit.collider.name, hit.collider.tag);
-                }
                 if (hit.transform.gameObject.name != myName &&
                     !hit.transform.CompareTag("ground"))
                 {
@@ -265,6 +260,16 @@ public class Baseline : MonoBehaviour
 
                     int lId2 = hit.collider.CompareTag("label") ?
                         hit.collider.GetComponent<LabelIdHandler>().lId : -1;
+                    if (draw)
+                    {
+                        Debug.DrawRay(Camera.main.transform.position, direction, Color.yellow);
+                        // if (lId2 != -1)
+                            // Debug.LogFormat("{0} --- {1} collided with --> (label) name: {2}",
+                                // myName, t.name, labels[lId2].name);
+                        // else
+                            // Debug.LogFormat("{0} --- {1} collided with --> (player) name: {2}",
+                                // myName, t.name, hit.collider.transform.parent.parent.name);
+                    }
                     return (true, lId2);
                 }
             }
@@ -355,10 +360,10 @@ public class Baseline : MonoBehaviour
     private void AdjustLabelThreeDimPlane(int lId, bool isPlane)
     {
         float yUpdate = 0, xUpdate = 0;
-        bool draw = lId == 0 ? true : false;
+        bool draw = lId == 9 ? true : false;
         var cornerHit = CheckHitFromCorners(labelsCorners[lId], labels[lId].name,
             draw, CheckLowerCounts(lId, lineMax));
-        int counter = 10;
+        int counter = 5;
         while(cornerHit.Item1 != -1 && counter > 0)
         {
             Vector3 oldPosition = labels[lId].transform.position;
@@ -383,14 +388,25 @@ public class Baseline : MonoBehaviour
                 var xyUpdate = planeXY[lId];
                 planeXY[lId] = (xyUpdate.Item1 + xUpdate,
                     xyUpdate.Item2 + yUpdate);
-                MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1, planeXY[lId].Item2);
+                // Debug.LogFormat("1] moving {0}? - ({1},{2})", lId, planeXY[lId].Item1, planeXY[lId].Item2);
+
+                for (int i = 0; i < countMoves; i++)
+                {
+                    MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1, planeXY[lId].Item2);
+                }
 
                 if(lId2 != -1)
                 {
                     var xyUpdate2 = planeXY[lId2];
                     planeXY[lId2] = (xyUpdate2.Item1 + xUpdateNeg,
                         xyUpdate2.Item2 + yUpdateNeg);
-                    MovementWithPlane(labels[lId2], planes[lId2], planeXY[lId2].Item1, planeXY[lId2].Item2);
+                    Debug.LogFormat("2] moving {0}? - ({1},{2})", lId2, planeXY[lId2].Item1, planeXY[lId2].Item2);
+
+                    for (int i = 0; i < countMoves; i++)
+                    {
+                        MovementWithPlane(labels[lId2], planes[lId2], planeXY[lId2].Item1, planeXY[lId2].Item2);
+                    }
+                    
                 }
             } else
             {
@@ -410,6 +426,18 @@ public class Baseline : MonoBehaviour
 
     private void MovementHelper(GameObject obj, Vector3 targetPos)
     {
+        var lIdH = obj.GetComponentInChildren<LabelIdHandler>();
+        if (lIdH.newSphere != null)
+            Destroy(lIdH.newSphere);
+        var newSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        newSphere.transform.parent = obj.transform;
+        newSphere.transform.name = string.Format("newPosFor{0}", obj.name);
+        newSphere.transform.position = targetPos;
+        newSphere.GetComponent<Renderer>().material = planeDirs;
+        newSphere.transform.localScale = Vector3.zero;// new Vector3(.5f, .5f, .5f);
+        Destroy(newSphere.GetComponent<Collider>());
+        lIdH.newSphere = newSphere;
+
         Vector3 oldPos = obj.transform.position;
         float step = movementSpeed * Time.deltaTime;
         // Format("Calling movement helper {6} - oldPos: {0},{1},{2}; newPos: {3},{4},{5}",
@@ -417,15 +445,21 @@ public class Baseline : MonoBehaviour
         obj.transform.position = Vector3.MoveTowards(oldPos, targetPos, step);
     }
 
-    private void MovementWithPlane(GameObject obj, PlanePlayer pp, float xUpdate, float yUpdate)
+    private void MovementWithPlane(GameObject obj, PlanePlayer pp,
+        float xUpdate, float yUpdate, bool debug = true)
     {
-        if(xUpdate < 0f || yUpdate < 1f) {
-            return;
+        if(yUpdate < 1f) {
+            yUpdate = 1f;
         }
         Vector3 oldPos = pp.sphereCt.transform.position;
         Vector3 targetPos = oldPos +
             (xUpdate * pp.plane.transform.right) +
             (yUpdate * pp.plane.transform.forward);
+
+        if(debug && (obj.name == "3_label" || obj.name == "9_label"))
+            // Debug.LogFormat("{0} is moving with updates ({1}, {2})",
+                // obj.name, xUpdate, yUpdate);
+
         MovementHelper(obj, targetPos);
     }
 
@@ -603,7 +637,8 @@ public class Baseline : MonoBehaviour
         {
             if (labelGroups[lId].activeInHierarchy)
             {
-                MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1, planeXY[lId].Item2);
+                MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1,
+                    planeXY[lId].Item2, false);
             }
         }
     }
@@ -625,9 +660,9 @@ public class Baseline : MonoBehaviour
         {
             if (draw)
             {
-                Debug.DrawRay(labelPos, direction, Color.yellow);
-                Debug.LogFormat("{0} collided with --> name: {1}, tag: {2}",
-                labelBoxCollider.gameObject.name, hit.collider.name, hit.collider.tag);
+                // Debug.DrawRay(labelPos, direction, Color.yellow);
+                // Debug.LogFormat("{0} collided with --> name: {1}, tag: {2}",
+                // labelBoxCollider.gameObject.name, hit.collider.name, hit.collider.tag);
             }
 
             if (hit.collider.name != GetPlayerFromLId(lId).name)
@@ -646,7 +681,7 @@ public class Baseline : MonoBehaviour
             if (algo == UpdateAlgo.PlaneBased)
             {
                 planeXY[lId] = (0f, 1f);
-                MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1, planeXY[lId].Item2);
+                MovementWithPlane(labels[lId], planes[lId], planeXY[lId].Item1, planeXY[lId].Item2, false);
             }
             else
                 MovementHelper(labels[lId],
