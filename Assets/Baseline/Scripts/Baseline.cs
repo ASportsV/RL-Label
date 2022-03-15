@@ -27,9 +27,6 @@ public class Baseline : MonoBehaviour
     }
     private List<PlanePlayer> planes;
 
-    // TO REMOVE salvarsi xUpdate, yUpdate opposti e mandare l'altro oggetto in quella direzione!
-    // TO REMOVE
-    // TO REMOVE loggare e debuggare gli updates con nomi delle labels
     public enum UpdateAlgo
     {
         OneDim,
