@@ -262,7 +262,7 @@ public class Baseline : MonoBehaviour
                         hit.collider.GetComponent<LabelIdHandler>().lId : -1;
                     if (draw)
                     {
-                        Debug.DrawRay(Camera.main.transform.position, direction, Color.yellow);
+                        // Debug.DrawRay(Camera.main.transform.position, direction, Color.yellow);
                         // if (lId2 != -1)
                             // Debug.LogFormat("{0} --- {1} collided with --> (label) name: {2}",
                                 // myName, t.name, labels[lId2].name);
@@ -400,7 +400,7 @@ public class Baseline : MonoBehaviour
                     var xyUpdate2 = planeXY[lId2];
                     planeXY[lId2] = (xyUpdate2.Item1 + xUpdateNeg,
                         xyUpdate2.Item2 + yUpdateNeg);
-                    Debug.LogFormat("2] moving {0}? - ({1},{2})", lId2, planeXY[lId2].Item1, planeXY[lId2].Item2);
+                    // Debug.LogFormat("2] moving {0}? - ({1},{2})", lId2, planeXY[lId2].Item1, planeXY[lId2].Item2);
 
                     for (int i = 0; i < countMoves; i++)
                     {
@@ -456,7 +456,7 @@ public class Baseline : MonoBehaviour
             (xUpdate * pp.plane.transform.right) +
             (yUpdate * pp.plane.transform.forward);
 
-        if(debug && (obj.name == "3_label" || obj.name == "9_label"))
+        // if(debug && (obj.name == "3_label" || obj.name == "9_label"))
             // Debug.LogFormat("{0} is moving with updates ({1}, {2})",
                 // obj.name, xUpdate, yUpdate);
 
