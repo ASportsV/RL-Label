@@ -78,7 +78,12 @@ public class NBAPlayerGroup : PlayerGroup
         int totalStep = players.Max(s => s.startStep + s.totalStep);
         if (currentStep < totalStep)
         {
-            foreach (var player in m_playerMap.Values) player.step(currentStep);
+            foreach (var player in m_playerMap.Values)
+            {
+                player.step(currentStep);
+                if (useBaseline)
+                    player.GetComponentInChildren<ComputeMetrics>().UpdateMetrics();
+            }
         }
         else
         {
