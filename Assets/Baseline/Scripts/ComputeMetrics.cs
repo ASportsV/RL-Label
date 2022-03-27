@@ -79,7 +79,7 @@ public class ComputeMetrics : MonoBehaviour
             }
             else
             {
-                id = "l_" + hit.collider.GetComponentInParent<RVOLabelAgent>().PlayerLabel.sid;
+                id = "l_" + hit.collider.GetComponentInChildren<LabelIdHandler>().sId;
             }
             ids.Add(id);
         });
@@ -93,7 +93,7 @@ public class ComputeMetrics : MonoBehaviour
 
         var intersections = new HashSet<string>();
         var selfSid = PlayerLabel.sid;
-        foreach (var sid in intersectedLines.Select(i => i.GetComponent<RVOLabelAgent>().PlayerLabel.sid))
+        foreach (var sid in intersectedLines.Select(i => i.GetComponentInChildren<LabelIdHandler>().sId))
         {
             intersections.Add((selfSid > sid) ? (selfSid + "_" + sid) : (sid + "_" + selfSid));
         }

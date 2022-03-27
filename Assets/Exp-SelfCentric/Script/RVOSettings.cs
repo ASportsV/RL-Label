@@ -38,7 +38,7 @@ public class RVOSettings : MonoBehaviour
     public int courtX = 14;
     public int courtZ = 7;
 
-    internal bool evaluate = false;
+    internal bool evaluate = true;
 
     internal bool sceneFinished = false;
     internal bool sceneStarted = false;

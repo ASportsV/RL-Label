@@ -128,6 +128,8 @@ public abstract class PlayerGroup : MonoBehaviour
             ComputeMetrics metrics = player.GetComponentInChildren<ComputeMetrics>();
             metrics.PlayerLabel = player;
             metrics.cam = cam;
+            metrics.Initialize();
+            playerObj.GetComponentInChildren<LabelIdHandler>().sId = sid;
         }
 
         iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
@@ -180,8 +182,11 @@ public abstract class PlayerGroup : MonoBehaviour
                 if(isBaseline)
                 {
                     var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<ComputeMetrics>();
-                    occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
-                    intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
+                    int index = i - student.startStep;
+                    if (index < labelAgent.occludedObjectOverTime.Count)
+                        occluded.UnionWith(labelAgent.occludedObjectOverTime[index]);
+                    if (index < labelAgent.intersectionsOverTime.Count)
+                        intersected.UnionWith(labelAgent.intersectionsOverTime[index]);
                 }
                 else
                 {
@@ -223,6 +228,7 @@ public abstract class PlayerGroup : MonoBehaviour
         // save 
         using (StreamWriter writer = new StreamWriter(prefix + "_track" + currentScene + "_met.json", false))
         {
+            Debug.Log("dumping metrics!");
             writer.Write(JsonUtility.ToJson(met));
             writer.Close();
         }

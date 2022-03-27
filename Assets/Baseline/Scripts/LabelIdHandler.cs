@@ -5,10 +5,6 @@ using UnityEngine;
 public class LabelIdHandler : MonoBehaviour
 {
     [HideInInspector]
-    public int lId;
+    public int lId, sId;
     public GameObject newSphere;
-
-    private void Update()
-    {
-    }
 }
