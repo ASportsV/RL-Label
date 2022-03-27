@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.MLAgents;
@@ -42,9 +41,8 @@ public class RVOLabelAgent : Agent
     float yDistThres = 0.0f;
     float xzDistThres;
     float maxDist;
+    float maxLabelSpeed;
     float moveUnit;
-    //float minAngle = -170f;
-    //float maxAngle = -10f;
     public float minZInCam;
     public float maxZInCam;
 
@@ -57,8 +55,9 @@ public class RVOLabelAgent : Agent
 
         rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
         rwd.rew_x = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_x", -0.00025f);
-        xzDistThres =  Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.8f);
+        xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.5f);
         moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
+        maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 5f);
         rwd.rew_occlude = -0.1f;
         rwd.rew_intersets = -0.1f;
         rwd.rew_dist = -0.01f;
@@ -84,7 +83,7 @@ public class RVOLabelAgent : Agent
 
     }
 
-    Vector3 velocity => PlayerLabel.velocity;
+    Vector3 velocity => PlayerLabel.velocity + m_Rbody.velocity;
 
     //public float normalizedAngle {
     //    get { 
@@ -107,9 +106,6 @@ public class RVOLabelAgent : Agent
 
         // 3, screen x y
         Vector3 posInViewport = cam.WorldToViewportPoint(transform.position);
-        //sensor.AddObservation(posInViewport.x);
-        //sensor.AddObservation(posInViewport.y);
-        //sensor.AddObservation((posInViewport.z - minZInCam) / (maxZInCam - minZInCam));
 
         // 3, cam to forward
         sensor.AddObservation(m_Panel.forward);
@@ -119,11 +115,6 @@ public class RVOLabelAgent : Agent
         sensor.AddObservation(relativeTPosInviewport.x);
         sensor.AddObservation(relativeTPosInviewport.y);
         sensor.AddObservation((relativeTPosInviewport.z) / (maxZInCam - minZInCam));
-
-        //// 1, z forward
-        //sensor.AddObservation(transform.forward);
-        //// theta
-        //sensor.AddObservation(normalizedAngle);
 
         // attentions to others
         foreach (Transform other in transform.parent.parent)
@@ -157,7 +148,7 @@ public class RVOLabelAgent : Agent
             // 1_type
             labelOBs.Add(0);
             // 3_relative pos
-            Vector3 labelRelativePos = cam.WorldToViewportPoint(player.position) - posInViewport;
+            Vector3 labelRelativePos = cam.WorldToViewportPoint(labelAgent.transform.position) - posInViewport;
             labelOBs.Add(labelRelativePos.x);
             labelOBs.Add(labelRelativePos.y);
             labelOBs.Add(labelRelativePos.z / (maxZInCam - minZInCam));
@@ -166,9 +157,9 @@ public class RVOLabelAgent : Agent
             labelOBs.Add(labelAgent.m_Panel.forward.y);
             labelOBs.Add(labelAgent.m_Panel.forward.z);
             // 2_relative vel
-            Vector3 labelRelativeVel = other.GetComponent<RVOplayer>().velocity - velocity;
-            labelOBs.Add(labelRelativeVel.x / (m_RVOSettings.playerSpeedX));
-            labelOBs.Add(labelRelativeVel.z / (m_RVOSettings.playerSppedZ));
+            Vector3 labelRelativeVel = labelAgent.velocity - velocity;
+            labelOBs.Add(labelRelativeVel.x / (2 * maxLabelSpeed));
+            labelOBs.Add(labelRelativeVel.z / (2 * maxLabelSpeed));
 
             // another endpoints
             playerOBs.Add(labelRelativePos.x);
@@ -214,6 +205,12 @@ public class RVOLabelAgent : Agent
         {
             AddReward(-rwd.rew_x);
         }
+
+        m_Rbody.velocity = new Vector3(
+            Mathf.Clamp(m_Rbody.velocity.x, -maxLabelSpeed, maxLabelSpeed),
+            m_Rbody.velocity.y,
+            Mathf.Clamp(m_Rbody.velocity.z, -maxLabelSpeed, maxLabelSpeed)
+        );
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
