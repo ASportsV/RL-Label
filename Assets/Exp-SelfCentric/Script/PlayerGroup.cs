@@ -101,6 +101,7 @@ public abstract class PlayerGroup : MonoBehaviour
         player.root = root;
         player.Init();
         player.sid = sid;
+        player.player.GetComponentInParent<RVOplayer>().sid = sid;
         m_playerMap[sid] = player;
         player.positions = student.positions;
         player.velocities = student.velocities;
