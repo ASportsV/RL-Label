@@ -27,23 +27,6 @@ public class NBAPlayerGroup : PlayerGroup
         LoadScene(getNextTask());
     }
 
-    public override void LoadScene(int sceneIdx)
-    {
-        Clean();
-        currentScene = sceneIdx;
-        currentStep = 0;
-
-        var students = scenes[currentScene];
-        for (int i = 0, len = students.Count; i < len; ++i)
-        {
-            var student = students[i];
-            if (currentStep == student.startStep)
-            {
-                CreatePlayerLabelFromPos(student);
-            }
-        }
-    }
-
     private void FixedUpdate()
     {
         time += Time.fixedDeltaTime;
@@ -53,8 +36,6 @@ public class NBAPlayerGroup : PlayerGroup
         currentStep += 1;
 
         var players = scenes[currentScene];
-        int totalStep = players.Max(s => s.startStep + s.totalStep);
-
 
         if (currentStep < totalStep)
         {

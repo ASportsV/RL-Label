@@ -28,6 +28,7 @@ public abstract class PlayerGroup : MonoBehaviour
     protected float minZInCam;
     protected float maxZInCam;
     public int currentStep = 0;
+    public int totalStep = 0;
     public int currentScene;
 
     [HideInInspector] public string root;
@@ -42,9 +43,27 @@ public abstract class PlayerGroup : MonoBehaviour
     protected float time = 0.0f;
     protected float timeStep = 0.04f;
 
+    protected SimpleMultiAgentGroup m_AgentGroup;
+
     abstract protected void LoadTasks();
     abstract protected void LoadDataset();
-    abstract public void LoadScene(int sceneIdx);
+    public void LoadScene(int sceneIdx)
+    {
+        Clean();
+        currentScene = sceneIdx;
+        currentStep = 0;
+
+        var students = scenes[currentScene];
+        for (int i = 0, len = students.Count; i < len; ++i)
+        {
+            var student = students[i];
+            if (currentStep == student.startStep)
+            {
+                CreatePlayerLabelFromPos(student);
+            }
+        }
+        this.totalStep = students.Max(s => s.startStep + s.totalStep);
+    }
 
     private void Awake()
     {
@@ -70,6 +89,8 @@ public abstract class PlayerGroup : MonoBehaviour
 
         LoadDataset();
         LoadTasks();
+        
+        // add to group
     }
 
     protected int getNextTask()
@@ -113,6 +134,7 @@ public abstract class PlayerGroup : MonoBehaviour
         agent.cam = cam;
         agent.minZInCam = minZInCam;
         agent.maxZInCam = maxZInCam;
+        m_AgentGroup.RegisterAgent(agent);
 
         iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
         if (sid % 2 != 0)

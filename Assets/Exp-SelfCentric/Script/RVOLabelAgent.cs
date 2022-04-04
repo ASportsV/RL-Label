@@ -68,6 +68,12 @@ public class RVOLabelAgent : Agent
         Academy.Instance.AgentPreStep -= UpdateReward;
     }
 
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        print("On Disable agent");
+    }
+
     public override void Initialize()
     {
         rTransform = GetComponentInChildren<RectTransform>();
