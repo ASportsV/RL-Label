@@ -6,13 +6,23 @@ using Unity.Barracuda;
 using UnityEngine;
 using UnityEngine.UI;
 
-public struct Student
+public struct PlayerData
 {
     public int id;
     public Vector3[] positions;
     public Vector3[] velocities;
     public int totalStep;
     public int startStep;
+}
+
+public struct Metrics
+{
+    public int trackId;
+    public List<string> occludedObjPerStep; // sid
+    public List<string> intersectedObjPerStep;
+    public List<string> labelPositions;
+    public List<string> labelDistToTarget;
+
 }
 
 public abstract class PlayerGroup : MonoBehaviour
@@ -36,7 +46,7 @@ public abstract class PlayerGroup : MonoBehaviour
     [HideInInspector] public string root;
     public Baseline b;
 
-    public List<List<Student>> scenes = new List<List<Student>>();
+    public List<List<PlayerData>> scenes = new List<List<PlayerData>>();
     protected Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
 
     protected float time = 0.0f;
@@ -71,7 +81,7 @@ public abstract class PlayerGroup : MonoBehaviour
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
     }
 
-    protected (GameObject, GameObject) CreatePlayerLabelFromPos(Student student)
+    protected (GameObject, GameObject) CreatePlayerLabelFromPos(PlayerData student)
     {
         int sid = student.id;
         var pos = student.positions[0];
@@ -162,7 +172,7 @@ public abstract class PlayerGroup : MonoBehaviour
         m_playerMap.Clear();
     }
 
-    protected void SaveMetricToJson(string prefix, int totalStep, List<Student> players, bool isBaseline = false)
+    protected void SaveMetricToJson(string prefix, int totalStep, List<PlayerData> players, bool isBaseline = false)
     {
         // collect the intersection, occlusions over time
         List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();

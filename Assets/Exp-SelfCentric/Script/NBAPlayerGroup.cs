@@ -3,15 +3,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-public struct Metrics
-{
-    public int trackId;
-    public List<string> occludedObjPerStep; // sid
-    public List<string> intersectedObjPerStep;
-    public List<string> labelPositions;
-    public List<string> labelDistToTarget;
-
-}
 
 public class NBAPlayerGroup : PlayerGroup
 {
@@ -133,7 +124,7 @@ public class NBAPlayerGroup : PlayerGroup
 
         for (int tIdx = 0; tIdx < tracks.Count; ++tIdx)
         {
-            List<Student> track = new List<Student>();
+            List<PlayerData> track = new List<PlayerData>();
             foreach (var entry in tracks[tIdx])
             {
                 int playerIdx = entry.Key;
@@ -150,7 +141,7 @@ public class NBAPlayerGroup : PlayerGroup
                 }
                 if (pos.Length > 1) vel[pos.Length - 1] = vel[pos.Length - 2];
 
-                Student student = new Student();
+                PlayerData student = new PlayerData();
                 student.id = playerIdx;
                 student.positions = pos;
                 student.velocities = vel;

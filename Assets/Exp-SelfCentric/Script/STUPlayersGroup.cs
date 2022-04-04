@@ -144,7 +144,7 @@ public class STUPlayersGroup : PlayerGroup
 
         for(int tIdx = 0; tIdx < tracks.Count; ++tIdx)
         {
-            List<Student> track = new List<Student>();
+            List<PlayerData> track = new List<PlayerData>();
             foreach(var entry in tracks[tIdx])
             {
                 int playerIdx = entry.Key;
@@ -163,7 +163,7 @@ public class STUPlayersGroup : PlayerGroup
                 if(pos.Length > 1)
                     vel[pos.Length - 1] = vel[pos.Length - 2];
 
-                Student student = new Student();
+                PlayerData student = new PlayerData();
                 student.id = playerIdx;
                 student.positions = pos;
                 student.velocities = vel;

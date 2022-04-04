@@ -479,26 +479,6 @@ PrefabInstance:
       propertyPath: m_text
       value: 55
       objectReference: {fileID: 0}
-    - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
-        type: 3}
-      propertyPath: m_Size.x
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
-        type: 3}
-      propertyPath: m_Size.y
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
-        type: 3}
-      propertyPath: m_Size.z
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1431845650604287999, guid: ff8546d662b540648afc0b45b953f89c,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3758111257795555507, guid: ff8546d662b540648afc0b45b953f89c,
         type: 3}
       propertyPath: m_text
