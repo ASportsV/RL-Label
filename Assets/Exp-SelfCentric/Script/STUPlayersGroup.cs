@@ -21,35 +21,6 @@ public class STUPlayersGroup : PlayerGroup
         };
     }
 
-    public override void LoadScene(int sceneId)
-    {
-        Clean();
-        Init();
-
-        // reset
-        currentScene = sceneId;
-        currentStep = 0;
-        var students = scenes[currentScene];
-        List<GameObject> labelGroups = new List<GameObject>(),
-            labels = new List<GameObject>();
-
-        for (int i = 0, len = students.Count; i < len; ++i)
-        {
-            var student = students[i];
-            if (currentStep == student.startStep)
-            {
-                var playerLab = CreatePlayerLabelFromPos(student);
-                labelGroups.Add(playerLab.Item1);
-                labels.Add(playerLab.Item2);
-            }
-        }
-
-        if(useBaseline)
-        {
-            b.InitFrom(labelGroups, labels);
-        }
-    }
-
     private void FixedUpdate()
     {
         if (m_RVOSettings.sceneFinished || !m_RVOSettings.sceneStarted) return;
@@ -61,7 +32,6 @@ public class STUPlayersGroup : PlayerGroup
         currentStep += 1;
 
         var players = scenes[currentScene];
-        int totalStep = players.Max(s => s.startStep + s.totalStep);
 
         // add or move the student
         foreach(var player in players)

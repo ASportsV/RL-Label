@@ -51,10 +51,41 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected float time = 0.0f;
     protected float timeStep = 0.04f;
+    public int totalStep = 0;
 
     abstract protected void LoadTasks();
     abstract protected void LoadDataset();
-    abstract public void LoadScene(int sceneIdx);
+    public void LoadScene(int sceneIdx)
+    {
+        Clean();
+        Init();
+
+        // reset
+        currentScene = sceneIdx;
+        currentStep = 0;
+        var students = scenes[currentScene];
+        int numPlayers = students.Count;
+
+        List<GameObject> labelGroups = new List<GameObject>(),
+            labels = new List<GameObject>();
+
+        for (int i = 0, len = numPlayers; i < len; ++i)
+        {
+            var student = students[i];
+            if (currentStep == student.startStep)
+            {
+                var playerLab = CreatePlayerLabelFromPos(student);
+                labelGroups.Add(playerLab.Item1);
+                labels.Add(playerLab.Item2);
+            }
+        }
+        this.totalStep = students.Max(s => s.startStep + s.totalStep);
+
+        if (useBaseline)
+        {
+            b.InitFrom(labelGroups, labels);
+        }
+    }
 
     private void Awake()
     {

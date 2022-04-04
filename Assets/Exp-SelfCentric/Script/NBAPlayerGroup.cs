@@ -27,34 +27,6 @@ public class NBAPlayerGroup : PlayerGroup
         };
     }
 
-    public override void LoadScene(int sceneIdx)
-    {
-        Clean();
-        Init();
-
-        currentScene = sceneIdx;
-        currentStep = 0;
-        var students = scenes[currentScene];
-        int numPlayers = students.Count;
-        
-        List<GameObject> labelGroups = new List<GameObject>(),
-            labels = new List<GameObject>();
-
-        // should spawn
-        for (int i = 0; i < numPlayers; ++i)
-        {
-            var playerLab = CreatePlayerLabelFromPos(students[i]);
-            labelGroups.Add(playerLab.Item1);
-            labels.Add(playerLab.Item2);
-        }
-
-        if (useBaseline)
-        {
-            b.InitFrom(labelGroups, labels);
-        }
-
-    }
-
     private void FixedUpdate()
     {
         if (m_RVOSettings.sceneFinished || !m_RVOSettings.sceneStarted) return;
@@ -66,7 +38,7 @@ public class NBAPlayerGroup : PlayerGroup
         currentStep += 1;
 
         var players = scenes[currentScene];
-        int totalStep = players.Max(s => s.startStep + s.totalStep);
+
         if (currentStep < totalStep)
         {
             foreach (var player in m_playerMap.Values)
