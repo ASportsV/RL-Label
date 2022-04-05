@@ -214,15 +214,18 @@ public abstract class PlayerGroup : Agent
             sensor.AddObservation(labelPosInView.x);
             sensor.AddObservation(labelPosInView.y);
             sensor.AddObservation((labelPosInView.z) / (maxZInCam - minZInCam));
+            sensor.AddObservation(player.m_Panel.forward);
 
             Vector3 playerPosInView = cam.WorldToViewportPoint(player.transform.position);
             sensor.AddObservation(playerPosInView.x);
             sensor.AddObservation(playerPosInView.y);
             sensor.AddObservation((playerPosInView.z) / (maxZInCam - minZInCam));
+            sensor.AddObservation(player.transform.forward);
 
             sensor.AddObservation(player.velocity.x / (m_RVOSettings.playerSpeedX));
             sensor.AddObservation(player.velocity.z / (m_RVOSettings.playerSppedZ));
         }
+
     }
 
     /*-----------------------Action-----------------------*/
