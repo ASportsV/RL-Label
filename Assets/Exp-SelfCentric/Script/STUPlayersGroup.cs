@@ -5,6 +5,7 @@ using System.IO;
 
 public class STUPlayersGroup : PlayerGroup
 {
+
     protected override void LoadTasks()
     {
         testingTrack = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
@@ -13,11 +14,9 @@ public class STUPlayersGroup : PlayerGroup
             .Where(i => !testingTrack.Contains(i))
             .OrderBy(item => rnd.Next())
             .ToList());
-
-        LoadScene(getNextTask());
     }
 
-    private void FixedUpdate()
+    protected void FixedUpdate()
     {
         time += Time.fixedDeltaTime;
         if (time < timeStep) return;
@@ -28,7 +27,6 @@ public class STUPlayersGroup : PlayerGroup
         var players = scenes[currentScene];
         foreach(var student in players)
         {
-            //var student = students[i];
             if (currentStep == student.startStep)
             {
                 CreatePlayerLabelFromPos(student);
@@ -49,19 +47,21 @@ public class STUPlayersGroup : PlayerGroup
             }
         }
 
-        if (currentStep >= totalStep)
-        {
-            if (m_RVOSettings.evaluate)
-            {
-                SaveMetricToJson("stu", totalStep, players);
-            }
+        base.FixedUpdate(players);
+        //if (currentStep >= totalStep)
+        //{
+        //    if (m_RVOSettings.evaluate)
+        //    {
+        //        SaveMetricToJson("stu", totalStep, players);
+        //    }
 
-            LoadScene(getNextTask());
-        }
+        //    LoadScene(getNextTask());
+        //}
     }
 
     protected override void LoadDataset()
     {
+        sceneName = "stu";
         string fileName = Path.Combine(Application.streamingAssetsPath, "student_full.csv");
         StreamReader r = new StreamReader(fileName);
         string pos_data = r.ReadToEnd();

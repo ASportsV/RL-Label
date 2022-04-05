@@ -3,16 +3,6 @@ using System.Linq;
 using UnityEngine;
 using System.IO;
 
-
-public struct Metrics
-{
-    public int trackId;
-    public List<string> occludedObjPerStep; // sid
-    public List<string> intersectedObjPerStep;
-    public List<string> labelPositions;
-    public List<string> labelDistToTarget;
-
-}
 public class NBAPlayerGroup : PlayerGroup
 {
     protected override void LoadTasks()
@@ -23,8 +13,6 @@ public class NBAPlayerGroup : PlayerGroup
             .Where(i => !testingTrack.Contains(i))
             .OrderBy(item => rnd.Next())
             .ToList());
-
-        LoadScene(getNextTask());
     }
 
     private void FixedUpdate()
@@ -39,22 +27,36 @@ public class NBAPlayerGroup : PlayerGroup
 
         if (currentStep < totalStep)
         {
-            foreach (var p in m_playerMap) p.Value.step(currentStep);
-        }
-        else
-        {
-            if(m_RVOSettings.evaluate)
+            int numOfOccluding = 0;
+            int numOfIntersecting = 0;
+            foreach (var p in m_playerMap)
             {
-                SaveMetricToJson("nba", totalStep, players);
-            }
+                p.Value.step(currentStep);
 
-            // load another track
-            LoadScene(getNextTask());
+                RVOplayer player = p.Value;
+                var labelAgent = player.GetComponentInChildren<RVOLabelAgent>();
+                if (labelAgent.occluding()) numOfOccluding += 1;
+                numOfIntersecting += labelAgent.numOfIntersection();
+            }
+            m_AgentGroup.AddGroupReward(-0.1f * (float)numOfOccluding + -0.1f * (float)numOfIntersecting * 0.5f);
         }
+
+        base.FixedUpdate(players);
+        //else
+        //{
+        //    if(m_RVOSettings.evaluate)
+        //    {
+        //        SaveMetricToJson("nba", totalStep, players);
+        //    }
+
+        //    // load another track
+        //    LoadScene(getNextTask());
+        //}
     }
 
     protected override void LoadDataset()
     {
+        sceneName = "nba";
         string fileName = Path.Combine(Application.streamingAssetsPath, "nba_full_split.csv");
         StreamReader r = new StreamReader(fileName);
         string pos_data = r.ReadToEnd();

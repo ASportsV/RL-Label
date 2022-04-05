@@ -263,7 +263,7 @@ public class RVOLabelAgent : Agent
 
     public void SyncReset()
     {
-        SetReward(1.0f);
+        //SetReward(1.0f);
         Debug.Log(this.name + " c_reward is " + GetCumulativeReward());
         EndEpisode();
     }
@@ -323,7 +323,7 @@ public class RVOLabelAgent : Agent
         occludedObjectOverTime.Add(ids);
     }
 
-    private int numOfIntersection()
+    public int numOfIntersection()
     {
         var intersectedLines = transform.parent.parent.GetComponentsInChildren<RVOLine>()
             .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject) && l.isIntersected(m_RVOLine, cam));
@@ -380,6 +380,19 @@ public class RVOLabelAgent : Agent
         return count;
     }
 
+    public bool occluding()
+    {
+        Vector3 origin = m_Panel.position;
+        Vector3 extent = GetSizeInWorld() * 0.5f;
+        Vector3 direction = m_Panel.forward;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        float maxDistance = Mathf.Infinity;
+
+        // occluding players
+        int playerLayerMask = 1 << LayerMask.NameToLayer("player") | 1 << LayerMask.NameToLayer("label");
+        return Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask);
+    }
+
     void UpdateReward(int academyStepCount)
     {
         if (academyStepCount == 0 || !gameObject.activeSelf)
@@ -387,20 +400,18 @@ public class RVOLabelAgent : Agent
             return;
         }
 
-        // being occluded
-        float rew = 0f;
-        rew += rwd.rew_occlude * rewOcclusions();
+        //float rew = 0f;
+        //rew += rwd.rew_occlude * rewOcclusions();
 
-        int numOfIntersections = numOfIntersection();
-        rew += rwd.rew_intersets * numOfIntersections;
+        //int numOfIntersections = numOfIntersection();
+        //rew += rwd.rew_intersets * numOfIntersections;
 
-        AddReward(rew);
+        //AddReward(rew);
 
         m_Panel.LookAt(cam.transform);
         CollectOccluding();
         CollectDistToTarget();
         CollectPos();
-
     }
 
     public Vector3 GetSizeInWorld()

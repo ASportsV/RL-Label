@@ -14,8 +14,20 @@ public struct Student
     public int startStep;
 }
 
+public struct Metrics
+{
+    public int trackId;
+    public List<string> occludedObjPerStep; // sid
+    public List<string> intersectedObjPerStep;
+    public List<string> labelPositions;
+    public List<string> labelDistToTarget;
+
+}
+
 public abstract class PlayerGroup : MonoBehaviour
 {
+
+    protected string sceneName;
 
     protected RVOSettings m_RVOSettings;
     // player + label
@@ -47,23 +59,6 @@ public abstract class PlayerGroup : MonoBehaviour
 
     abstract protected void LoadTasks();
     abstract protected void LoadDataset();
-    public void LoadScene(int sceneIdx)
-    {
-        Clean();
-        currentScene = sceneIdx;
-        currentStep = 0;
-
-        var students = scenes[currentScene];
-        for (int i = 0, len = students.Count; i < len; ++i)
-        {
-            var student = students[i];
-            if (currentStep == student.startStep)
-            {
-                CreatePlayerLabelFromPos(student);
-            }
-        }
-        this.totalStep = students.Max(s => s.startStep + s.totalStep);
-    }
 
     private void Awake()
     {
@@ -71,6 +66,7 @@ public abstract class PlayerGroup : MonoBehaviour
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
         court = transform.parent.Find("fancy_court");
+        m_AgentGroup = new SimpleMultiAgentGroup();
 
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
         if (movingCam)
@@ -89,8 +85,25 @@ public abstract class PlayerGroup : MonoBehaviour
 
         LoadDataset();
         LoadTasks();
-        
-        // add to group
+        LoadScene(getNextTask());
+    }
+
+    public void LoadScene(int sceneIdx)
+    {
+        Clean();
+        currentScene = sceneIdx;
+        currentStep = 0;
+
+        var students = scenes[currentScene];
+        for (int i = 0, len = students.Count; i < len; ++i)
+        {
+            var student = students[i];
+            if (currentStep == student.startStep)
+            {
+                CreatePlayerLabelFromPos(student);
+            }
+        }
+        this.totalStep = students.Max(s => s.startStep + s.totalStep);
     }
 
     protected int getNextTask()
@@ -146,6 +159,22 @@ public abstract class PlayerGroup : MonoBehaviour
         return (playerObj, label.gameObject);
     }
 
+
+    protected void FixedUpdate(List<Student> players)
+    {
+        if (currentStep >= totalStep)
+        {
+            if (m_RVOSettings.evaluate)
+            {
+                SaveMetricToJson(sceneName, totalStep, players);
+            }
+
+            m_AgentGroup.GroupEpisodeInterrupted();
+
+            LoadScene(getNextTask());
+        }
+    }
+
     protected virtual void Clean()
     {
         // remove all existing
@@ -153,9 +182,9 @@ public abstract class PlayerGroup : MonoBehaviour
         {
             var p = entry.Value;
             // if the player still exit, sync
-            if (p.gameObject.activeSelf) p.GetComponentInChildren<RVOLabelAgent>()?.SyncReset();
+            //if (p.gameObject.activeSelf) p.GetComponentInChildren<RVOLabelAgent>()?.SyncReset();
             // else, ensure the agent is active
-            else p.transform.GetChild(1).gameObject.SetActive(true);
+            if(!p.gameObject.activeSelf) p.transform.GetChild(1).gameObject.SetActive(true);
   
             p.GetComponentInChildren<RVOLabelAgent>()?.cleanMetrics();
             Destroy(p.gameObject);
