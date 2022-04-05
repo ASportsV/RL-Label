@@ -49,6 +49,7 @@ MonoBehaviour:
   root: 
   currentStep: 0
   player: {fileID: 2976346511293885445}
+  label: {fileID: 4015864275688061341}
   positions: []
   velocities: []
 --- !u!1001 &4460626032237765154

@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Unity.MLAgents;
+using Unity.MLAgents.Actuators;
+using Unity.MLAgents.Sensors;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,7 +26,19 @@ public struct Metrics
 
 }
 
-public abstract class PlayerGroup : MonoBehaviour
+public struct Rewards
+{
+    public float rew_turn;
+    public float rew_y;
+    public float rew_z;
+    public float rew_x;
+    public float rew_occlude;
+    public float rew_intersets;
+    public float rew_dist;
+}
+
+
+public abstract class PlayerGroup : Agent
 {
 
     protected string sceneName;
@@ -45,7 +59,6 @@ public abstract class PlayerGroup : MonoBehaviour
 
     [HideInInspector] public string root;
 
-
     protected Queue<int> testingTrack;
     protected Queue<int> trainingTrack;
 
@@ -55,7 +68,13 @@ public abstract class PlayerGroup : MonoBehaviour
     protected float time = 0.0f;
     protected float timeStep = 0.04f;
 
-    protected SimpleMultiAgentGroup m_AgentGroup;
+    // labels
+    public float minLabelY = 1.8f;
+    float xzDistThres;
+    float maxDist;
+    float maxLabelSpeed;
+    float moveUnit;
+    Rewards rwd = new Rewards();
 
     abstract protected void LoadTasks();
     abstract protected void LoadDataset();
@@ -66,7 +85,6 @@ public abstract class PlayerGroup : MonoBehaviour
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         cam = transform.parent.Find("Camera").GetComponent<Camera>();
         court = transform.parent.Find("fancy_court");
-        m_AgentGroup = new SimpleMultiAgentGroup();
 
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
         if (movingCam)
@@ -83,9 +101,48 @@ public abstract class PlayerGroup : MonoBehaviour
 
         Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
+        // rewards
+        Academy.Instance.AgentPreStep += UpdateReward;
+
+        rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
+        rwd.rew_x = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_x", -0.00025f);
+        rwd.rew_occlude = -0.1f;
+        rwd.rew_intersets = -0.1f;
+        rwd.rew_dist = -0.01f;
+        // max parameters
+        xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.5f);
+        maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 5f);
+        moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
+
         LoadDataset();
         LoadTasks();
+    }
+
+    private void OnDestroy()
+    {
+        Academy.Instance.AgentPreStep -= UpdateReward;
+    }
+
+    public override void OnEpisodeBegin()
+    {
+        // load scene
         LoadScene(getNextTask());
+        // reset position
+        foreach (var playerLabel in m_playerMap.Values)
+        {
+            playerLabel.label.localPosition = new Vector3(0f, minLabelY, 0f);
+        }
+    }
+
+    protected int getNextTask()
+    {
+        int nextTask = currentScene;
+        var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
+        if (queue.Count > 0) nextTask = queue.Dequeue();
+        // for trainiing
+        if (!m_RVOSettings.evaluate) queue.Enqueue(nextTask);
+
+        return nextTask;
     }
 
     public void LoadScene(int sceneIdx)
@@ -106,16 +163,6 @@ public abstract class PlayerGroup : MonoBehaviour
         this.totalStep = students.Max(s => s.startStep + s.totalStep);
     }
 
-    protected int getNextTask()
-    {
-        int nextTask = currentScene;
-        var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
-        if (queue.Count > 0) nextTask = queue.Dequeue();
-        // for trainiing
-        if (!m_RVOSettings.evaluate) queue.Enqueue(nextTask);
-
-        return nextTask;
-    }
 
     protected (GameObject, GameObject) CreatePlayerLabelFromPos(Student student)
     {
@@ -133,32 +180,107 @@ public abstract class PlayerGroup : MonoBehaviour
         player.velocities = student.velocities;
         m_playerMap[sid] = player;
 
-        Transform label = playerObj.gameObject.transform.Find("label");
-        label.name = sid + "_label";
-
+        Transform label = player.label; //.transform.Find("label");
         //Debug.Log("Finish initialize " + label.name);
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         name.text = Random.Range(10, 99).ToString();
         var iamge = label.Find("panel/Player_info").GetComponent<Image>();
 
-        RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
-        agent.PlayerLabel = player;
-        agent.court = court;
-        agent.cam = cam;
-        agent.minZInCam = minZInCam;
-        agent.maxZInCam = maxZInCam;
-        m_AgentGroup.RegisterAgent(agent);
+        //RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
+        //agent.PlayerLabel = player;
+        //agent.court = court;
+        //agent.cam = cam;
+        //agent.minZInCam = minZInCam;
+        //agent.maxZInCam = maxZInCam;
 
         iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
         if (sid % 2 != 0)
         {
             Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
-            var cubeRenderer = player.player.GetComponent<Renderer>();
+            var cubeRenderer = player.GetComponent<Renderer>();
             cubeRenderer.material.SetColor("_Color", color);
         }
         return (playerObj, label.gameObject);
     }
 
+    /** ------------------ Observation ---------------------**/
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        foreach(var player in m_playerMap.Values)
+        {
+            // 3 + 3 + 2
+            var label = player.label;
+            Vector3 labelPosInView = cam.WorldToViewportPoint(label.transform.position);
+            sensor.AddObservation(labelPosInView.x);
+            sensor.AddObservation(labelPosInView.y);
+            sensor.AddObservation((labelPosInView.z) / (maxZInCam - minZInCam));
+
+            Vector3 playerPosInView = cam.WorldToViewportPoint(player.transform.position);
+            sensor.AddObservation(playerPosInView.x);
+            sensor.AddObservation(playerPosInView.y);
+            sensor.AddObservation((playerPosInView.z) / (maxZInCam - minZInCam));
+
+            sensor.AddObservation(player.velocity.x / (m_RVOSettings.playerSpeedX));
+            sensor.AddObservation(player.velocity.z / (m_RVOSettings.playerSppedZ));
+        }
+    }
+
+    /*-----------------------Action-----------------------*/
+    public override void OnActionReceived(ActionBuffers actionBuffers)
+    {
+        for(int i = 0; i < m_playerMap.Count; i += 2)
+        {
+            var player = m_playerMap.Values.ToList()[i / 2];
+            float moveX = Mathf.Clamp(actionBuffers.ContinuousActions[i], -1f, 1f);
+            float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[i+1], -1f, 1f);
+
+            if (Mathf.Abs(moveX) > 0.001f)
+            {
+                AddReward(rwd.rew_x);
+                player.addForeToLabel(new Vector3(moveX * moveUnit, 0, 0f));
+            }
+            else
+            {
+                AddReward(-rwd.rew_x);
+            }
+
+            if (Mathf.Abs(moveZ) > 0.001f)
+            {
+                AddReward(rwd.rew_z);
+                player.addForeToLabel(new Vector3(0, 0, moveZ * moveUnit));
+            }
+            else
+            {
+                AddReward(-rwd.rew_z);
+            }
+
+            player.clampLabelPos(xzDistThres);
+        }
+    }
+
+    /*-----------------------Reward-----------------------*/
+    void UpdateReward(int academyStepCount)
+    {
+        if (academyStepCount == 0 || !gameObject.activeSelf)
+        {
+            return;
+        }
+
+        float rew = 0.0f;
+        // rewards
+        foreach(var player in m_playerMap.Values)
+        {
+            if(player.occluding())
+            {
+                rew += rwd.rew_occlude;
+            }
+            rew += rwd.rew_intersets * player.numOfIntersection(cam) * 0.5f;
+
+            // look to camera
+            player.m_Panel.LookAt(cam.transform);
+        }
+        AddReward(rew);
+    }
 
     protected void FixedUpdate(List<Student> players)
     {
@@ -168,10 +290,8 @@ public abstract class PlayerGroup : MonoBehaviour
             {
                 SaveMetricToJson(sceneName, totalStep, players);
             }
-
-            m_AgentGroup.GroupEpisodeInterrupted();
-
-            LoadScene(getNextTask());
+            Debug.Log("AccRew: " + GetCumulativeReward());
+            EpisodeInterrupted();
         }
     }
 
@@ -186,7 +306,7 @@ public abstract class PlayerGroup : MonoBehaviour
             // else, ensure the agent is active
             if(!p.gameObject.activeSelf) p.transform.GetChild(1).gameObject.SetActive(true);
   
-            p.GetComponentInChildren<RVOLabelAgent>()?.cleanMetrics();
+            //p.GetComponentInChildren<RVOLabelAgent>()?.cleanMetrics();
             Destroy(p.gameObject);
         }
 

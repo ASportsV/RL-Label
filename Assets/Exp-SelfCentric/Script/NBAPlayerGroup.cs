@@ -27,31 +27,13 @@ public class NBAPlayerGroup : PlayerGroup
 
         if (currentStep < totalStep)
         {
-            int numOfOccluding = 0;
-            int numOfIntersecting = 0;
             foreach (var p in m_playerMap)
             {
                 p.Value.step(currentStep);
-
-                RVOplayer player = p.Value;
-                var labelAgent = player.GetComponentInChildren<RVOLabelAgent>();
-                if (labelAgent.occluding()) numOfOccluding += 1;
-                numOfIntersecting += labelAgent.numOfIntersection();
             }
-            m_AgentGroup.AddGroupReward(-0.1f * (float)numOfOccluding + -0.1f * (float)numOfIntersecting * 0.5f);
         }
 
         base.FixedUpdate(players);
-        //else
-        //{
-        //    if(m_RVOSettings.evaluate)
-        //    {
-        //        SaveMetricToJson("nba", totalStep, players);
-        //    }
-
-        //    // load another track
-        //    LoadScene(getNextTask());
-        //}
     }
 
     protected override void LoadDataset()
@@ -117,7 +99,7 @@ public class NBAPlayerGroup : PlayerGroup
 
         Debug.Log("Max Vel:" + maxVel.ToString());
         Debug.Log("Min Vel:" + minVel.ToString());
-        m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
-        m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
+        m_RVOSettings.playerSpeedX = Mathf.Max(Mathf.Abs(maxVel.x), Mathf.Abs(minVel.x)); // maxVel.x - minVel.x;
+        m_RVOSettings.playerSppedZ = Mathf.Max(Mathf.Abs(maxVel.z), Mathf.Abs(minVel.z)); //maxVel.z - minVel.z;
     }
 }
