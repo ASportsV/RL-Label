@@ -188,12 +188,12 @@ public class RVOLabelAgent : Agent
     /*-----------------------Action-----------------------*/
     void addForceMove(ActionBuffers actionBuffers)
     {
-        float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * moveUnit;
+        float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
 
         if (Mathf.Abs(moveZ) > 0.001f)
         {
             AddReward(rwd.rew_z);
-            m_Rbody.AddForce(new Vector3(0, 0, 1.0f) * moveZ * 1, ForceMode.VelocityChange);
+            m_Rbody.AddForce(new Vector3(0, 0, 1.0f) * moveZ * moveUnit, ForceMode.VelocityChange);
 
         }
         else
@@ -201,11 +201,11 @@ public class RVOLabelAgent : Agent
             AddReward(-rwd.rew_z);
         }
 
-        float moveX = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f) * moveUnit;
+        float moveX = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
         if (Mathf.Abs(moveX) > 0.001f)
         {
             AddReward(rwd.rew_x);
-            m_Rbody.AddForce(new Vector3(1, 0, 0f) * moveX * 1, ForceMode.VelocityChange);
+            m_Rbody.AddForce(new Vector3(1, 0, 0f) * moveX * moveUnit, ForceMode.VelocityChange);
         }
         else
         {
@@ -354,7 +354,7 @@ public class RVOLabelAgent : Agent
 
     RaycastHit forHit;
     RaycastHit backHit;
-    int rewOcclusions()
+    bool occluded()
     {
         Vector3 origin = m_Panel.position;
         Vector3 extent = GetSizeInWorld() * 0.5f;
@@ -366,18 +366,14 @@ public class RVOLabelAgent : Agent
         // occluded by labels
         int labelLayerMask = 1 << LayerMask.NameToLayer("label");
 
-        if (Physics.BoxCast(origin, extent, direction, out forHit, rotation, maxDistance, labelLayerMask))
-        {
-            count += 1;
-        }
-
-        // occluding players
-        int playerLayerMask = 1 << LayerMask.NameToLayer("player"); //| labelLayerMask;
-        if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
-        {
-            count += 1;
-        }        
-        return count;
+        return Physics.BoxCast(origin, extent, direction, out forHit, rotation, maxDistance, labelLayerMask);
+        //// occluding players
+        //int playerLayerMask = 1 << LayerMask.NameToLayer("player"); //| labelLayerMask;
+        //if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
+        //{
+        //    count += 1;
+        //}        
+        //return count;
     }
 
     public bool occluding()
@@ -400,13 +396,16 @@ public class RVOLabelAgent : Agent
             return;
         }
 
-        //float rew = 0f;
-        //rew += rwd.rew_occlude * rewOcclusions();
+        float rew = 0f;
+        if(occluded())
+        {
+            rew += rwd.rew_occlude;
+        }
 
         //int numOfIntersections = numOfIntersection();
         //rew += rwd.rew_intersets * numOfIntersections;
 
-        //AddReward(rew);
+        AddReward(rew);
 
         m_Panel.LookAt(cam.transform);
         CollectOccluding();
