@@ -33,12 +33,12 @@ public class NBAPlayerGroup : PlayerGroup
             {
                 p.Value.step(currentStep);
 
-                RVOplayer player = p.Value;
-                var labelAgent = player.GetComponentInChildren<RVOLabelAgent>();
-                if (labelAgent.occluding()) numOfOccluding += 1;
-                numOfIntersecting += labelAgent.numOfIntersection();
+                //RVOplayer player = p.Value;
+                //var labelAgent = player.GetComponentInChildren<RVOLabelAgent>();
+                //if (labelAgent.occluding()) numOfOccluding += 1;
+                //numOfIntersecting += labelAgent.numOfIntersection();
             }
-            m_AgentGroup.AddGroupReward(-0.1f * (float)numOfOccluding + -0.1f * (float)numOfIntersecting * 0.5f);
+            //m_AgentGroup.AddGroupReward(-0.1f * (float)numOfOccluding + -0.1f * (float)numOfIntersecting * 0.5f);
         }
 
         base.FixedUpdate(players);
@@ -117,7 +117,7 @@ public class NBAPlayerGroup : PlayerGroup
 
         Debug.Log("Max Vel:" + maxVel.ToString());
         Debug.Log("Min Vel:" + minVel.ToString());
-        m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
-        m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
+        m_RVOSettings.playerSpeedX = Mathf.Max(Mathf.Abs(maxVel.x), Mathf.Abs(minVel.x)); //maxVel.x - minVel.x;
+        m_RVOSettings.playerSppedZ = Mathf.Max(Mathf.Abs(maxVel.z), Mathf.Abs(minVel.z));//maxVel.z - minVel.z;
     }
 }

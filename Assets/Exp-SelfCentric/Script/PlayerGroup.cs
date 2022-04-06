@@ -134,7 +134,7 @@ public abstract class PlayerGroup : MonoBehaviour
         m_playerMap[sid] = player;
 
         Transform label = playerObj.gameObject.transform.Find("label");
-        label.name = sid + "_label";
+        //label.name = sid + "_label";
 
         //Debug.Log("Finish initialize " + label.name);
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
@@ -167,6 +167,12 @@ public abstract class PlayerGroup : MonoBehaviour
             if (m_RVOSettings.evaluate)
             {
                 SaveMetricToJson(sceneName, totalStep, players);
+            }
+
+            foreach (var p in m_playerMap)
+            {
+                var labelAgent = p.Value.GetComponentInChildren<RVOLabelAgent>();
+                Debug.Log(labelAgent.name + " c_reward is " + labelAgent.GetCumulativeReward());
             }
 
             m_AgentGroup.GroupEpisodeInterrupted();

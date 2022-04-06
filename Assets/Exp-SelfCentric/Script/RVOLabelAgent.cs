@@ -77,7 +77,7 @@ public class RVOLabelAgent : Agent
     public override void Initialize()
     {
         rTransform = GetComponentInChildren<RectTransform>();
-        bSensor = GetComponent<BufferSensorComponent>();
+        //bSensor = GetComponent<BufferSensorComponent>();
         m_RVOLine = GetComponent<RVOLine>();
         maxDist = Mathf.Sqrt(yDistThres * yDistThres + xzDistThres * xzDistThres);
         m_Panel = transform.Find("panel");
@@ -114,13 +114,21 @@ public class RVOLabelAgent : Agent
         Vector3 posInViewport = cam.WorldToViewportPoint(transform.position);
 
         // 3, cam to forward
+        sensor.AddObservation(posInViewport.x);
+        sensor.AddObservation(posInViewport.y);
+        sensor.AddObservation((posInViewport.z) / (maxZInCam - minZInCam));
         sensor.AddObservation(m_Panel.forward);
+        sensor.AddObservation(velocity.x / 2 * (maxLabelSpeed + m_RVOSettings.playerSpeedX));
+        sensor.AddObservation(velocity.z / 2 * (maxLabelSpeed + m_RVOSettings.playerSppedZ));
 
         // 3. endpoint
         Vector3 relativeTPosInviewport = cam.WorldToViewportPoint(PlayerLabel.player.transform.position) - posInViewport;
         sensor.AddObservation(relativeTPosInviewport.x);
         sensor.AddObservation(relativeTPosInviewport.y);
         sensor.AddObservation((relativeTPosInviewport.z) / (maxZInCam - minZInCam));
+        sensor.AddObservation(PlayerLabel.player.forward);
+        sensor.AddObservation(-m_Rbody.velocity.x / (maxLabelSpeed + 2 * m_RVOSettings.playerSpeedX));
+        sensor.AddObservation(-m_Rbody.velocity.z / (maxLabelSpeed + 2 * m_RVOSettings.playerSppedZ));
 
         // attentions to others
         foreach (Transform other in transform.parent.parent)
@@ -133,26 +141,25 @@ public class RVOLabelAgent : Agent
 
             List<float> playerOBs = new List<float>();
             // 1_type
-            playerOBs.Add(1);
+            //playerOBs.Add(1);
             // 3_relative pos
             Vector3 playerRelativePos = cam.WorldToViewportPoint(player.position) - posInViewport;
             playerOBs.Add(playerRelativePos.x);
             playerOBs.Add(playerRelativePos.y);
             playerOBs.Add(playerRelativePos.z / (maxZInCam - minZInCam));
-
             // 3_cam forward for occlusion
             playerOBs.Add(player.forward.x);
             playerOBs.Add(player.forward.y);
             playerOBs.Add(player.forward.z);
             // 2_relative vel
             Vector3 playerRelativeVel = other.GetComponent<RVOplayer>().velocity - velocity;
-            playerOBs.Add(playerRelativeVel.x / (m_RVOSettings.playerSpeedX));
-            playerOBs.Add(playerRelativeVel.z / (m_RVOSettings.playerSppedZ));
+            playerOBs.Add(playerRelativeVel.x / (maxLabelSpeed + 2 * m_RVOSettings.playerSpeedX));
+            playerOBs.Add(playerRelativeVel.z / (maxLabelSpeed + 2 * m_RVOSettings.playerSppedZ));
 
             RVOLabelAgent labelAgent = other.GetComponentInChildren<RVOLabelAgent>();
             List<float> labelOBs = new List<float>();
             // 1_type
-            labelOBs.Add(0);
+            //labelOBs.Add(0);
             // 3_relative pos
             Vector3 labelRelativePos = cam.WorldToViewportPoint(labelAgent.transform.position) - posInViewport;
             labelOBs.Add(labelRelativePos.x);
@@ -164,17 +171,19 @@ public class RVOLabelAgent : Agent
             labelOBs.Add(labelAgent.m_Panel.forward.z);
             // 2_relative vel
             Vector3 labelRelativeVel = labelAgent.velocity - velocity;
-            labelOBs.Add(labelRelativeVel.x / (2 * maxLabelSpeed));
-            labelOBs.Add(labelRelativeVel.z / (2 * maxLabelSpeed));
+            labelOBs.Add(labelRelativeVel.x / 2 * (maxLabelSpeed + m_RVOSettings.playerSpeedX));
+            labelOBs.Add(labelRelativeVel.z / 2 * (maxLabelSpeed + m_RVOSettings.playerSppedZ));
 
             // another endpoints
-            playerOBs.Add(labelRelativePos.x);
-            playerOBs.Add(labelRelativePos.y);
-            bSensor.AppendObservation(playerOBs.ToArray());
+            //playerOBs.Add(labelRelativePos.x);
+            //playerOBs.Add(labelRelativePos.y);
+            sensor.AddObservation(playerOBs.ToArray());
+            sensor.AddObservation(labelOBs.ToArray());
+            //bSensor.AppendObservation(playerOBs.ToArray());
 
-            labelOBs.Add(playerRelativePos.x);
-            labelOBs.Add(playerRelativePos.y);
-            bSensor.AppendObservation(labelOBs.ToArray());
+            //labelOBs.Add(playerRelativePos.x);
+            //labelOBs.Add(playerRelativePos.y);
+            //bSensor.AppendObservation(labelOBs.ToArray());
 
         }
     }
@@ -389,7 +398,7 @@ public class RVOLabelAgent : Agent
         return Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask);
     }
 
-    void UpdateReward(int academyStepCount)
+    void UpdateReward(int academyStepCount) 
     {
         if (academyStepCount == 0 || !gameObject.activeSelf)
         {
@@ -397,13 +406,13 @@ public class RVOLabelAgent : Agent
         }
 
         float rew = 0f;
-        if(occluded())
+        if (occluding())
         {
             rew += rwd.rew_occlude;
         }
 
-        //int numOfIntersections = numOfIntersection();
-        //rew += rwd.rew_intersets * numOfIntersections;
+        int numOfIntersections = numOfIntersection();
+        rew += rwd.rew_intersets * numOfIntersections;
 
         AddReward(rew);
 
