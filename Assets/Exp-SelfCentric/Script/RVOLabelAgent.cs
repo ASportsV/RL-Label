@@ -20,39 +20,23 @@ public class RVOLabelAgent : Agent
 
     RVOSettings m_RVOSettings;
     Rewards rwd = new Rewards();
-
-    public RVOplayer PlayerLabel;
-    public Camera cam;
-    public Transform court;
-    Rigidbody m_Rbody;
-    RectTransform rTransform;
-    RVOLine m_RVOLine;
-    Transform m_Panel;
-
-    public List<HashSet<string>> occludedObjectOverTime = new List<HashSet<string>>();
-    public List<HashSet<string>> intersectionsOverTime = new List<HashSet<string>>();
-    public List<float> distToTargetOverTime = new List<float>();
-    public List<Vector2> posOverTime = new List<Vector2>();
+    Label m_label;
 
     // sensor
     BufferSensorComponent bSensor;
 
-    public float minY = 1.8f;
     float yDistThres = 0.0f;
     float xzDistThres;
     float maxDist;
     float maxLabelSpeed;
     float moveUnit;
-    public float minZInCam;
-    public float maxZInCam;
 
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
+        m_label = GetComponent<Label>();
+
         Academy.Instance.AgentPreStep += UpdateReward;
-
-        m_Rbody = GetComponent<Rigidbody>();
-
         rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
         rwd.rew_x = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_x", -0.00025f);
         xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.5f);
@@ -70,39 +54,35 @@ public class RVOLabelAgent : Agent
 
     public override void Initialize()
     {
-        rTransform = GetComponentInChildren<RectTransform>();
         bSensor = GetComponent<BufferSensorComponent>();
-        m_RVOLine = GetComponent<RVOLine>();
         maxDist = Mathf.Sqrt(yDistThres * yDistThres + xzDistThres * xzDistThres);
-        m_Panel = transform.Find("panel");
     }
 
     public override void OnEpisodeBegin()
     {
-        transform.localPosition = new Vector3(0f, minY, 0f);
+        transform.localPosition = new Vector3(0f, m_RVOSettings.labelY, 0f);
     }
 
-    Vector3 velocity => PlayerLabel.velocity + m_Rbody.velocity;
-
-    public float normalizedDist => Vector3.Distance(
-            transform.position, 
-            new Vector3(PlayerLabel.transform.position.x, minY + PlayerLabel.transform.position.y, PlayerLabel.transform.position.z)
-    ) / maxDist;
-
+    //public float normalizedDist => Vector3.Distance(
+    //        transform.position, 
+    //        new Vector3(PlayerLabel.transform.position.x, m_RVOSettings.labelY + PlayerLabel.transform.position.y, PlayerLabel.transform.position.z)
+    //) / maxDist;
 
     /** ------------------ Observation ---------------------**/
     void OBPureRel(VectorSensor sensor)
     {
         // 6 = 3_camforward + 3_end point
+        float maxZInCam = m_RVOSettings.maxZInCam;
+        float minZInCam = m_RVOSettings.minZInCam;
 
         // 3, screen x y
-        Vector3 posInViewport = cam.WorldToViewportPoint(transform.position);
+        Vector3 posInViewport = m_label.cam.WorldToViewportPoint(transform.position);
 
         // 3, cam to forward
-        sensor.AddObservation(m_Panel.forward);
+        sensor.AddObservation(m_label.m_Panel.forward);
 
         // 3. endpoint
-        Vector3 relativeTPosInviewport = cam.WorldToViewportPoint(PlayerLabel.player.transform.position) - posInViewport;
+        Vector3 relativeTPosInviewport = m_label.cam.WorldToViewportPoint(m_label.PlayerLabel.player.transform.position) - posInViewport;
         sensor.AddObservation(relativeTPosInviewport.x);
         sensor.AddObservation(relativeTPosInviewport.y);
         sensor.AddObservation((relativeTPosInviewport.z) / (maxZInCam - minZInCam));
@@ -120,7 +100,7 @@ public class RVOLabelAgent : Agent
             // 1_type
             playerOBs.Add(1);
             // 3_relative pos
-            Vector3 playerRelativePos = cam.WorldToViewportPoint(player.position) - posInViewport;
+            Vector3 playerRelativePos = m_label.cam.WorldToViewportPoint(player.position) - posInViewport;
             playerOBs.Add(playerRelativePos.x);
             playerOBs.Add(playerRelativePos.y);
             playerOBs.Add(playerRelativePos.z / (maxZInCam - minZInCam));
@@ -130,16 +110,16 @@ public class RVOLabelAgent : Agent
             playerOBs.Add(player.forward.y);
             playerOBs.Add(player.forward.z);
             // 2_relative vel
-            Vector3 playerRelativeVel = other.GetComponent<RVOplayer>().velocity - velocity;
+            Vector3 playerRelativeVel = other.GetComponent<RVOplayer>().velocity - m_label.velocity;
             playerOBs.Add(playerRelativeVel.x / (m_RVOSettings.playerSpeedX));
             playerOBs.Add(playerRelativeVel.z / (m_RVOSettings.playerSppedZ));
 
-            RVOLabelAgent labelAgent = other.GetComponentInChildren<RVOLabelAgent>();
+            Label labelAgent = other.GetComponentInChildren<Label>();
             List<float> labelOBs = new List<float>();
             // 1_type
             labelOBs.Add(0);
             // 3_relative pos
-            Vector3 labelRelativePos = cam.WorldToViewportPoint(labelAgent.transform.position) - posInViewport;
+            Vector3 labelRelativePos = m_label.cam.WorldToViewportPoint(labelAgent.transform.position) - posInViewport;
             labelOBs.Add(labelRelativePos.x);
             labelOBs.Add(labelRelativePos.y);
             labelOBs.Add(labelRelativePos.z / (maxZInCam - minZInCam));
@@ -148,7 +128,7 @@ public class RVOLabelAgent : Agent
             labelOBs.Add(labelAgent.m_Panel.forward.y);
             labelOBs.Add(labelAgent.m_Panel.forward.z);
             // 2_relative vel
-            Vector3 labelRelativeVel = labelAgent.velocity - velocity;
+            Vector3 labelRelativeVel = labelAgent.velocity - m_label.velocity;
             labelOBs.Add(labelRelativeVel.x / (2 * maxLabelSpeed));
             labelOBs.Add(labelRelativeVel.z / (2 * maxLabelSpeed));
 
@@ -166,7 +146,7 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        //this.OBRichzplus(sensor, true);
+        Debug.Log("CollectObservations");
         OBPureRel(sensor);
     }
 
@@ -178,8 +158,7 @@ public class RVOLabelAgent : Agent
         if (Mathf.Abs(moveZ) > 0.001f)
         {
             AddReward(rwd.rew_z);
-            m_Rbody.AddForce(new Vector3(0, 0, 1.0f) * moveZ * 1, ForceMode.VelocityChange);
-
+            m_label.m_Rbody.AddForce(new Vector3(0, 0, 1.0f) * moveZ * 1, ForceMode.VelocityChange);
         }
         else
         {
@@ -190,179 +169,50 @@ public class RVOLabelAgent : Agent
         if (Mathf.Abs(moveX) > 0.001f)
         {
             AddReward(rwd.rew_x);
-            m_Rbody.AddForce(new Vector3(1, 0, 0f) * moveX * 1, ForceMode.VelocityChange);
+            m_label.m_Rbody.AddForce(new Vector3(1, 0, 0f) * moveX * 1, ForceMode.VelocityChange);
         }
         else
         {
             AddReward(-rwd.rew_x);
         }
 
-        m_Rbody.velocity = new Vector3(
-            Mathf.Clamp(m_Rbody.velocity.x, -maxLabelSpeed, maxLabelSpeed),
-            m_Rbody.velocity.y,
-            Mathf.Clamp(m_Rbody.velocity.z, -maxLabelSpeed, maxLabelSpeed)
+        m_label.m_Rbody.velocity = new Vector3(
+            Mathf.Clamp(m_label.m_Rbody.velocity.x, -maxLabelSpeed, maxLabelSpeed),
+            m_label.m_Rbody.velocity.y,
+            Mathf.Clamp(m_label.m_Rbody.velocity.z, -maxLabelSpeed, maxLabelSpeed)
         );
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
+        Debug.Log("OnActionReceived");
         addForceMove(actionBuffers);
     }
 
     private void FixedUpdate()
     {
-        float distToTarget = transform.position.z - PlayerLabel.transform.position.z;
+        float distToTarget = transform.position.z - m_label.PlayerLabel.transform.position.z;
         if(Mathf.Abs(distToTarget) > xzDistThres)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y, PlayerLabel.transform.position.z + (distToTarget > 0 ? xzDistThres: -xzDistThres));
+            transform.position = new Vector3(transform.position.x, transform.position.y, m_label.PlayerLabel.transform.position.z + (distToTarget > 0 ? xzDistThres: -xzDistThres));
+            m_label.m_Rbody.velocity = new Vector3(m_label.m_Rbody.velocity.x, 0f, 0f);
         }
 
-        distToTarget = transform.position.x - PlayerLabel.transform.position.x;
+        distToTarget = transform.position.x - m_label.PlayerLabel.transform.position.x;
         if (Mathf.Abs(distToTarget) > xzDistThres)
         {
-            transform.position = new Vector3(PlayerLabel.transform.position.x + (distToTarget > 0 ? xzDistThres : -xzDistThres), transform.position.y, transform.position.z);
+            transform.position = new Vector3(m_label.PlayerLabel.transform.position.x + (distToTarget > 0 ? xzDistThres : -xzDistThres), transform.position.y, transform.position.z);
+            m_label.m_Rbody.velocity = new Vector3(0f, 0f, m_label.m_Rbody.velocity.z);
         }
 
     }
 
     /*-----------------------Reward-----------------------*/
-    float postiveShape(float x, float maxX = 1.0f)
-    {
-        x = x / maxX;
-        return 1f / (1f + Mathf.Pow((x / (1f - x)), -2));
-    }
-
-    float negativeShape(float x, float maxX = 1.0f)
-    {
-        x = x / maxX;
-        return Mathf.Pow(1 - Mathf.Pow(x, 1.5f), 2);
-    }
-
-    public void cleanMetrics()
-    {
-        occludedObjectOverTime.Clear();
-        intersectionsOverTime.Clear();
-        distToTargetOverTime.Clear();
-        posOverTime.Clear();
-    }
-
     public void SyncReset()
     {
-        SetReward(1.0f);
+        //SetReward(1.0f);
         Debug.Log(this.name + " c_reward is " + GetCumulativeReward());
         EndEpisode();
-    }
-
-    private void CollectOccluding()
-    {
-        BoxCollider collider = m_Panel.GetComponent<BoxCollider>();
-        Vector3 size = collider.size * 0.5f;
-        Vector3[] points = new Vector3[] {
-            new Vector3(-size.x, size.y, 0),
-            new Vector3(0, size.y, 0),
-            new Vector3(size.x, size.y, 0),
-            //
-            new Vector3(-size.x, 0, 0),
-            new Vector3(0, 0, 0),
-            new Vector3(size.x, 0, 0),
-            // 
-            new Vector3(-size.x, -size.y, 0),
-            new Vector3(0, -size.y, 0),
-            new Vector3(size.x, -size.y, 0)
-        };
-
-        int labelLayerMask = 1 << LayerMask.NameToLayer("label");
-        int playerLayerMask = 1 << LayerMask.NameToLayer("player");
-
-        List<RaycastHit> hits = new List<RaycastHit>();
-        foreach (var p in points)
-        {
-            Vector3 origin = m_Panel.TransformPoint(p);
-            Vector3 direction = origin - cam.transform.position;
-            Debug.DrawRay(origin, direction, new Color(1, 0, 0));
-            // raycast, count hit
-            RaycastHit hit;
-            if(Physics.Raycast(origin, direction, out hit, Mathf.Infinity, labelLayerMask | playerLayerMask))
-            {
-                if(!GameObject.ReferenceEquals(hit.collider.transform.parent.gameObject, gameObject))
-                    hits.Add(hit);
-            }
-        }
-
-        var ids = new HashSet<string>();
-
-
-        hits.ForEach(hit => {
-
-            string id;
-            if(hit.collider.CompareTag("player"))
-            {
-                id = "p_" + hit.collider.GetComponentInParent<RVOplayer>().sid;
-            }
-            else
-            {
-                id = "l_" + hit.collider.GetComponentInParent<RVOLabelAgent>().PlayerLabel.sid;
-            }
-            ids.Add(id);                
-        });
-        occludedObjectOverTime.Add(ids);
-    }
-
-    private int numOfIntersection()
-    {
-        var intersectedLines = transform.parent.parent.GetComponentsInChildren<RVOLine>()
-            .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject) && l.isIntersected(m_RVOLine, cam));
-
-        var intersections = new HashSet<string>();
-        var selfSid = PlayerLabel.sid;
-        foreach(var sid in intersectedLines.Select(i => i.GetComponent<RVOLabelAgent>().PlayerLabel.sid))
-        {
-            intersections.Add((selfSid > sid) ? (selfSid + "_" + sid) : (sid + "_" + selfSid));
-        }
-        intersectionsOverTime.Add(intersections);
-
-        return intersectedLines.Count();
-    }
-
-    private void CollectDistToTarget()
-    {
-        distToTargetOverTime.Add(Vector2.Distance(
-             new Vector2(transform.position.x, transform.position.z),
-             new Vector2(PlayerLabel.transform.position.x, PlayerLabel.transform.position.z)
-        ));
-    }
-
-    private void CollectPos()
-    {
-        posOverTime.Add(new Vector2(transform.position.x, transform.position.z));
-    }
-
-    RaycastHit forHit;
-    RaycastHit backHit;
-    int rewOcclusions()
-    {
-        Vector3 origin = m_Panel.position;
-        Vector3 extent = GetSizeInWorld() * 0.5f;
-        Vector3 direction = m_Panel.forward;
-        Quaternion rotation = Quaternion.LookRotation(direction);
-        float maxDistance = Mathf.Infinity;
-
-        int count = 0;
-        // occluded by labels
-        int labelLayerMask = 1 << LayerMask.NameToLayer("label");
-
-        if (Physics.BoxCast(origin, extent, direction, out forHit, rotation, maxDistance, labelLayerMask))
-        {
-            count += 1;
-        }
-
-        // occluding players
-        int playerLayerMask = 1 << LayerMask.NameToLayer("player"); //| labelLayerMask;
-        if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
-        {
-            count += 1;
-        }        
-        return count;
     }
 
     void UpdateReward(int academyStepCount)
@@ -374,25 +224,14 @@ public class RVOLabelAgent : Agent
 
         // being occluded
         float rew = 0f;
-        rew += rwd.rew_occlude * rewOcclusions();
+        rew += rwd.rew_occlude * m_label.rewOcclusions();
 
-        int numOfIntersections = numOfIntersection();
+        int numOfIntersections = m_label.numOfIntersection();
         rew += rwd.rew_intersets * numOfIntersections;
 
         AddReward(rew);
-
-        m_Panel.LookAt(cam.transform);
-        CollectOccluding();
-        CollectDistToTarget();
-        CollectPos();
-
     }
 
-    public Vector3 GetSizeInWorld()
-    {
-        float scale = this.transform.localScale.x;
-        return new Vector3(rTransform.rect.size.x * scale, rTransform.rect.size.y * scale, 0.0001f);
-    }
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
@@ -433,34 +272,4 @@ public class RVOLabelAgent : Agent
         //continuousActionsOut[0] = -Input.GetAxis("Horizontal");
     }
 
-    private void OnDrawGizmos()
-    {
-        if (m_Panel == null) return;
-
-        Vector3 origin = m_Panel.position;
-        Vector3 direction = m_Panel.forward;
-        
-
-        Gizmos.color = new Color(0f, 1f, 0.5f);
-        Gizmos.DrawRay(origin, direction);
-
-        Gizmos.color = new Color(1f, 0.5f, 0f);
-        Gizmos.DrawRay(origin, -direction);
-
-        if(!Object.Equals(forHit, default(RaycastHit)))
-        {
-            Vector3 intersectionPoint = origin + Vector3.Project(forHit.point - origin, direction);
-            Gizmos.color = new Color(0f, 1f, 0.5f);
-            Gizmos.DrawLine(origin, intersectionPoint);
-            Gizmos.DrawWireSphere(intersectionPoint, 0.3f);
-        }
-
-        if (!Object.Equals(backHit, default(RaycastHit)))
-        {
-            Vector3 intersectionPoint = origin + Vector3.Project(backHit.point - origin, -direction);
-            Gizmos.color = new Color(1f, 0.5f, 0f);
-            Gizmos.DrawLine(origin, backHit.point);
-            Gizmos.DrawWireSphere(intersectionPoint, 0.3f);
-        }
-    }
 }

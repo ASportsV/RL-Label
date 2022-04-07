@@ -20,6 +20,11 @@ public class RVOSettings : MonoBehaviour
     public int courtX = 14;
     public int courtZ = 7;
 
+    internal float minZInCam;
+    internal float maxZInCam;
+
+    internal float labelY = 1.8f;
+
     internal bool evaluate = false;
 
     private void Awake()

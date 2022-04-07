@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3933635731914576204}
   - component: {fileID: 966761223852352586}
   m_Layer: 0
-  m_Name: AgentLabel1
+  m_Name: AgentLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -344,6 +344,24 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 4460626032237765154}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8009139410107870477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4391264606213972775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02a3a80055f76634cb0c6742c32d784c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerLabel: {fileID: 0}
+  cam: {fileID: 0}
+  m_Rbody: {fileID: 0}
+  m_Panel: {fileID: 0}
+  distToTargetOverTime: []
+  posOverTime: []
 --- !u!54 &8888566918352332370
 Rigidbody:
   m_ObjectHideFlags: 0

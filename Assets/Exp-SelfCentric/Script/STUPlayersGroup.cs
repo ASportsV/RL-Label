@@ -29,7 +29,7 @@ public class STUPlayersGroup : PlayerGroup
             //var student = students[i];
             if (currentStep == student.startStep)
             {
-                CreatePlayerLabelFromPos(student);
+                CreatePlayerLabelFromPos(student, true);
             }
             else if (currentStep > student.startStep && currentStep < (student.startStep + student.totalStep))
             {
