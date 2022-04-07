@@ -38,9 +38,9 @@ public class Label : MonoBehaviour
     private void FixedUpdate()
     {
         m_Panel.LookAt(cam.transform);
-        CollectOccluding();
-        CollectDistToTarget();
-        CollectPos();
+        //CollectOccluding();
+        //CollectDistToTarget();
+        //CollectPos();
     }
 
     private void CollectOccluding()

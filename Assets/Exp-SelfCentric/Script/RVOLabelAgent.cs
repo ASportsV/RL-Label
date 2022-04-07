@@ -74,10 +74,13 @@ public class RVOLabelAgent : Agent
         // 6 = 3_camforward + 3_end point
         float maxZInCam = m_RVOSettings.maxZInCam;
         float minZInCam = m_RVOSettings.minZInCam;
+        float scaleZInCam = maxZInCam - minZInCam;
 
         // 3, screen x y
         Vector3 posInViewport = m_label.cam.WorldToViewportPoint(transform.position);
-
+        sensor.AddObservation(posInViewport.x);
+        sensor.AddObservation(posInViewport.y);
+        sensor.AddObservation(posInViewport.z / scaleZInCam);
         // 3, cam to forward
         sensor.AddObservation(m_label.m_Panel.forward);
 
@@ -85,7 +88,8 @@ public class RVOLabelAgent : Agent
         Vector3 relativeTPosInviewport = m_label.cam.WorldToViewportPoint(m_label.PlayerLabel.player.transform.position) - posInViewport;
         sensor.AddObservation(relativeTPosInviewport.x);
         sensor.AddObservation(relativeTPosInviewport.y);
-        sensor.AddObservation((relativeTPosInviewport.z) / (maxZInCam - minZInCam));
+        sensor.AddObservation(relativeTPosInviewport.z / scaleZInCam);
+        sensor.AddObservation(m_label.PlayerLabel.transform.forward);
 
         // attentions to others
         foreach (Transform other in transform.parent.parent)
@@ -95,7 +99,6 @@ public class RVOLabelAgent : Agent
 
             // 11 = 1_type + 3_pos + 3_camforward + 2_vel + 2_endpoint
             Transform player = other.Find("player");
-
             List<float> playerOBs = new List<float>();
             // 1_type
             playerOBs.Add(1);
@@ -103,7 +106,7 @@ public class RVOLabelAgent : Agent
             Vector3 playerRelativePos = m_label.cam.WorldToViewportPoint(player.position) - posInViewport;
             playerOBs.Add(playerRelativePos.x);
             playerOBs.Add(playerRelativePos.y);
-            playerOBs.Add(playerRelativePos.z / (maxZInCam - minZInCam));
+            playerOBs.Add(playerRelativePos.z / scaleZInCam);
 
             // 3_cam forward for occlusion
             playerOBs.Add(player.forward.x);
@@ -111,8 +114,8 @@ public class RVOLabelAgent : Agent
             playerOBs.Add(player.forward.z);
             // 2_relative vel
             Vector3 playerRelativeVel = other.GetComponent<RVOplayer>().velocity - m_label.velocity;
-            playerOBs.Add(playerRelativeVel.x / (m_RVOSettings.playerSpeedX));
-            playerOBs.Add(playerRelativeVel.z / (m_RVOSettings.playerSppedZ));
+            playerOBs.Add(playerRelativeVel.x / (maxLabelSpeed + m_RVOSettings.playerSpeedX));
+            playerOBs.Add(playerRelativeVel.z / (maxLabelSpeed + m_RVOSettings.playerSppedZ));
 
             Label labelAgent = other.GetComponentInChildren<Label>();
             List<float> labelOBs = new List<float>();
@@ -122,15 +125,15 @@ public class RVOLabelAgent : Agent
             Vector3 labelRelativePos = m_label.cam.WorldToViewportPoint(labelAgent.transform.position) - posInViewport;
             labelOBs.Add(labelRelativePos.x);
             labelOBs.Add(labelRelativePos.y);
-            labelOBs.Add(labelRelativePos.z / (maxZInCam - minZInCam));
+            labelOBs.Add(labelRelativePos.z / scaleZInCam);
             // 3_cam forward for occlusion
             labelOBs.Add(labelAgent.m_Panel.forward.x);
             labelOBs.Add(labelAgent.m_Panel.forward.y);
             labelOBs.Add(labelAgent.m_Panel.forward.z);
             // 2_relative vel
             Vector3 labelRelativeVel = labelAgent.velocity - m_label.velocity;
-            labelOBs.Add(labelRelativeVel.x / (2 * maxLabelSpeed));
-            labelOBs.Add(labelRelativeVel.z / (2 * maxLabelSpeed));
+            labelOBs.Add(labelRelativeVel.x / (maxLabelSpeed + m_RVOSettings.playerSpeedX));
+            labelOBs.Add(labelRelativeVel.z / (maxLabelSpeed + m_RVOSettings.playerSppedZ));
 
             // another endpoints
             playerOBs.Add(labelRelativePos.x);
@@ -225,9 +228,11 @@ public class RVOLabelAgent : Agent
         // being occluded
         float rew = 0f;
         rew += rwd.rew_occlude * m_label.rewOcclusions();
+        if (rew == 0) rew += 0.01f;
 
         int numOfIntersections = m_label.numOfIntersection();
-        rew += rwd.rew_intersets * numOfIntersections;
+        if (numOfIntersections == 0) rew += 0.01f;
+        else rew += rwd.rew_intersets * numOfIntersections;
 
         AddReward(rew);
     }
