@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.MLAgents;
 using UnityEngine;
 
 
@@ -8,14 +5,10 @@ using UnityEngine;
 public class RVOSettings : MonoBehaviour
 {
     public int MaxSteps;
-    public bool sync;
 
     public int numOfPlayer;
     public float playerSpeedX = 1f;
     public float playerSppedZ = 1f;
-
-    internal int maxNumOfPlayer;
-    internal int minNumOfPlayer;
 
     public int courtX = 14;
     public int courtZ = 7;
@@ -27,9 +20,4 @@ public class RVOSettings : MonoBehaviour
 
     internal bool evaluate = false;
 
-    private void Awake()
-    {
-        maxNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("maxPlayerNum", 10);
-        minNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("minPlayerNum", 6);
-    }
 }
