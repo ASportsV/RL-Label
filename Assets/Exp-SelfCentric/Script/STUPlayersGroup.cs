@@ -133,7 +133,7 @@ public class STUPlayersGroup : PlayerGroup
 
         Debug.Log("Max Vel:" + maxVel.ToString());
         Debug.Log("Min Vel:" + minVel.ToString());
-        m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
-        m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
+        m_RVOSettings.playerSpeedX = Mathf.Max(Mathf.Abs(maxVel.x), Mathf.Abs(minVel.x)); //  maxVel.x - minVel.x;
+        m_RVOSettings.playerSppedZ = Mathf.Max(Mathf.Abs(maxVel.z), Mathf.Abs(minVel.z)); // maxVel.z - minVel.z;
     }
 }

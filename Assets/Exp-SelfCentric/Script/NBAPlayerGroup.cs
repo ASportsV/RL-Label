@@ -88,7 +88,8 @@ public class NBAPlayerGroup : PlayerGroup
                     maxVel = new Vector3(Mathf.Max(vel[i].x, maxVel.x), 0, Mathf.Max(vel[i].z, maxVel.z));
                     minVel = new Vector3(Mathf.Min(vel[i].x, minVel.x), 0, Mathf.Min(vel[i].z, minVel.z));
                 }
-                if (pos.Length > 1) vel[pos.Length - 1] = vel[pos.Length - 2];
+                if (pos.Length > 1) 
+                    vel[pos.Length - 1] = vel[pos.Length - 2];
 
                 Student student = new Student();
                 student.id = playerIdx;
@@ -103,7 +104,7 @@ public class NBAPlayerGroup : PlayerGroup
 
         Debug.Log("Max Vel:" + maxVel.ToString());
         Debug.Log("Min Vel:" + minVel.ToString());
-        m_RVOSettings.playerSpeedX = maxVel.x - minVel.x;
-        m_RVOSettings.playerSppedZ = maxVel.z - minVel.z;
+        m_RVOSettings.playerSpeedX = Mathf.Max(Mathf.Abs(maxVel.x), Mathf.Abs(minVel.x)); //  maxVel.x - minVel.x;
+        m_RVOSettings.playerSppedZ = Mathf.Max(Mathf.Abs(maxVel.z), Mathf.Abs(minVel.z)); // maxVel.z - minVel.z;
     }
 }
