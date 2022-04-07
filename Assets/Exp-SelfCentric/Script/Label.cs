@@ -6,11 +6,11 @@ using UnityEngine;
 public class Label : MonoBehaviour
 {
     public RVOplayer PlayerLabel;
-    public Camera cam;
     public Rigidbody m_Rbody;
     RectTransform rTransform;
     RVOLine m_RVOLine;
     public Transform m_Panel;
+    public Camera cam;
 
     public List<HashSet<string>> occludedObjectOverTime = new List<HashSet<string>>();
     public List<HashSet<string>> intersectionsOverTime = new List<HashSet<string>>();
@@ -23,6 +23,12 @@ public class Label : MonoBehaviour
         m_RVOLine = GetComponent<RVOLine>();
         m_Panel = transform.Find("panel");
         rTransform = GetComponentInChildren<RectTransform>();
+        PlayerLabel = transform.parent.GetComponent<RVOplayer>();
+        cam = transform.parent.parent.parent.Find("Camera").GetComponent<Camera>();
+    }
+
+    protected void Start()
+    {
     }
 
     public Vector3 velocity => PlayerLabel.velocity + m_Rbody.velocity;

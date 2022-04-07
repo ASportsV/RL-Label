@@ -149,7 +149,6 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        Debug.Log("CollectObservations");
         OBPureRel(sensor);
     }
 
@@ -188,7 +187,6 @@ public class RVOLabelAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        Debug.Log("OnActionReceived");
         addForceMove(actionBuffers);
     }
 

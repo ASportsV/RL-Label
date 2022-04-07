@@ -34,8 +34,6 @@ public abstract class PlayerGroup : MonoBehaviour
     public Sprite redLabel;
     public Sprite blueLabel;
 
-    //public Transform court;
-    public Camera cam;
     public int currentStep = 0;
     public int currentScene;
 
@@ -60,7 +58,7 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         root = "player";
         m_RVOSettings = FindObjectOfType<RVOSettings>();
-        cam = transform.parent.Find("Camera").GetComponent<Camera>();
+        Camera cam = transform.parent.Find("Camera").GetComponent<Camera>();
         //court = transform.parent.Find("fancy_court");
 
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
@@ -84,7 +82,7 @@ public abstract class PlayerGroup : MonoBehaviour
         LoadScene(getNextTask());
     }
 
-    public void LoadScene(int sceneIdx)
+    protected virtual void LoadScene(int sceneIdx)
     {
         Clean();
         currentScene = sceneIdx;
@@ -123,6 +121,7 @@ public abstract class PlayerGroup : MonoBehaviour
         GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = sid + "_PlayerLabel";
+        playerObj.SetActive(true);
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
         player.root = root;
@@ -140,9 +139,7 @@ public abstract class PlayerGroup : MonoBehaviour
         name.text = Random.Range(10, 99).ToString();
         var iamge = label.Find("panel/Player_info").GetComponent<Image>();
 
-        Label m_label = player.GetComponentInChildren<Label>();
-        m_label.PlayerLabel = player;
-        m_label.cam = cam;
+        //Label m_label = player.GetComponentInChildren<Label>();
 
         //iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
         iamge.sprite = !isAgent ? blueLabel : redLabel;
