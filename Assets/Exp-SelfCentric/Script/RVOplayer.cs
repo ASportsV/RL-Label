@@ -7,6 +7,9 @@ public class RVOplayer : MonoBehaviour
 
     [HideInInspector] public int sid { get; private set; }
     [HideInInspector] public string root;
+
+    public bool tester = false;
+
     public int currentStep = 0;
 
     public Transform player;
@@ -37,15 +40,26 @@ public class RVOplayer : MonoBehaviour
         //text.text = playerObj.transform.GetSiblingIndex().ToString();
     }
 
-    public Vector3 velocity => velocities[currentStep];
+    public Vector3 velocity => tester ? Vector3.zero : velocities[currentStep];
 
     public void step(int idx)
     {
+        if (tester) return;
         if(idx < positions.Count())
         {
             currentStep = idx;
             transform.localPosition = positions[idx];
             player.transform.forward = velocities[idx].normalized;
         }
+    }
+
+
+    private void FixedUpdate()
+    {
+        if (!tester) return;
+
+        Vector3 input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+        input = input.normalized;
+        transform.position += input * 5f * Time.fixedDeltaTime;
     }
 }
