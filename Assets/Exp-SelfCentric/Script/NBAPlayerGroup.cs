@@ -3,16 +3,6 @@ using System.Linq;
 using UnityEngine;
 using System.IO;
 
-
-public struct Metrics
-{
-    public int trackId;
-    public List<string> occludedObjPerStep; // sid
-    public List<string> intersectedObjPerStep;
-    public List<string> labelPositions;
-    public List<string> labelDistToTarget;
-
-}
 public class NBAPlayerGroup : PlayerGroup
 {
     protected override void LoadTasks()
@@ -23,25 +13,6 @@ public class NBAPlayerGroup : PlayerGroup
             .Where(i => !testingTrack.Contains(i))
             .OrderBy(item => rnd.Next())
             .ToList());
-
-        LoadScene(getNextTask());
-    }
-
-    public override void LoadScene(int sceneIdx)
-    {
-        Clean();
-        currentScene = sceneIdx;
-        currentStep = 0;
-
-        var students = scenes[currentScene];
-        for (int i = 0, len = students.Count; i < len; ++i)
-        {
-            var student = students[i];
-            if (currentStep == student.startStep)
-            {
-                CreatePlayerLabelFromPos(student);
-            }
-        }
     }
 
     private void FixedUpdate()
@@ -53,9 +24,6 @@ public class NBAPlayerGroup : PlayerGroup
         currentStep += 1;
 
         var players = scenes[currentScene];
-        int totalStep = players.Max(s => s.startStep + s.totalStep);
-
-
         if (currentStep < totalStep)
         {
             foreach (var p in m_playerMap) p.Value.step(currentStep);
@@ -64,7 +32,7 @@ public class NBAPlayerGroup : PlayerGroup
         {
             if(m_RVOSettings.evaluate)
             {
-                SaveMetricToJson("nba", totalStep, players);
+                SaveMetricToJson(sceneName, totalStep, players);
             }
 
             // load another track
@@ -74,6 +42,7 @@ public class NBAPlayerGroup : PlayerGroup
 
     protected override void LoadDataset()
     {
+        sceneName = "nba";
         string fileName = Path.Combine(Application.streamingAssetsPath, "nba_full_split.csv");
         StreamReader r = new StreamReader(fileName);
         string pos_data = r.ReadToEnd();

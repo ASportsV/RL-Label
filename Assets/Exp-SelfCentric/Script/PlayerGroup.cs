@@ -14,9 +14,19 @@ public struct Student
     public int startStep;
 }
 
+public struct Metrics
+{
+    public int trackId;
+    public List<string> occludedObjPerStep; // sid
+    public List<string> intersectedObjPerStep;
+    public List<string> labelPositions;
+    public List<string> labelDistToTarget;
+
+}
+
 public abstract class PlayerGroup : MonoBehaviour
 {
-
+    protected string sceneName;
     protected RVOSettings m_RVOSettings;
     // player + label
     public GameObject playerLabel_prefab_rl;
@@ -41,10 +51,27 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected float time = 0.0f;
     protected float timeStep = 0.04f;
+    protected int totalStep;
 
     abstract protected void LoadTasks();
     abstract protected void LoadDataset();
-    abstract public void LoadScene(int sceneIdx);
+    public void LoadScene(int sceneIdx)
+    {
+        Clean();
+        currentScene = sceneIdx;
+        currentStep = 0;
+
+        var students = scenes[currentScene];
+        for (int i = 0, len = students.Count; i < len; ++i)
+        {
+            var student = students[i];
+            if (currentStep == student.startStep)
+            {
+                CreatePlayerLabelFromPos(student);
+            }
+        }
+        totalStep = students.Max(s => s.startStep + s.totalStep);
+    }
 
     private void Awake()
     {
@@ -70,6 +97,8 @@ public abstract class PlayerGroup : MonoBehaviour
 
         LoadDataset();
         LoadTasks();
+
+        LoadScene(getNextTask());
     }
 
     protected int getNextTask()

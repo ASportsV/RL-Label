@@ -13,8 +13,6 @@ public class STUPlayersGroup : PlayerGroup
             .Where(i => !testingTrack.Contains(i))
             .OrderBy(item => rnd.Next())
             .ToList());
-
-        LoadScene(getNextTask());
     }
 
     private void FixedUpdate()
@@ -26,8 +24,6 @@ public class STUPlayersGroup : PlayerGroup
         currentStep += 1;
 
         var players = scenes[currentScene];
-        int totalStep = players.Max(s => s.startStep + s.totalStep);
-
         foreach(var student in players)
         {
             //var student = students[i];
@@ -55,32 +51,16 @@ public class STUPlayersGroup : PlayerGroup
         {
             if (m_RVOSettings.evaluate)
             {
-                SaveMetricToJson("stu", totalStep, players);
+                SaveMetricToJson(sceneName, totalStep, players);
             }
 
             LoadScene(getNextTask());
         }
     }
 
-    public override void LoadScene(int sceneIdx)
-    {
-        Clean();
-        currentScene = sceneIdx;
-        currentStep = 0;
-
-        var students = scenes[currentScene];
-        for (int i = 0, len = students.Count; i < len; ++i)
-        {
-            var student = students[i];
-            if (currentStep == student.startStep)
-            {
-                CreatePlayerLabelFromPos(student);
-            }
-        }
-    }
-
     protected override void LoadDataset()
     {
+        sceneName = "stu";
         string fileName = Path.Combine(Application.streamingAssetsPath, "student_full.csv");
         StreamReader r = new StreamReader(fileName);
         string pos_data = r.ReadToEnd();

@@ -80,18 +80,9 @@ public class RVOLabelAgent : Agent
     public override void OnEpisodeBegin()
     {
         transform.localPosition = new Vector3(0f, minY, 0f);
-
     }
 
     Vector3 velocity => PlayerLabel.velocity + m_Rbody.velocity;
-
-    //public float normalizedAngle {
-    //    get { 
-    //        var angle = Vector3.Angle(PlayerLabel.transform.right, transform.forward); // find current angle
-    //        if (Vector3.Cross(PlayerLabel.transform.right, transform.forward).y< 0) angle = -angle;
-    //        return (angle - minAngle) / (maxAngle - minAngle);
-    //    }
-    //}
 
     public float normalizedDist => Vector3.Distance(
             transform.position, 
