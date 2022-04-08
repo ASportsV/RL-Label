@@ -30,10 +30,10 @@ public class NBAPlayerGroup : PlayerGroup
         }
         else
         {
-            if(m_RVOSettings.evaluate)
-            {
-                SaveMetricToJson(sceneName, totalStep, players);
-            }
+            //if(m_RVOSettings.evaluate)
+            //{
+            //    SaveMetricToJson(sceneName, totalStep, players);
+            //}
 
             // load another track
             LoadScene(getNextTask());

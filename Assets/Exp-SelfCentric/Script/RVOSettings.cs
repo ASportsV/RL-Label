@@ -25,7 +25,7 @@ public class RVOSettings : MonoBehaviour
 
     internal float labelY = 1.8f;
 
-    internal bool evaluate = false;
+    internal bool evaluate = true;
 
     private void Awake()
     {

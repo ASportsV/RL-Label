@@ -50,7 +50,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected float time = 0.0f;
     protected float timeStep = 0.04f;
-    protected int totalStep;
+    public int totalStep;
 
     abstract protected void LoadTasks();
     abstract protected void LoadDataset();
