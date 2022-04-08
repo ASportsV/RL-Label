@@ -95,7 +95,7 @@ public abstract class PlayerGroup : MonoBehaviour
         var rnd = new System.Random();
         int[] agentIdxs = Enumerable.Range(0, students.Count())
              .OrderBy(item => rnd.Next())
-             .Take(5)
+             .Take(1)
              .ToArray();
    
         for (int i = 0, len = students.Count; i < len; ++i)

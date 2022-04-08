@@ -48,15 +48,6 @@ public class STUPlayersGroup : PlayerGroup
         }
 
         base.FixedUpdate(players);
-        //if (currentStep >= totalStep)
-        //{
-        //    if (m_RVOSettings.evaluate)
-        //    {
-        //        SaveMetricToJson("stu", totalStep, players);
-        //    }
-
-        //    LoadScene(getNextTask());
-        //}
     }
 
     protected override void LoadDataset()
