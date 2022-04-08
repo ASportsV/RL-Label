@@ -42,16 +42,6 @@ public class NBAPlayerGroup : PlayerGroup
         }
 
         base.FixedUpdate(players);
-        //else
-        //{
-        //    if(m_RVOSettings.evaluate)
-        //    {
-        //        SaveMetricToJson("nba", totalStep, players);
-        //    }
-
-        //    // load another track
-        //    LoadScene(getNextTask());
-        //}
     }
 
     protected override void LoadDataset()

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3933635731914576204}
   - component: {fileID: 966761223852352586}
   m_Layer: 0
-  m_Name: AgentLabel1
+  m_Name: PlayerLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,7 +62,8 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 5022602860645237092, guid: 7b7067b5a574ccf429243421117d65f5,
+        type: 3}
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_BehaviorName
@@ -233,6 +234,11 @@ PrefabInstance:
       propertyPath: m_DetectableTags.Array.data[1]
       value: label
       objectReference: {fileID: 0}
+    - target: {fileID: 4058794625399830715, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5371359020785915933, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_LocalPosition.z
@@ -316,12 +322,12 @@ PrefabInstance:
     - target: {fileID: 7278368080911663354, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_ObservableSize
-      value: 11
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 7278368080911663354, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_MaxNumObservables
-      value: 60
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7865552096013063794, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -329,8 +335,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
-    - {fileID: 0}
+    - {fileID: 6861740193128462264, guid: 98b591507de72954099c958f0452b9fd, type: 3}
     - {fileID: 1017326981065827231, guid: 98b591507de72954099c958f0452b9fd, type: 3}
+    - {fileID: 7278368080911663354, guid: 98b591507de72954099c958f0452b9fd, type: 3}
+    - {fileID: 6863877820660453592, guid: 98b591507de72954099c958f0452b9fd, type: 3}
+    - {fileID: 4058794625399830715, guid: 98b591507de72954099c958f0452b9fd, type: 3}
+    - {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 98b591507de72954099c958f0452b9fd, type: 3}
 --- !u!4 &4015864275688061341 stripped
 Transform:

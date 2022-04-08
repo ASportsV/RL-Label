@@ -32,19 +32,15 @@ public abstract class PlayerGroup : MonoBehaviour
     protected RVOSettings m_RVOSettings;
     // player + label
     public GameObject playerLabel_prefab_rl;
+    public GameObject playerLabel_prefab;
     public Sprite redLabel;
     public Sprite blueLabel;
 
-    public Transform court;
-    public Camera cam;
-    protected float minZInCam;
-    protected float maxZInCam;
     public int currentStep = 0;
     public int totalStep = 0;
     public int currentScene;
 
     [HideInInspector] public string root;
-
 
     protected Queue<int> testingTrack;
     protected Queue<int> trainingTrack;
@@ -64,8 +60,8 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         root = "player";
         m_RVOSettings = FindObjectOfType<RVOSettings>();
-        cam = transform.parent.Find("Camera").GetComponent<Camera>();
-        court = transform.parent.Find("fancy_court");
+        Camera cam = transform.parent.Find("Camera").GetComponent<Camera>();
+ 
         m_AgentGroup = new SimpleMultiAgentGroup();
 
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
@@ -75,13 +71,13 @@ public abstract class PlayerGroup : MonoBehaviour
         }
 
         // geometry min and max
-        minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
+        m_RVOSettings.minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
         var tmp = cam.transform.forward;
         cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
-        maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
+        m_RVOSettings.maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
         cam.transform.forward = tmp;
 
-        Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
+        Debug.Log("Min and Max Z in Cam: (" + m_RVOSettings.minZInCam.ToString() + "," + m_RVOSettings.maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
         LoadDataset();
         LoadTasks();
@@ -95,12 +91,19 @@ public abstract class PlayerGroup : MonoBehaviour
         currentStep = 0;
 
         var students = scenes[currentScene];
+        //int agentIdx = Random.Range(0, students.Count());
+        var rnd = new System.Random();
+        int[] agentIdxs = Enumerable.Range(0, students.Count())
+             .OrderBy(item => rnd.Next())
+             .Take(5)
+             .ToArray();
+   
         for (int i = 0, len = students.Count; i < len; ++i)
         {
             var student = students[i];
             if (currentStep == student.startStep)
             {
-                CreatePlayerLabelFromPos(student);
+                CreatePlayerLabelFromPos(student, agentIdxs.Contains(i));
             }
         }
         this.totalStep = students.Max(s => s.startStep + s.totalStep);
@@ -117,14 +120,15 @@ public abstract class PlayerGroup : MonoBehaviour
         return nextTask;
     }
 
-    protected (GameObject, GameObject) CreatePlayerLabelFromPos(Student student)
+    protected (GameObject, GameObject) CreatePlayerLabelFromPos(Student student, bool isAgent)
     {
         int sid = student.id;
         var pos = student.positions[0];
-        GameObject toInstantiate = playerLabel_prefab_rl;
+        GameObject toInstantiate = isAgent ? playerLabel_prefab_rl : playerLabel_prefab;
         GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = sid + "_PlayerLabel";
+        playerObj.SetActive(true);
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
         player.root = root;
@@ -134,6 +138,7 @@ public abstract class PlayerGroup : MonoBehaviour
         m_playerMap[sid] = player;
 
         Transform label = playerObj.gameObject.transform.Find("label");
+        label.localPosition = new Vector3(0f, m_RVOSettings.labelY, 0f);
         //label.name = sid + "_label";
 
         //Debug.Log("Finish initialize " + label.name);
@@ -141,16 +146,16 @@ public abstract class PlayerGroup : MonoBehaviour
         name.text = Random.Range(10, 99).ToString();
         var iamge = label.Find("panel/Player_info").GetComponent<Image>();
 
-        RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
-        agent.PlayerLabel = player;
-        agent.court = court;
-        agent.cam = cam;
-        agent.minZInCam = minZInCam;
-        agent.maxZInCam = maxZInCam;
-        m_AgentGroup.RegisterAgent(agent);
+        if(isAgent)
+        {
+            RVOLabelAgent agent = player.GetComponentInChildren<RVOLabelAgent>();
+            m_AgentGroup.RegisterAgent(agent);
+        }
 
-        iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
-        if (sid % 2 != 0)
+        //iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
+        iamge.sprite = !isAgent ? blueLabel : redLabel;
+        //if (sid % 2 != 0)
+        if (isAgent)
         {
             Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
             var cubeRenderer = player.player.GetComponent<Renderer>();
@@ -172,7 +177,8 @@ public abstract class PlayerGroup : MonoBehaviour
             foreach (var p in m_playerMap)
             {
                 var labelAgent = p.Value.GetComponentInChildren<RVOLabelAgent>();
-                Debug.Log(labelAgent.name + " c_reward is " + labelAgent.GetCumulativeReward());
+                if(labelAgent)
+                    Debug.Log(labelAgent.name + " c_reward is " + labelAgent.GetCumulativeReward());
             }
 
             m_AgentGroup.GroupEpisodeInterrupted();
@@ -192,7 +198,7 @@ public abstract class PlayerGroup : MonoBehaviour
             // else, ensure the agent is active
             if(!p.gameObject.activeSelf) p.transform.GetChild(1).gameObject.SetActive(true);
   
-            p.GetComponentInChildren<RVOLabelAgent>()?.cleanMetrics();
+            p.GetComponentInChildren<Label>()?.cleanMetrics();
             Destroy(p.gameObject);
         }
 
@@ -217,7 +223,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
             foreach (var student in players.Where(s => i >= s.startStep && i < (s.startStep + s.totalStep)))
             {
-                var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<RVOLabelAgent>();
+                var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<Label>();
 
                 occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
                 intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
@@ -230,7 +236,7 @@ public abstract class PlayerGroup : MonoBehaviour
         List<string> labelDistToTarget = new List<string>();
         foreach (var student in players)
         {
-            var labelAgent = m_playerMap[student.id].GetComponentInChildren<RVOLabelAgent>();
+            var labelAgent = m_playerMap[student.id].GetComponentInChildren<Label>();
             labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
             labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
             // Debug.Log("Occ Step of " + student.id + " is " + labelAgent.occludedObjectOverTime.Count + " / " + student.totalStep);

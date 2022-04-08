@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 746582646195559359}
+  - component: {fileID: 5476685809173897618}
   - component: {fileID: 24136461344765374}
   - component: {fileID: 7278368080911663354}
   - component: {fileID: 6863877820660453592}
@@ -36,6 +37,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -15.78, z: 0}
+--- !u!114 &5476685809173897618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78729819680227589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02a3a80055f76634cb0c6742c32d784c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerLabel: {fileID: 0}
+  m_Rbody: {fileID: 0}
+  m_Panel: {fileID: 0}
+  cam: {fileID: 0}
+  distToTargetOverTime: []
+  posOverTime: []
 --- !u!114 &24136461344765374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,6 +134,8 @@ MonoBehaviour:
   PlayerLabel: {fileID: 0}
   cam: {fileID: 0}
   court: {fileID: 0}
+  distToTargetOverTime: []
+  posOverTime: []
   minY: 1.8
   minZInCam: 0
   maxZInCam: 0
