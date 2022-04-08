@@ -95,7 +95,7 @@ public abstract class PlayerGroup : MonoBehaviour
         var rnd = new System.Random();
         int[] agentIdxs = Enumerable.Range(0, students.Count())
              .OrderBy(item => rnd.Next())
-             .Take(1)
+             .Take(5)
              .ToArray();
    
         for (int i = 0, len = students.Count; i < len; ++i)
@@ -177,8 +177,8 @@ public abstract class PlayerGroup : MonoBehaviour
             foreach (var p in m_playerMap)
             {
                 var labelAgent = p.Value.GetComponentInChildren<RVOLabelAgent>();
-                if(labelAgent)
-                    Debug.Log(labelAgent.name + " c_reward is " + labelAgent.GetCumulativeReward());
+                if (labelAgent)
+                    labelAgent.DebugCumulatedReward();
             }
 
             m_AgentGroup.GroupEpisodeInterrupted();

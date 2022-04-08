@@ -215,9 +215,14 @@ public class RVOLabelAgent : Agent
     }
 
     /*-----------------------Reward-----------------------*/
+    public void DebugCumulatedReward()
+    {
+        Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + "/" + this.name + " c_reward is " + GetCumulativeReward());
+    }
+
     public void SyncReset()
     {
-        Debug.Log(this.name + " c_reward is " + GetCumulativeReward());
+        DebugCumulatedReward();
         EndEpisode();
     }
 
