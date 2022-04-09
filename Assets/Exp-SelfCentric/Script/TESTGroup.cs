@@ -4,7 +4,7 @@ using UnityEngine;
 public class TESTGroup : NBAPlayerGroup
 {
 
-    protected override void LoadScene(int sceneIdx)
+    protected override void LoadTrack(int sceneIdx)
     {
         Debug.Log("TESTGroup LoadScene");
         Clean();

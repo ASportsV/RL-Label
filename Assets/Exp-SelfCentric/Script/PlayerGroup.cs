@@ -5,7 +5,7 @@ using Unity.MLAgents;
 using UnityEngine;
 using UnityEngine.UI;
 
-public struct Student
+public struct PlayerData
 {
     public int id;
     public Vector3[] positions;
@@ -26,7 +26,9 @@ public struct Metrics
 
 public abstract class PlayerGroup : MonoBehaviour
 {
-    protected string sceneName;
+    protected abstract string sceneName { get;  }
+    protected abstract string dataFileName { get; }
+
     protected RVOSettings m_RVOSettings;
     // player + label
     public GameObject playerLabel_prefab_rl;
@@ -39,20 +41,18 @@ public abstract class PlayerGroup : MonoBehaviour
 
     [HideInInspector] public string root;
 
-
     protected Queue<int> testingTrack;
     protected Queue<int> trainingTrack;
 
-    public List<List<Student>> scenes = new List<List<Student>>();
+    public List<List<PlayerData>> scenes = new List<List<PlayerData>>();
     protected Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
 
     protected float time = 0.0f;
     protected float timeStep = 0.04f;
     protected int totalStep;
 
-    abstract protected void LoadTasks();
-    abstract protected void LoadDataset();
-
+    abstract protected (int, int, int, float, float) parseRecord(string record);
+    abstract protected void LoadTracks();
 
     private void Awake()
     {
@@ -77,12 +77,79 @@ public abstract class PlayerGroup : MonoBehaviour
         Debug.Log("Min and Max Z in Cam: (" + m_RVOSettings.minZInCam.ToString() + "," + m_RVOSettings.maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
 
         LoadDataset();
-        LoadTasks();
-
-        LoadScene(getNextTask());
+        LoadTracks();
+        LoadTrack(getNextTrack());
     }
 
-    protected virtual void LoadScene(int sceneIdx)
+    protected void LoadDataset()
+    {
+        string fileName = Path.Combine(Application.streamingAssetsPath, dataFileName);
+        StreamReader r = new StreamReader(fileName);
+        string pos_data = r.ReadToEnd();
+        string[] records = pos_data.Split('\n');
+
+        List<Dictionary<int, List<Vector3>>> tracks = new List<Dictionary<int, List<Vector3>>>();
+        Dictionary<string, int> playerStartedInTrack = new Dictionary<string, int>();
+        for (int i = 0; i < records.Length; ++i)
+        {
+
+            var (trackIdx, currentStep, playerIdx, px, py) = parseRecord(records[i]);
+
+            if ((trackIdx + 1) > tracks.Count) tracks.Add(new Dictionary<int, List<Vector3>>());
+            var track = tracks[trackIdx];
+
+            if (!track.ContainsKey(playerIdx))
+            {
+                track[playerIdx] = new List<Vector3>();
+                playerStartedInTrack[trackIdx.ToString() + '_' + playerIdx.ToString()] = currentStep;
+            }
+            var playerPos = track[playerIdx];
+            playerPos.Add(new Vector3(px, 0.5f, py));
+        }
+
+        // set max speed
+        // positions, velocitye, max velocity
+        Vector3 maxVel = Vector3.zero;
+        Vector3 minVel = new Vector3(Mathf.Infinity, 0, Mathf.Infinity);
+
+        for (int tIdx = 0; tIdx < tracks.Count; ++tIdx)
+        {
+            List<PlayerData> track = new List<PlayerData>();
+            foreach (var entry in tracks[tIdx])
+            {
+                int playerIdx = entry.Key;
+                Vector3[] pos = entry.Value.ToArray();
+                Vector3[] vel = new Vector3[pos.Length];
+                for (int i = 0; i < pos.Length - 1; ++i)
+                {
+                    Vector3 cur = pos[i];
+                    Vector3 next = pos[i + 1];
+                    vel[i] = (next - cur) / timeStep;
+
+                    maxVel = new Vector3(Mathf.Max(vel[i].x, maxVel.x), 0, Mathf.Max(vel[i].z, maxVel.z));
+                    minVel = new Vector3(Mathf.Min(vel[i].x, minVel.x), 0, Mathf.Min(vel[i].z, minVel.z));
+                }
+                if (pos.Length > 1)
+                    vel[pos.Length - 1] = vel[pos.Length - 2];
+
+                PlayerData student = new PlayerData();
+                student.id = playerIdx;
+                student.positions = pos;
+                student.velocities = vel;
+                student.startStep = playerStartedInTrack[tIdx.ToString() + '_' + playerIdx.ToString()];
+                student.totalStep = pos.Length;
+                track.Add(student);
+            }
+            this.scenes.Add(track);
+        }
+
+        Debug.Log("Max Vel:" + maxVel.ToString());
+        Debug.Log("Min Vel:" + minVel.ToString());
+        m_RVOSettings.playerSpeedX = Mathf.Max(Mathf.Abs(maxVel.x), Mathf.Abs(minVel.x)); //  maxVel.x - minVel.x;
+        m_RVOSettings.playerSppedZ = Mathf.Max(Mathf.Abs(maxVel.z), Mathf.Abs(minVel.z)); // maxVel.z - minVel.z;
+    }
+
+    protected virtual void LoadTrack(int sceneIdx)
     {
         Clean();
         currentScene = sceneIdx;
@@ -93,7 +160,7 @@ public abstract class PlayerGroup : MonoBehaviour
         var rnd = new System.Random();
         int[] agentIdxs = Enumerable.Range(0, students.Count())
             .OrderBy(item => rnd.Next())
-            .Take(5)
+            .Take((int)Academy.Instance.EnvironmentParameters.GetWithDefault("num_agents", 10))
             .ToArray();
 
         //foreach(var student in students)
@@ -108,7 +175,7 @@ public abstract class PlayerGroup : MonoBehaviour
         totalStep = students.Max(s => s.startStep + s.totalStep);
     }
 
-    protected int getNextTask()
+    protected int getNextTrack()
     {
         int nextTask = currentScene;
         var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
@@ -119,7 +186,7 @@ public abstract class PlayerGroup : MonoBehaviour
         return nextTask;
     }
 
-    protected (GameObject, GameObject) CreatePlayerLabelFromPos(Student student, bool isAgent)
+    protected (GameObject, GameObject) CreatePlayerLabelFromPos(PlayerData student, bool isAgent)
     {
         int sid = student.id;
         var pos = student.positions[0];
@@ -130,25 +197,21 @@ public abstract class PlayerGroup : MonoBehaviour
         playerObj.SetActive(true);
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
-        player.root = root;
-        player.Init(sid);
-        player.positions = student.positions;
-        player.velocities = student.velocities;
+        player.Init(sid, root, student.positions, student.velocities);
         m_playerMap[sid] = player;
 
         Transform label = playerObj.gameObject.transform.Find("label");
         label.localPosition = new Vector3(0f, m_RVOSettings.labelY, 0f);
-        //label.name = sid + "_label";
 
-        //Debug.Log("Finish initialize " + label.name);
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
+        // label name
         name.text = Random.Range(10, 99).ToString();
+
+        // set color
         var iamge = label.Find("panel/Player_info").GetComponent<Image>();
-
-        //Label m_label = player.GetComponentInChildren<Label>();
-
         //iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
         iamge.sprite = !isAgent ? blueLabel : redLabel;
+
         //if (sid % 2 != 0)
         if (isAgent)
         {
@@ -178,7 +241,7 @@ public abstract class PlayerGroup : MonoBehaviour
         m_playerMap.Clear();
     }
 
-    protected void SaveMetricToJson(string prefix, int totalStep, List<Student> players)
+    protected void SaveMetricToJson(string prefix, int totalStep, List<PlayerData> players)
     {
         // collect the intersection, occlusions over time
         List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();

@@ -6,22 +6,21 @@ public class RVOplayer : MonoBehaviour
 {
 
     [HideInInspector] public int sid { get; private set; }
-    [HideInInspector] public string root;
+    [HideInInspector] public string root { get; private set; }
+    public int currentStep = 0;
+    public Transform player;
+    public Vector3[] positions { get; private set; }
+    public Vector3[] velocities { get; private set; }
 
     public bool tester = false;
-
-    public int currentStep = 0;
-
-    public Transform player;
-    
-    public Vector3[] positions;
-    public Vector3[] velocities;
-
-    public void Init(int sId)
+    public void Init(int sId, string root, Vector3[] positions, Vector3[] velocities)
     {
         this.sid = sId;
-        player = transform.Find("player");
+        this.root = root;
+        this.positions = positions;
+        this.velocities = velocities;
 
+        player = transform.Find("player");
         var text = transform.Find(string.Format("{0}/BackCanvas/Text", root))
             .GetComponent<TMPro.TextMeshProUGUI>();
         text.text = transform.GetSiblingIndex().ToString(); //sid.ToString();
@@ -40,6 +39,7 @@ public class RVOplayer : MonoBehaviour
         //text.text = playerObj.transform.GetSiblingIndex().ToString();
     }
 
+    // @todo
     public Vector3 velocity => tester ? Vector3.zero : velocities[currentStep];
 
     public void step(int idx)
@@ -52,7 +52,6 @@ public class RVOplayer : MonoBehaviour
             player.transform.forward = velocities[idx].normalized;
         }
     }
-
 
     private void FixedUpdate()
     {
