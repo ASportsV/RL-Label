@@ -70,11 +70,12 @@ public abstract class PlayerGroup : MonoBehaviour
         // geometry min and max
         m_RVOSettings.minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
         var tmp = cam.transform.forward;
-        cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
-        m_RVOSettings.maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
+        var cornerInWorld = cam.transform.parent.TransformPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
+        cam.transform.LookAt(cornerInWorld);
+        m_RVOSettings.maxZInCam = cam.WorldToViewportPoint(cornerInWorld).z;
         cam.transform.forward = tmp;
 
-        Debug.Log("Min and Max Z in Cam: (" + m_RVOSettings.minZInCam.ToString() + "," + m_RVOSettings.maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
+        Debug.Log("Min and Max Z in Cam: (" + m_RVOSettings.minZInCam.ToString() + "," + m_RVOSettings.maxZInCam.ToString() + ")");
 
         LoadDataset();
         LoadTracks();
