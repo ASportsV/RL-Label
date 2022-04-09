@@ -90,13 +90,19 @@ public abstract class PlayerGroup : MonoBehaviour
 
         var students = scenes[currentScene];
         int agentIdx = Random.Range(0, students.Count());
+        var rnd = new System.Random();
+        int[] agentIdxs = Enumerable.Range(0, students.Count())
+            .OrderBy(item => rnd.Next())
+            .Take(5)
+            .ToArray();
+
         //foreach(var student in students)
-        for(int i = 0, len = students.Count(); i < len; ++i)
+        for (int i = 0, len = students.Count(); i < len; ++i)
         {
             var student = students[i];
             if (currentStep == student.startStep)
             {
-                CreatePlayerLabelFromPos(student, i == agentIdx);
+                CreatePlayerLabelFromPos(student, agentIdxs.Contains(i));
             }
         }
         totalStep = students.Max(s => s.startStep + s.totalStep);
