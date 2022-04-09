@@ -25,9 +25,7 @@ public class RVOLabelAgent : Agent
     // sensor
     BufferSensorComponent bSensor;
 
-    float yDistThres = 0.0f;
     float xzDistThres;
-    float maxDist;
     float maxLabelSpeed;
     float moveUnit;
 
@@ -35,6 +33,7 @@ public class RVOLabelAgent : Agent
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         m_label = GetComponent<Label>();
+        bSensor = GetComponent<BufferSensorComponent>();
 
         Academy.Instance.AgentPreStep += UpdateReward;
         rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
@@ -54,8 +53,6 @@ public class RVOLabelAgent : Agent
 
     public override void Initialize()
     {
-        bSensor = GetComponent<BufferSensorComponent>();
-        maxDist = Mathf.Sqrt(yDistThres * yDistThres + xzDistThres * xzDistThres);
     }
 
     public override void OnEpisodeBegin()
@@ -75,6 +72,7 @@ public class RVOLabelAgent : Agent
         float maxZInCam = m_RVOSettings.maxZInCam;
         float minZInCam = m_RVOSettings.minZInCam;
         float scaleZInCam = maxZInCam - minZInCam;
+        Vector3 scaleSpeed = new Vector3(maxLabelSpeed + m_RVOSettings.playerSpeedX, 0, maxLabelSpeed + m_RVOSettings.playerSppedZ);
 
         // 3, screen x y
         Vector3 posInViewport = m_label.cam.WorldToViewportPoint(transform.position);
@@ -83,6 +81,8 @@ public class RVOLabelAgent : Agent
         sensor.AddObservation(posInViewport.z / scaleZInCam);
         // 3, cam to forward
         sensor.AddObservation(m_label.m_Panel.forward);
+        sensor.AddObservation(m_label.velocity.x / scaleSpeed.x);
+        sensor.AddObservation(m_label.velocity.z / scaleSpeed.z);
 
         // 3. endpoint
         Vector3 relativeTPosInviewport = m_label.cam.WorldToViewportPoint(m_label.PlayerLabel.player.transform.position) - posInViewport;
@@ -90,6 +90,10 @@ public class RVOLabelAgent : Agent
         sensor.AddObservation(relativeTPosInviewport.y);
         sensor.AddObservation(relativeTPosInviewport.z / scaleZInCam);
         sensor.AddObservation(m_label.PlayerLabel.transform.forward);
+        Vector3 relativeVel = m_label.PlayerLabel.velocity - m_label.velocity;
+        sensor.AddObservation(relativeVel.x / scaleSpeed.x);
+        sensor.AddObservation(relativeVel.z / scaleSpeed.z);
+
 
         // attentions to others
         foreach (Transform other in transform.parent.parent)
@@ -114,8 +118,8 @@ public class RVOLabelAgent : Agent
             playerOBs.Add(player.forward.z);
             // 2_relative vel
             Vector3 playerRelativeVel = other.GetComponent<RVOplayer>().velocity - m_label.velocity;
-            playerOBs.Add(playerRelativeVel.x / (maxLabelSpeed + m_RVOSettings.playerSpeedX));
-            playerOBs.Add(playerRelativeVel.z / (maxLabelSpeed + m_RVOSettings.playerSppedZ));
+            playerOBs.Add(playerRelativeVel.x / scaleSpeed.x);
+            playerOBs.Add(playerRelativeVel.z / scaleSpeed.z);
 
             Label labelAgent = other.GetComponentInChildren<Label>();
             List<float> labelOBs = new List<float>();
@@ -132,8 +136,8 @@ public class RVOLabelAgent : Agent
             labelOBs.Add(labelAgent.m_Panel.forward.z);
             // 2_relative vel
             Vector3 labelRelativeVel = labelAgent.velocity - m_label.velocity;
-            labelOBs.Add(labelRelativeVel.x / (maxLabelSpeed + m_RVOSettings.playerSpeedX));
-            labelOBs.Add(labelRelativeVel.z / (maxLabelSpeed + m_RVOSettings.playerSppedZ));
+            labelOBs.Add(labelRelativeVel.x / scaleSpeed.x);
+            labelOBs.Add(labelRelativeVel.z / scaleSpeed.z);
 
             // another endpoints
             playerOBs.Add(labelRelativePos.x);
@@ -183,6 +187,28 @@ public class RVOLabelAgent : Agent
             m_label.m_Rbody.velocity.y,
             Mathf.Clamp(m_label.m_Rbody.velocity.z, -maxLabelSpeed, maxLabelSpeed)
         );
+
+        float distToTarget = transform.position.z - m_label.PlayerLabel.transform.position.z;
+        if (Mathf.Abs(distToTarget) > xzDistThres)
+        {
+            transform.position = new Vector3(
+                transform.position.x, 
+                transform.position.y, 
+                m_label.PlayerLabel.transform.position.z + (distToTarget > 0 ? xzDistThres : -xzDistThres)
+            );
+            m_label.m_Rbody.velocity = new Vector3(m_label.m_Rbody.velocity.x, 0f, 0f);
+        }
+
+        distToTarget = transform.position.x - m_label.PlayerLabel.transform.position.x;
+        if (Mathf.Abs(distToTarget) > xzDistThres)
+        {
+            transform.position = new Vector3(
+                m_label.PlayerLabel.transform.position.x + (distToTarget > 0 ? xzDistThres : -xzDistThres), 
+                transform.position.y, 
+                transform.position.z
+            );
+            m_label.m_Rbody.velocity = new Vector3(0f, 0f, m_label.m_Rbody.velocity.z);
+        }
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
@@ -190,30 +216,12 @@ public class RVOLabelAgent : Agent
         addForceMove(actionBuffers);
     }
 
-    private void FixedUpdate()
-    {
-        float distToTarget = transform.position.z - m_label.PlayerLabel.transform.position.z;
-        if(Mathf.Abs(distToTarget) > xzDistThres)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, m_label.PlayerLabel.transform.position.z + (distToTarget > 0 ? xzDistThres: -xzDistThres));
-            m_label.m_Rbody.velocity = new Vector3(m_label.m_Rbody.velocity.x, 0f, 0f);
-        }
-
-        distToTarget = transform.position.x - m_label.PlayerLabel.transform.position.x;
-        if (Mathf.Abs(distToTarget) > xzDistThres)
-        {
-            transform.position = new Vector3(m_label.PlayerLabel.transform.position.x + (distToTarget > 0 ? xzDistThres : -xzDistThres), transform.position.y, transform.position.z);
-            m_label.m_Rbody.velocity = new Vector3(0f, 0f, m_label.m_Rbody.velocity.z);
-        }
-
-    }
-
     /*-----------------------Reward-----------------------*/
     public void SyncReset()
     {
         //SetReward(1.0f);
         Debug.Log(this.name + " c_reward is " + GetCumulativeReward());
-        EndEpisode();
+        EpisodeInterrupted();
     }
 
     void UpdateReward(int academyStepCount)
@@ -238,41 +246,6 @@ public class RVOLabelAgent : Agent
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
-        //var discreteActionsOut = actionsOut.DiscreteActions;
-        //discreteActionsOut[0] = 0;
-        ////forward
-        //if (Input.GetKey(KeyCode.W))
-        //{
-        //    discreteActionsOut[0] = 1;
-        //}
-        //if (Input.GetKey(KeyCode.S))
-        //{
-        //    discreteActionsOut[0] = 2;
-        //}
-
-
-        //discreteActionsOut[1] = 0;
-        //if (Input.GetKey(KeyCode.A))
-        //{
-        //    discreteActionsOut[1] = 1;
-        //}
-        //if (Input.GetKey(KeyCode.D))
-        //{
-        //    discreteActionsOut[1] = 2;
-        //}
-
-        // discreteActionsOut[2] = 0;
-        // if (Input.GetKey(KeyCode.Q))
-        // {
-        //     discreteActionsOut[2] = 1;
-        // }
-        // if (Input.GetKey(KeyCode.E))
-        // {
-        //     discreteActionsOut[2] = 2;
-        // }
-
-        //var continuousActionsOut = actionsOut.ContinuousActions;
-        //continuousActionsOut[0] = -Input.GetAxis("Horizontal");
     }
 
 }
