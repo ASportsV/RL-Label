@@ -217,10 +217,16 @@ public class RVOLabelAgent : Agent
     }
 
     /*-----------------------Reward-----------------------*/
+    //int accOcc = 0;
+    //int accIntersect = 0;
+    //int updateCount = 0;
     public void SyncReset()
     {
         //SetReward(1.0f);
-        Debug.Log(this.name + " c_reward is " + GetCumulativeReward());
+        //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", c_reward is " + GetCumulativeReward() + ", occ:" + accOcc + ", int:" + accIntersect + ", updateCount:" + updateCount);
+        //accOcc = 0;
+        //accIntersect = 0;
+        //updateCount = 0;
         EpisodeInterrupted();
     }
 
@@ -233,12 +239,19 @@ public class RVOLabelAgent : Agent
 
         // being occluded
         float rew = 0f;
-        rew += rwd.rew_occlude * m_label.rewOcclusions();
+        var numOcc = m_label.rewOcclusions();
+        rew += rwd.rew_occlude * numOcc;
         if (rew == 0) rew += 0.01f;
-
+        //accOcc += numOcc;
+ 
         int numOfIntersections = m_label.numOfIntersection();
         if (numOfIntersections == 0) rew += 0.01f;
         else rew += rwd.rew_intersets * numOfIntersections;
+        //accIntersect += numOfIntersections;
+
+        //updateCount += 1;
+        //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", occ:" + numOcc + ", accOcc:" + accOcc + "/" + updateCount +", int:" + accIntersect);
+        //Debug.Break();
 
         AddReward(rew);
     }

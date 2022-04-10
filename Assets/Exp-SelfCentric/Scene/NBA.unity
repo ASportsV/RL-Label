@@ -138,7 +138,7 @@ PrefabInstance:
     - target: {fileID: 147369960160030484, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 639113978871538444, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
@@ -311,7 +311,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -379,7 +378,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxSteps: 1500
-  sync: 1
   numOfPlayer: 8
   playerSpeedX: 1
   playerSppedZ: 1
@@ -400,7 +398,7 @@ PrefabInstance:
     - target: {fileID: 147369960160030484, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 639113978871538444, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
@@ -573,7 +571,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -659,7 +656,7 @@ PrefabInstance:
     - target: {fileID: 147369960160030484, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 639113978871538444, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
@@ -832,7 +829,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -851,7 +847,7 @@ PrefabInstance:
     - target: {fileID: 147369960160030484, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 639113978871538444, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
@@ -1024,7 +1020,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -1043,7 +1038,7 @@ PrefabInstance:
     - target: {fileID: 147369960160030484, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 639113978871538444, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}
@@ -1216,7 +1211,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -1244,7 +1238,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -1259,6 +1252,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Demo
+      objectReference: {fileID: 0}
+    - target: {fileID: 147369960160030484, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 639113978871538444, guid: 0abb5c142ab9fdc4285a7cef851fb92a,
         type: 3}

@@ -141,23 +141,48 @@ public class Label : MonoBehaviour
         Vector3 extent = GetSizeInWorld() * 0.5f;
         Vector3 direction = m_Panel.forward;
         Quaternion rotation = Quaternion.LookRotation(direction);
-        float maxDistance = Mathf.Infinity;
+        float maxDistance = 40f;
 
         int count = 0;
         // occluded by labels
         int labelLayerMask = 1 << LayerMask.NameToLayer("label");
 
-        if (Physics.BoxCast(origin, extent, direction, out forHit, rotation, maxDistance, labelLayerMask))
+        RaycastHit[] forHits = Physics.BoxCastAll(origin, extent, direction, rotation, maxDistance, labelLayerMask)
+                .Where(hit => !GameObject.ReferenceEquals(hit.collider.transform.parent.gameObject, gameObject) && hit.collider.transform.IsChildOf(transform.parent.parent))
+                .ToArray();
+
+        if (forHits.Length > 0)
         {
+            forHit = forHits[0];
             count += 1;
         }
+        else forHit = default(RaycastHit);
+        //if (Physics.BoxCast(origin, extent, direction, out forHit, rotation, maxDistance, labelLayerMask))
+        //{
+        //    if()
+        //    {
+        //       count += 1;
+        //    }
+        //    //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + "forHit.collider.gameobject " + forHit.collider.gameObject);
+        //}
 
         // occluding players
         int playerLayerMask = 1 << LayerMask.NameToLayer("player") | labelLayerMask;
-        if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
+        RaycastHit[] backHits = Physics.BoxCastAll(origin, extent, -direction, rotation, maxDistance, playerLayerMask)
+            .Where(hit => !GameObject.ReferenceEquals(hit.collider.transform.parent.gameObject, gameObject) && hit.collider.transform.IsChildOf(transform.parent.parent))
+            .ToArray();
+        if(backHits.Length > 0)
         {
+            backHit = backHits[0];
             count += 1;
         }
+        else backHit = default(RaycastHit);
+        //if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
+        //{
+        //    if (!GameObject.ReferenceEquals(backHit.collider.transform.parent.gameObject, gameObject))
+        //        count += 1;
+        //    //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + "backHit.collider.gameobject " + backHit.collider.gameObject);
+        //}
         return count;
     }
 
@@ -181,20 +206,25 @@ public class Label : MonoBehaviour
         Gizmos.color = new Color(1f, 0.5f, 0f);
         Gizmos.DrawRay(origin, -direction);
 
-        if (!Object.Equals(forHit, default(RaycastHit)))
+        //Vector3 extent = GetSizeInWorld() * 0.5f;
+
+        if (!Object.Equals(forHit, default(RaycastHit))) // && !GameObject.ReferenceEquals(forHit.collider.transform.parent.gameObject, gameObject))
         {
             Vector3 intersectionPoint = origin + Vector3.Project(forHit.point - origin, direction);
             Gizmos.color = new Color(0f, 1f, 0.5f);
             Gizmos.DrawLine(origin, intersectionPoint);
-            Gizmos.DrawWireSphere(intersectionPoint, 0.3f);
+
+            //Gizmos.DrawWireCube(origin + direction * forHit.distance, extent);
+            Gizmos.DrawWireSphere(intersectionPoint, 0.1f);
         }
 
-        if (!Object.Equals(backHit, default(RaycastHit)))
+        if (!Object.Equals(backHit, default(RaycastHit))) // && !GameObject.ReferenceEquals(backHit.collider.transform.parent.gameObject, gameObject))
         {
             Vector3 intersectionPoint = origin + Vector3.Project(backHit.point - origin, -direction);
             Gizmos.color = new Color(1f, 0.5f, 0f);
-            Gizmos.DrawLine(origin, backHit.point);
-            Gizmos.DrawWireSphere(intersectionPoint, 0.3f);
+            Gizmos.DrawLine(origin, intersectionPoint);
+            //Gizmos.DrawWireCube(origin + direction * backHit.distance, extent);
+            Gizmos.DrawWireSphere(intersectionPoint, 0.1f);
         }
     }
 }
