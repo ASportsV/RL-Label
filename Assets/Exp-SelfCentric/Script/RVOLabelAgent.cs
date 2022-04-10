@@ -223,6 +223,7 @@ public class RVOLabelAgent : Agent
     public void SyncReset()
     {
         //SetReward(1.0f);
+        Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", c_reward is " + GetCumulativeReward());
         //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", c_reward is " + GetCumulativeReward() + ", occ:" + accOcc + ", int:" + accIntersect + ", updateCount:" + updateCount);
         //accOcc = 0;
         //accIntersect = 0;
