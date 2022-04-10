@@ -52,12 +52,7 @@ public class STUPlayersGroup : PlayerGroup
 
         if (currentStep >= totalStep)
         {
-            if (m_RVOSettings.evaluate)
-            {
-                SaveMetricToJson(sceneName, totalStep, players);
-            }
-
-            LoadTrack(getNextTrack());
+            TrackFinished();
         }
     }
 

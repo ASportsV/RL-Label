@@ -161,7 +161,7 @@ public abstract class PlayerGroup : MonoBehaviour
         var rnd = new System.Random();
         int[] agentIdxs = Enumerable.Range(0, students.Count())
             .OrderBy(item => rnd.Next())
-            .Take((int)Academy.Instance.EnvironmentParameters.GetWithDefault("num_agents", 10))
+            .Take((int)Academy.Instance.EnvironmentParameters.GetWithDefault("num_agents", 5))
             .ToArray();
 
         //foreach(var student in students)
@@ -224,6 +224,15 @@ public abstract class PlayerGroup : MonoBehaviour
         return (playerObj, label.gameObject);
     }
 
+    protected void TrackFinished()
+    {
+        if(m_RVOSettings.evaluate)
+        {
+            SaveMetricToJson();
+        }
+        LoadTrack(getNextTrack());
+    }
+
     protected virtual void Clean()
     {
         // remove all existing
@@ -242,8 +251,9 @@ public abstract class PlayerGroup : MonoBehaviour
         m_playerMap.Clear();
     }
 
-    protected void SaveMetricToJson(string prefix, int totalStep, List<PlayerData> players)
+    protected void SaveMetricToJson()
     {
+        var players = scenes[currentScene];
         // collect the intersection, occlusions over time
         List<HashSet<string>> accumulatedOcclusion = new List<HashSet<string>>();
         List<HashSet<string>> accumulatedIntersection = new List<HashSet<string>>();
@@ -287,7 +297,7 @@ public abstract class PlayerGroup : MonoBehaviour
         met.labelDistToTarget = labelDistToTarget;
 
         // save 
-        using (StreamWriter writer = new StreamWriter(prefix + "_track" + currentScene + "_met.json", false))
+        using (StreamWriter writer = new StreamWriter(sceneName + "_track" + currentScene + "_met.json", false))
         {
             writer.Write(JsonUtility.ToJson(met));
             writer.Close();
