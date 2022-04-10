@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311938, g: 0.38074005, b: 0.35872707, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -311,7 +311,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -379,7 +378,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxSteps: 1500
-  sync: 1
   numOfPlayer: 8
   playerSpeedX: 1
   playerSppedZ: 1
@@ -573,7 +571,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -832,7 +829,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -1024,7 +1020,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -1216,7 +1211,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
@@ -1244,7 +1238,6 @@ MonoBehaviour:
     type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
-  cam: {fileID: 0}
   currentStep: 0
   currentScene: 0
   root: 
