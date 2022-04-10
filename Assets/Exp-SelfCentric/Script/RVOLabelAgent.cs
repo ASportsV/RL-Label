@@ -14,7 +14,7 @@ public class RVOLabelAgent : Agent
         public float rew_z;
         public float rew_x;
         public float rew_occlude;
-        public float rew_intersets;
+        public float rew_interse;
         public float rew_dist;
     }
 
@@ -36,14 +36,20 @@ public class RVOLabelAgent : Agent
         bSensor = GetComponent<BufferSensorComponent>();
 
         Academy.Instance.AgentPreStep += UpdateReward;
+        // rewards
         rwd.rew_z = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_z", -0.00025f);
         rwd.rew_x = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_x", -0.00025f);
+        rwd.rew_occlude = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_occlude", -0.1f);
+        rwd.rew_interse = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_interse", -0.1f);
+        rwd.rew_dist = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_dist", -0.01f);
+        
+        // action params
         xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.5f);
         moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
         maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 5f);
-        rwd.rew_occlude = -0.1f;
-        rwd.rew_intersets = -0.1f;
-        rwd.rew_dist = -0.01f;
+
+        // decision period
+        GetComponent<DecisionRequester>().DecisionPeriod = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("DecisionPeriod", 5f);
     }
 
     private void OnDestroy()
@@ -247,7 +253,7 @@ public class RVOLabelAgent : Agent
  
         int numOfIntersections = m_label.numOfIntersection();
         if (numOfIntersections == 0) rew += 0.01f;
-        else rew += rwd.rew_intersets * numOfIntersections;
+        else rew += rwd.rew_interse * numOfIntersections;
         //accIntersect += numOfIntersections;
 
         //updateCount += 1;
