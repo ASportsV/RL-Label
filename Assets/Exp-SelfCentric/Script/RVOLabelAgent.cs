@@ -28,6 +28,7 @@ public class RVOLabelAgent : Agent
     float xzDistThres;
     float maxLabelSpeed;
     float moveUnit;
+    float moveSmooth;
 
     private void Awake()
     {
@@ -46,6 +47,7 @@ public class RVOLabelAgent : Agent
         // action params
         xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.5f);
         moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
+        moveSmooth = Academy.Instance.EnvironmentParameters.GetWithDefault("moveSmooth", 0.01f);
         maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 5f);
 
         // decision period
@@ -165,23 +167,22 @@ public class RVOLabelAgent : Agent
     /*-----------------------Action-----------------------*/
     void addForceMove(ActionBuffers actionBuffers)
     {
-        float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f) * moveUnit;
-
-        if (Mathf.Abs(moveZ) > 0.001f)
+        float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
+        if (Mathf.Abs(moveZ) > moveSmooth)
         {
             AddReward(rwd.rew_z);
-            m_label.m_Rbody.AddForce(new Vector3(0, 0, 1.0f) * moveZ * 1, ForceMode.VelocityChange);
+            m_label.m_Rbody.AddForce(new Vector3(0, 0, moveZ * moveUnit), ForceMode.VelocityChange);
         }
         else
         {
             AddReward(-rwd.rew_z);
         }
 
-        float moveX = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f) * moveUnit;
-        if (Mathf.Abs(moveX) > 0.001f)
+        float moveX = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
+        if (Mathf.Abs(moveX) > moveSmooth)
         {
             AddReward(rwd.rew_x);
-            m_label.m_Rbody.AddForce(new Vector3(1, 0, 0f) * moveX * 1, ForceMode.VelocityChange);
+            m_label.m_Rbody.AddForce(new Vector3(moveUnit * moveX, 0, 0f), ForceMode.VelocityChange);
         }
         else
         {
