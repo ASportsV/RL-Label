@@ -182,7 +182,8 @@ public abstract class PlayerGroup : MonoBehaviour
         var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
         if (queue.Count > 0) nextTask = queue.Dequeue();
         // for trainiing
-        if (!m_RVOSettings.evaluate) queue.Enqueue(nextTask);
+        //if (!m_RVOSettings.evaluate) 
+        queue.Enqueue(nextTask);
 
         return nextTask;
     }
@@ -228,7 +229,7 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         if(m_RVOSettings.evaluate)
         {
-            SaveMetricToJson();
+            //SaveMetricToJson();
         }
         LoadTrack(getNextTrack());
     }

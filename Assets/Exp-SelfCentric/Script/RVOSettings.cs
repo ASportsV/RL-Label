@@ -1,3 +1,4 @@
+using Unity.MLAgents;
 using UnityEngine;
 
 
@@ -20,4 +21,8 @@ public class RVOSettings : MonoBehaviour
 
     internal bool evaluate = false;
 
+    private void Awake()
+    {
+        evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 0f) == 1.0f;
+    }
 }
