@@ -5,9 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public class RVOSettings : MonoBehaviour
 {
-    public int MaxSteps;
-
-    public int numOfPlayer;
+    //public int MaxSteps;
+    //public int numOfPlayer;
     public float playerSpeedX = 1f;
     public float playerSppedZ = 1f;
 
@@ -17,7 +16,12 @@ public class RVOSettings : MonoBehaviour
     internal float minZInCam;
     internal float maxZInCam;
 
+    // label parameters
     internal float labelY = 1.8f;
+    internal float xzDistThres;
+    internal float maxLabelSpeed;
+    internal float moveUnit;
+    internal float moveSmooth;
 
     internal bool evaluate = false;
 

@@ -25,11 +25,6 @@ public class RVOLabelAgent : Agent
     // sensor
     BufferSensorComponent bSensor;
 
-    float xzDistThres;
-    float maxLabelSpeed;
-    float moveUnit;
-    float moveSmooth;
-
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
@@ -43,12 +38,6 @@ public class RVOLabelAgent : Agent
         rwd.rew_occlude = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_occlude", -0.1f);
         rwd.rew_interse = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_interse", -0.1f);
         rwd.rew_dist = Academy.Instance.EnvironmentParameters.GetWithDefault("rew_dist", -0.01f);
-        
-        // action params
-        xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.5f);
-        moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
-        moveSmooth = Academy.Instance.EnvironmentParameters.GetWithDefault("moveSmooth", 0.01f);
-        maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 5f);
 
         // decision period
         GetComponent<DecisionRequester>().DecisionPeriod = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("DecisionPeriod", 5f);
@@ -80,6 +69,7 @@ public class RVOLabelAgent : Agent
         float maxZInCam = m_RVOSettings.maxZInCam;
         float minZInCam = m_RVOSettings.minZInCam;
         float scaleZInCam = maxZInCam - minZInCam;
+        float maxLabelSpeed = m_RVOSettings.maxLabelSpeed;
         Vector3 scaleSpeed = new Vector3(maxLabelSpeed + m_RVOSettings.playerSpeedX, 0, maxLabelSpeed + m_RVOSettings.playerSppedZ);
 
         // 3, screen x y
@@ -167,25 +157,35 @@ public class RVOLabelAgent : Agent
     /*-----------------------Action-----------------------*/
     void addForceMove(ActionBuffers actionBuffers)
     {
+        float moveSmooth = m_RVOSettings.moveSmooth;
+        float moveUnit = m_RVOSettings.moveUnit;
+        float maxLabelSpeed = m_RVOSettings.maxLabelSpeed;
+        float xzDistThres = m_RVOSettings.xzDistThres;
+
         float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
+        
         if (Mathf.Abs(moveZ) > moveSmooth)
         {
+            //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", >moveZ is " + moveZ);
             AddReward(rwd.rew_z);
             m_label.m_Rbody.AddForce(new Vector3(0, 0, moveZ * moveUnit), ForceMode.VelocityChange);
         }
         else
         {
+            Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", <moveZ is " + moveZ);
             AddReward(-rwd.rew_z);
         }
 
         float moveX = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
         if (Mathf.Abs(moveX) > moveSmooth)
         {
+            //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", >moveX is " + moveX);
             AddReward(rwd.rew_x);
             m_label.m_Rbody.AddForce(new Vector3(moveUnit * moveX, 0, 0f), ForceMode.VelocityChange);
         }
         else
         {
+            Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", <moveX is " + moveX);
             AddReward(-rwd.rew_x);
         }
 

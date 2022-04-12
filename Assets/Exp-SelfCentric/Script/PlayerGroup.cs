@@ -46,13 +46,15 @@ public abstract class PlayerGroup : MonoBehaviour
 
     public List<List<PlayerData>> scenes = new List<List<PlayerData>>();
     protected Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
+    protected int numOfAgent = 10;
+    protected HashSet<int> agentSet = new HashSet<int>();
 
     protected float time = 0.0f;
     protected float timeStep = 0.04f;
     protected int totalStep;
 
     abstract protected (int, int, int, float, float) parseRecord(string record);
-    abstract protected void LoadTracks();
+    abstract protected void LoadParameters();
 
     private void Awake()
     {
@@ -78,7 +80,7 @@ public abstract class PlayerGroup : MonoBehaviour
         Debug.Log("Min and Max Z in Cam: (" + m_RVOSettings.minZInCam.ToString() + "," + m_RVOSettings.maxZInCam.ToString() + ")");
 
         LoadDataset();
-        LoadTracks();
+        LoadParameters();
         LoadTrack(getNextTrack());
     }
 
@@ -155,25 +157,36 @@ public abstract class PlayerGroup : MonoBehaviour
         Clean();
         currentScene = sceneIdx;
         currentStep = 0;
+        numOfAgent = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("num_agents", 10);
+        var players = scenes[currentScene];
 
-        var students = scenes[currentScene];
-        int agentIdx = Random.Range(0, students.Count());
+        int agentIdx = Random.Range(0, players.Count());
         var rnd = new System.Random();
-        int[] agentIdxs = Enumerable.Range(0, students.Count())
-            .OrderBy(item => rnd.Next())
-            .Take((int)Academy.Instance.EnvironmentParameters.GetWithDefault("num_agents", 10))
-            .ToArray();
 
-        //foreach(var student in students)
-        for (int i = 0, len = students.Count(); i < len; ++i)
+        //int[] agentIdxs = 
+        //    Enumerable.Range(0, students.Count())
+        //    .OrderBy(item => rnd.Next())
+        //    .Take(numOfAgent)
+        //    .ToArray();
+
+        var startedPlayers = players
+            .Where(s => s.startStep == currentStep)
+            .OrderBy(_ => rnd.Next());
+
+        foreach(var student in startedPlayers)
         {
-            var student = students[i];
-            if (currentStep == student.startStep)
-            {
-                CreatePlayerLabelFromPos(student, agentIdxs.Contains(i));
-            }
+            CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
         }
-        totalStep = students.Max(s => s.startStep + s.totalStep);
+
+        //for (int i = 0, len = students.Count(); i < len; ++i)
+        //{
+        //    var student = students[i];
+        //    if (currentStep == student.startStep)
+        //    {
+        //        CreatePlayerLabelFromPos(student, agentIdxs.Contains(i));
+        //    }
+        //}
+        totalStep = players.Max(s => s.startStep + s.totalStep);
     }
 
     protected int getNextTrack()
@@ -201,6 +214,8 @@ public abstract class PlayerGroup : MonoBehaviour
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
         player.Init(sid, root, student.positions, student.velocities);
         m_playerMap[sid] = player;
+        // add to set
+        if (isAgent) agentSet.Add(sid);
 
         Transform label = playerObj.gameObject.transform.Find("label");
         label.localPosition = new Vector3(0f, m_RVOSettings.labelY, 0f);
@@ -248,7 +263,7 @@ public abstract class PlayerGroup : MonoBehaviour
             p.GetComponentInChildren<Label>()?.cleanMetrics();
             Destroy(p.gameObject);
         }
-
+        agentSet.Clear();
         m_playerMap.Clear();
     }
 

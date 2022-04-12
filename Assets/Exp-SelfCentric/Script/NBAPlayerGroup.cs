@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using System.IO;
+using Unity.MLAgents;
 
 public class NBAPlayerGroup : PlayerGroup
 {
     protected override string sceneName => "nba";
     protected override string dataFileName => "nba_full_split.csv";
 
-    protected override void LoadTracks()
+    protected override void LoadParameters()
     {
         testingTrack = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
         var rnd = new System.Random();
@@ -16,6 +16,11 @@ public class NBAPlayerGroup : PlayerGroup
             .Where(i => !testingTrack.Contains(i))
             .OrderBy(item => rnd.Next())
             .ToList());
+
+        m_RVOSettings.xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.5f);
+        m_RVOSettings.moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
+        m_RVOSettings.moveSmooth = Academy.Instance.EnvironmentParameters.GetWithDefault("moveSmooth", 0.001f);
+        m_RVOSettings.maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 5f);
     }
 
     private void FixedUpdate()

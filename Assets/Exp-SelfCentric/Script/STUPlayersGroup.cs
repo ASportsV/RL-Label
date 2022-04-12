@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using System.IO;
+using Unity.MLAgents;
 
 public class STUPlayersGroup : PlayerGroup
 {
     protected override string sceneName => "stu";
     protected override string dataFileName => "student_full.csv";
 
-    protected override void LoadTracks()
+    protected override void LoadParameters()
     {
         testingTrack = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
         var rnd = new System.Random();
@@ -16,6 +16,11 @@ public class STUPlayersGroup : PlayerGroup
             .Where(i => !testingTrack.Contains(i))
             .OrderBy(item => rnd.Next())
             .ToList());
+
+        m_RVOSettings.xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.5f);
+        m_RVOSettings.moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 1f);
+        m_RVOSettings.moveSmooth = Academy.Instance.EnvironmentParameters.GetWithDefault("moveSmooth", 0.001f);
+        m_RVOSettings.maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 3f);
     }
 
     private void FixedUpdate()
@@ -29,10 +34,9 @@ public class STUPlayersGroup : PlayerGroup
         var players = scenes[currentScene];
         foreach(var student in players)
         {
-            //var student = students[i];
             if (currentStep == student.startStep)
             {
-                CreatePlayerLabelFromPos(student, true);
+                CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
             }
             else if (currentStep > student.startStep && currentStep < (student.startStep + student.totalStep))
             {
@@ -43,10 +47,13 @@ public class STUPlayersGroup : PlayerGroup
                 // deactivate
                 var go = m_playerMap[student.id].gameObject;
                 var labelAgent = go.GetComponentInChildren<RVOLabelAgent>();
-                labelAgent.SyncReset();
+                if (labelAgent) labelAgent?.SyncReset();
+
                 go.SetActive(false);
                 foreach (Transform child in go.transform)
                     child.gameObject.SetActive(false);
+
+                agentSet.Remove(student.id);
             }
         }
 
