@@ -43,6 +43,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected Queue<int> testingTrack;
     protected Queue<int> trainingTrack;
+    protected Queue<int> doneTrack = new Queue<int>();
 
     public List<List<PlayerData>> scenes = new List<List<PlayerData>>();
     protected Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
@@ -193,10 +194,21 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         int nextTask = currentScene;
         var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
-        if (queue.Count > 0) nextTask = queue.Dequeue();
+        if (queue.Count > 0)
+        {
+            nextTask = queue.Dequeue();
+            doneTrack.Enqueue(nextTask);
+        }
+        else
+        {
+            Academy.Instance.StatsRecorder.Add("_test_end", 1.0f);
+            if (m_RVOSettings.evaluate) testingTrack = doneTrack;
+            else trainingTrack = doneTrack;
+            doneTrack = new Queue<int>();
+        }
         // for trainiing
         //if (!m_RVOSettings.evaluate) 
-        queue.Enqueue(nextTask);
+        //queue.Enqueue(nextTask);
 
         return nextTask;
     }
