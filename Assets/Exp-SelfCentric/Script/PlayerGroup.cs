@@ -197,7 +197,7 @@ public abstract class PlayerGroup : MonoBehaviour
         if(queue.Count <= 0)
         {
             if (m_RVOSettings.evaluate) {
-                Academy.Instance.StatsRecorder.Add("_test_end", 1.0f);
+                m_RVOSettings.FinishACourt();
                 testingTrack = doneTrack;
             }
             else trainingTrack = doneTrack;
