@@ -201,8 +201,10 @@ public abstract class PlayerGroup : MonoBehaviour
         }
         else
         {
-            Academy.Instance.StatsRecorder.Add("_test_end", 1.0f);
-            if (m_RVOSettings.evaluate) testingTrack = doneTrack;
+            if (m_RVOSettings.evaluate) {
+                Academy.Instance.StatsRecorder.Add("_test_end", 1.0f);
+                testingTrack = doneTrack;
+            }
             else trainingTrack = doneTrack;
             doneTrack = new Queue<int>();
         }
