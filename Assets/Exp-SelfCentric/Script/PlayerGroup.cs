@@ -194,12 +194,7 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         int nextTask = currentScene;
         var queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
-        if (queue.Count > 0)
-        {
-            nextTask = queue.Dequeue();
-            doneTrack.Enqueue(nextTask);
-        }
-        else
+        if(queue.Count <= 0)
         {
             if (m_RVOSettings.evaluate) {
                 Academy.Instance.StatsRecorder.Add("_test_end", 1.0f);
@@ -207,11 +202,11 @@ public abstract class PlayerGroup : MonoBehaviour
             }
             else trainingTrack = doneTrack;
             doneTrack = new Queue<int>();
+            queue = m_RVOSettings.evaluate ? testingTrack : trainingTrack;
         }
-        // for trainiing
-        //if (!m_RVOSettings.evaluate) 
-        //queue.Enqueue(nextTask);
 
+        nextTask = queue.Dequeue();
+        doneTrack.Enqueue(nextTask);
         return nextTask;
     }
 
