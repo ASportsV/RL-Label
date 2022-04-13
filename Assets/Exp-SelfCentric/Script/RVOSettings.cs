@@ -27,7 +27,7 @@ public class RVOSettings : MonoBehaviour
 
 
     int finished = 0;
-    int courtCount = 0;
+    int courtCount = 8;
 
     private void Awake()
     {
