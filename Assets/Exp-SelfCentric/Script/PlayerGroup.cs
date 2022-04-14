@@ -20,7 +20,7 @@ public struct Metrics
     public List<string> occludedObjPerStep; // sid
     public List<string> intersectedObjPerStep;
     public List<string> labelPositions;
-    public List<string> labelDistToTarget;
+    public List<string> targetPositions;
 
 }
 
@@ -305,13 +305,12 @@ public abstract class PlayerGroup : MonoBehaviour
         }
 
         List<string> labelPositions = new List<string>();
-        List<string> labelDistToTarget = new List<string>();
+        List<string> targetPositions = new List<string>();
         foreach (var student in players)
         {
             var labelAgent = m_playerMap[student.id].GetComponentInChildren<Label>();
-            labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y));
-            labelDistToTarget.AddRange(labelAgent.distToTargetOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d));
-            // Debug.Log("Occ Step of " + student.id + " is " + labelAgent.occludedObjectOverTime.Count + " / " + student.totalStep);
+            labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y + "," + v.z));
+            targetPositions.AddRange(labelAgent.targetPosOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d.x + "," + d.y + "," + d.z));
         }
     
         Metrics met = new Metrics();
@@ -319,7 +318,7 @@ public abstract class PlayerGroup : MonoBehaviour
         met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
         met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
         met.labelPositions = labelPositions;
-        met.labelDistToTarget = labelDistToTarget;
+        met.targetPositions = targetPositions;
 
         // save 
         using (StreamWriter writer = new StreamWriter(sceneName + "_track" + currentScene + "_met.json", false))

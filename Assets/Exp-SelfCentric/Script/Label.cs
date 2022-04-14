@@ -7,6 +7,8 @@ public class Label : MonoBehaviour
 {
     public RVOplayer PlayerLabel;
     public Rigidbody m_Rbody;
+    RVOSettings m_RVOSettings;
+
     RectTransform rTransform;
     RVOLine m_RVOLine;
     public Transform m_Panel;
@@ -14,21 +16,18 @@ public class Label : MonoBehaviour
 
     public List<HashSet<string>> occludedObjectOverTime = new List<HashSet<string>>();
     public List<HashSet<string>> intersectionsOverTime = new List<HashSet<string>>();
-    public List<float> distToTargetOverTime = new List<float>();
-    public List<Vector2> posOverTime = new List<Vector2>();
+    public List<Vector3> posOverTime = new List<Vector3>();
+    public List<Vector3> targetPosOverTime = new List<Vector3>();
 
     protected void Awake()
     {
         m_Rbody = GetComponent<Rigidbody>();
         m_RVOLine = GetComponent<RVOLine>();
+        m_RVOSettings = FindObjectOfType<RVOSettings>();
         m_Panel = transform.Find("panel");
         rTransform = GetComponentInChildren<RectTransform>();
         PlayerLabel = transform.parent.GetComponent<RVOplayer>();
         cam = transform.parent.parent.parent.Find("Camera").GetComponent<Camera>();
-    }
-
-    protected void Start()
-    {
     }
 
     public Vector3 velocity => PlayerLabel.velocity + m_Rbody.velocity;
@@ -37,16 +36,20 @@ public class Label : MonoBehaviour
     {
         occludedObjectOverTime.Clear();
         intersectionsOverTime.Clear();
-        distToTargetOverTime.Clear();
         posOverTime.Clear();
+        targetPosOverTime.Clear();
     }
 
     private void FixedUpdate()
     {
         m_Panel.LookAt(cam.transform);
-        //CollectOccluding();
-        //CollectDistToTarget();
-        //CollectPos();
+        if(m_RVOSettings.evaluate)
+        {
+            CollectOccluding();
+            CollectIntersection();
+            CollectPos();
+            CollectTargetPos();
+        }
     }
 
     private void CollectOccluding()
@@ -104,7 +107,7 @@ public class Label : MonoBehaviour
         occludedObjectOverTime.Add(ids);
     }
 
-    public int numOfIntersection()
+    private void CollectIntersection()
     {
         var intersectedLines = transform.parent.parent.GetComponentsInChildren<RVOLine>()
             .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject) && l.isIntersected(m_RVOLine, cam));
@@ -116,21 +119,24 @@ public class Label : MonoBehaviour
             intersections.Add((selfSid > sid) ? (selfSid + "_" + sid) : (sid + "_" + selfSid));
         }
         intersectionsOverTime.Add(intersections);
-
-        return intersectedLines.Count();
-    }
-
-    private void CollectDistToTarget()
-    {
-        distToTargetOverTime.Add(Vector2.Distance(
-             new Vector2(transform.position.x, transform.position.z),
-             new Vector2(PlayerLabel.transform.position.x, PlayerLabel.transform.position.z)
-        ));
     }
 
     private void CollectPos()
     {
-        posOverTime.Add(new Vector2(transform.position.x, transform.position.z));
+        posOverTime.Add(transform.position);
+    }
+
+    private void CollectTargetPos()
+    {
+        targetPosOverTime.Add(PlayerLabel.player.transform.position);
+    }
+
+    public int numOfIntersection()
+    {
+        var intersectedLines = transform.parent.parent.GetComponentsInChildren<RVOLine>()
+            .Where(l => !GameObject.ReferenceEquals(l.gameObject, gameObject) && l.isIntersected(m_RVOLine, cam));
+
+        return intersectedLines.Count();
     }
 
     RaycastHit forHit;
@@ -157,14 +163,6 @@ public class Label : MonoBehaviour
             count += 1;
         }
         else forHit = default(RaycastHit);
-        //if (Physics.BoxCast(origin, extent, direction, out forHit, rotation, maxDistance, labelLayerMask))
-        //{
-        //    if()
-        //    {
-        //       count += 1;
-        //    }
-        //    //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + "forHit.collider.gameobject " + forHit.collider.gameObject);
-        //}
 
         // occluding players
         int playerLayerMask = 1 << LayerMask.NameToLayer("player") | labelLayerMask;
@@ -177,12 +175,7 @@ public class Label : MonoBehaviour
             count += 1;
         }
         else backHit = default(RaycastHit);
-        //if (Physics.BoxCast(origin, extent, -direction, out backHit, rotation, maxDistance, playerLayerMask))
-        //{
-        //    if (!GameObject.ReferenceEquals(backHit.collider.transform.parent.gameObject, gameObject))
-        //        count += 1;
-        //    //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + "backHit.collider.gameobject " + backHit.collider.gameObject);
-        //}
+
         return count;
     }
 
