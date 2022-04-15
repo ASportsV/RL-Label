@@ -66,9 +66,11 @@ public abstract class PlayerGroup : MonoBehaviour
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         Camera cam = transform.parent.Find("Camera").GetComponent<Camera>();
         //court = transform.parent.Find("fancy_court");
-        stringChannel = new StringLogSideChannel();
-        // The channel must be registered with the SideChannelManager class
-        SideChannelManager.RegisterSideChannel(stringChannel);
+        if(m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
+        {
+            stringChannel = new StringLogSideChannel();
+            SideChannelManager.RegisterSideChannel(stringChannel);
+        }
         Academy.Instance.OnEnvironmentReset += EnvironmentReset;
 
         bool onlyTestMC = Academy.Instance.EnvironmentParameters.GetWithDefault("onlyTestMC", 0.0f) == 1.0f;
