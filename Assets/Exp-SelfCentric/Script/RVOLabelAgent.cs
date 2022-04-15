@@ -158,8 +158,8 @@ public class RVOLabelAgent : Agent
 
         Vector3 agentPos = m_label.PlayerLabel.transform.parent.transform.InverseTransformPoint(transform.position);
         // 2, world pos
-        sensor.AddObservation(agentPos.x);
-        sensor.AddObservation(agentPos.z);
+        sensor.AddObservation(agentPos.x / m_RVOSettings.courtX);
+        sensor.AddObservation(agentPos.z / m_RVOSettings.courtZ);
         //sensor.AddObservation(posInViewport.z / scaleZInCam);
         // 3, forward
         sensor.AddObservation(m_label.m_Panel.forward);
@@ -169,8 +169,8 @@ public class RVOLabelAgent : Agent
 
         // 2. endpoint
         Vector3 relativeToAgent = m_label.PlayerLabel.transform.localPosition - agentPos;
-        sensor.AddObservation(relativeToAgent.x);
-        sensor.AddObservation(relativeToAgent.z);
+        sensor.AddObservation(relativeToAgent.x / m_RVOSettings.courtX);
+        sensor.AddObservation(relativeToAgent.z / m_RVOSettings.courtZ);
         //sensor.AddObservation(relativeTPosInviewport.z / scaleZInCam);
         // 3, forward
         sensor.AddObservation(m_label.PlayerLabel.transform.forward);
@@ -196,8 +196,8 @@ public class RVOLabelAgent : Agent
             playerOBs.Add(1);
             // 2_relative pos
             Vector3 playerRelativePos = m_label.PlayerLabel.transform.localPosition - agentPos; //m_label.cam.WorldToViewportPoint(player.position) - posInViewport;
-            playerOBs.Add(playerRelativePos.x);
-            playerOBs.Add(playerRelativePos.z);
+            playerOBs.Add(playerRelativePos.x / m_RVOSettings.courtX);
+            playerOBs.Add(playerRelativePos.z / m_RVOSettings.courtZ);
             //playerOBs.Add(playerRelativePos.z / scaleZInCam);
 
             // 3_cam forward for occlusion
@@ -215,8 +215,8 @@ public class RVOLabelAgent : Agent
             labelOBs.Add(0);
             // 3_relative pos
             Vector3 labelRelativePos = m_label.PlayerLabel.transform.parent.transform.InverseTransformPoint(labelAgent.transform.position) - agentPos;
-            labelOBs.Add(labelRelativePos.x);
-            labelOBs.Add(labelRelativePos.z);
+            labelOBs.Add(labelRelativePos.x / m_RVOSettings.courtX);
+            labelOBs.Add(labelRelativePos.z / m_RVOSettings.courtZ);
             //labelOBs.Add(labelRelativePos.z / scaleZInCam);
             // 3_cam forward for occlusion
             labelOBs.Add(labelAgent.m_Panel.forward.x);
@@ -228,14 +228,15 @@ public class RVOLabelAgent : Agent
             labelOBs.Add(labelRelativeVel.z / scaleSpeed.z);
 
             // another endpoints
-            playerOBs.Add(labelRelativePos.x);
-            playerOBs.Add(labelRelativePos.z);
+            playerOBs.Add(labelRelativePos.x / m_RVOSettings.courtX);
+            playerOBs.Add(labelRelativePos.z / m_RVOSettings.courtZ);
             // dummy
             playerOBs.Add(0);
             bSensor.AppendObservation(playerOBs.ToArray());
 
-            labelOBs.Add(playerRelativePos.x);
-            labelOBs.Add(playerRelativePos.z);
+            labelOBs.Add(playerRelativePos.x / m_RVOSettings.courtX);
+            labelOBs.Add(playerRelativePos.z / m_RVOSettings.courtZ);
+            // dummy
             labelOBs.Add(0);
             bSensor.AppendObservation(labelOBs.ToArray());
         }
