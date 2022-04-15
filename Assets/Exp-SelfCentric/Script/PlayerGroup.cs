@@ -69,6 +69,7 @@ public abstract class PlayerGroup : MonoBehaviour
         stringChannel = new StringLogSideChannel();
         // The channel must be registered with the SideChannelManager class
         SideChannelManager.RegisterSideChannel(stringChannel);
+        Academy.Instance.OnEnvironmentReset += EnvironmentReset;
 
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
         if (movingCam)
@@ -87,6 +88,11 @@ public abstract class PlayerGroup : MonoBehaviour
         Debug.Log("Min and Max Z in Cam: (" + m_RVOSettings.minZInCam.ToString() + "," + m_RVOSettings.maxZInCam.ToString() + ")");
 
         LoadDataset();
+        EnvironmentReset();
+    }
+
+    private void EnvironmentReset()
+    {
         LoadParameters();
         LoadTrack(getNextTrack());
     }
@@ -170,12 +176,6 @@ public abstract class PlayerGroup : MonoBehaviour
         int agentIdx = Random.Range(0, players.Count());
         var rnd = new System.Random();
 
-        //int[] agentIdxs = 
-        //    Enumerable.Range(0, students.Count())
-        //    .OrderBy(item => rnd.Next())
-        //    .Take(numOfAgent)
-        //    .ToArray();
-
         var startedPlayers = players
             .Where(s => s.startStep == currentStep)
             .OrderBy(_ => rnd.Next());
@@ -185,14 +185,6 @@ public abstract class PlayerGroup : MonoBehaviour
             CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
         }
 
-        //for (int i = 0, len = students.Count(); i < len; ++i)
-        //{
-        //    var student = students[i];
-        //    if (currentStep == student.startStep)
-        //    {
-        //        CreatePlayerLabelFromPos(student, agentIdxs.Contains(i));
-        //    }
-        //}
         totalStep = players.Max(s => s.startStep + s.totalStep);
     }
 
