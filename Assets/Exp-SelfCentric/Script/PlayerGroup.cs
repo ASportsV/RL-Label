@@ -71,8 +71,9 @@ public abstract class PlayerGroup : MonoBehaviour
         SideChannelManager.RegisterSideChannel(stringChannel);
         Academy.Instance.OnEnvironmentReset += EnvironmentReset;
 
+        bool onlyTestMC = Academy.Instance.EnvironmentParameters.GetWithDefault("onlyTestMC", 0.0f) == 1.0f;
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
-        if (movingCam)
+        if (onlyTestMC ? (m_RVOSettings.evaluate && movingCam) : movingCam)
         {
             cam.gameObject.AddComponent<MovingCamera>();
         }
