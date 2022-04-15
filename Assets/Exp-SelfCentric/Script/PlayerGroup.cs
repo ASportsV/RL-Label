@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Unity.MLAgents;
+using Unity.MLAgents.SideChannels;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -54,6 +55,8 @@ public abstract class PlayerGroup : MonoBehaviour
     protected float timeStep = 0.04f;
     protected int totalStep;
 
+    StringLogSideChannel stringChannel;
+
     abstract protected (int, int, int, float, float) parseRecord(string record);
     abstract protected void LoadParameters();
 
@@ -63,6 +66,9 @@ public abstract class PlayerGroup : MonoBehaviour
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         Camera cam = transform.parent.Find("Camera").GetComponent<Camera>();
         //court = transform.parent.Find("fancy_court");
+        stringChannel = new StringLogSideChannel();
+        // The channel must be registered with the SideChannelManager class
+        SideChannelManager.RegisterSideChannel(stringChannel);
 
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
         if (movingCam)
@@ -253,8 +259,9 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         if(m_RVOSettings.evaluate)
         {
-            //SaveMetricToJson();
+            SaveMetricToJson();
         }
+        Academy.Instance.StatsRecorder.Add("_track_end", currentScene);
         LoadTrack(getNextTrack());
     }
 
@@ -320,11 +327,13 @@ public abstract class PlayerGroup : MonoBehaviour
         met.labelPositions = labelPositions;
         met.targetPositions = targetPositions;
 
+        stringChannel.SendMetricsToPython(JsonUtility.ToJson(met));
+
         // save 
-        using (StreamWriter writer = new StreamWriter(sceneName + "_track" + currentScene + "_met.json", false))
-        {
-            writer.Write(JsonUtility.ToJson(met));
-            writer.Close();
-        }
+        //using (StreamWriter writer = new StreamWriter(sceneName + "_track" + currentScene + "_met.json", false))
+        //{
+        //    writer.Write(JsonUtility.ToJson(met));
+        //    writer.Close();
+        //}
     }
 }
