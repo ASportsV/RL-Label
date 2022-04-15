@@ -250,7 +250,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected void TrackFinished()
     {
-        if(m_RVOSettings.evaluate)
+        if(m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
         {
             SaveMetricToJson();
         }

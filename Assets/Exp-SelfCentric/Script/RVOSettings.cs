@@ -25,7 +25,7 @@ public class RVOSettings : MonoBehaviour
     internal float moveSmooth;
 
     internal bool evaluate = false;
-
+    internal bool evaluate_metrics = false;
 
     int finished = 0;
     int courtCount = 8;
@@ -33,6 +33,7 @@ public class RVOSettings : MonoBehaviour
     private void Awake()
     {
         evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 0f) == 1.0f;
+        evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 0f) == 1.0f;
         courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
     }
 
