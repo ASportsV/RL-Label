@@ -1,5 +1,6 @@
 using Unity.MLAgents;
 using UnityEngine;
+using System.Linq;
 
 
 [System.Serializable]
@@ -32,7 +33,7 @@ public class RVOSettings : MonoBehaviour
     private void Awake()
     {
         evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 0f) == 1.0f;
-        courtCount = gameObject.scene.GetRootGameObjects().Length - 2;
+        courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
     }
 
     public void FinishACourt()
