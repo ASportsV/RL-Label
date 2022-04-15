@@ -43,7 +43,7 @@ public class Label : MonoBehaviour
     private void FixedUpdate()
     {
         m_Panel.LookAt(cam.transform);
-        if(m_RVOSettings.evaluate)
+        if(m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
         {
             CollectOccluding();
             CollectIntersection();

@@ -43,7 +43,7 @@ public class RVOSettings : MonoBehaviour
         if(finished >= courtCount)
         {
             finished = 0;
-            Academy.Instance.StatsRecorder.Add("_test_end", 1.0f);
+            Academy.Instance.StatsRecorder.Add("_test/_test_end", 1.0f);
         }
     }
 }

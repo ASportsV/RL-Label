@@ -253,8 +253,8 @@ public abstract class PlayerGroup : MonoBehaviour
         if(m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
         {
             SaveMetricToJson();
+            Academy.Instance.StatsRecorder.Add("_test/_track_end", currentScene);
         }
-        Academy.Instance.StatsRecorder.Add("_track_end", currentScene);
         LoadTrack(getNextTrack());
     }
 
