@@ -150,9 +150,9 @@ public class RVOLabelAgent : Agent
     void OBWorld(VectorSensor sensor)
     {
         // 16 = (2 + 3 + 2) * 2 + 2
-        float maxZInCam = m_RVOSettings.maxZInCam;
-        float minZInCam = m_RVOSettings.minZInCam;
-        float scaleZInCam = maxZInCam - minZInCam;
+        //float maxZInCam = m_RVOSettings.maxZInCam;
+        //float minZInCam = m_RVOSettings.minZInCam;
+        //float scaleZInCam = maxZInCam - minZInCam;
         float maxLabelSpeed = m_RVOSettings.maxLabelSpeed;
         Vector3 scaleSpeed = new Vector3(maxLabelSpeed + m_RVOSettings.playerSpeedX, 0, maxLabelSpeed + m_RVOSettings.playerSppedZ);
 
@@ -244,8 +244,10 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
+        if (m_RVOSettings.obW) OBWorld(sensor);
+        else OBViewport(sensor);
         //OBViewport(sensor);
-        OBWorld(sensor);
+        //OBWorld(sensor);
     }
 
     /*-----------------------Action-----------------------*/
