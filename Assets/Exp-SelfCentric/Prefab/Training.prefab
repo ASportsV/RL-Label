@@ -46,12 +46,12 @@ GameObject:
   - component: {fileID: 5837938649201269692}
   - component: {fileID: 4104454597323280882}
   m_Layer: 0
-  m_Name: Camera
+  m_Name: Camera1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5837938649201269692
 Transform:
   m_ObjectHideFlags: 0
@@ -827,7 +827,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4974859157397698691}
-  - component: {fileID: 5988299320530889821}
   m_Layer: 0
   m_Name: PlayerGroup
   m_TagString: Untagged
@@ -850,23 +849,6 @@ Transform:
   m_Father: {fileID: 639113978871538444}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5988299320530889821
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4974859157397698701}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57f0337541c47e947b6e62b978bfa870, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ball_prefab: {fileID: 0}
-  player_prefab: {fileID: 7823073313924758570, guid: 6b8f3948a28c0474b9866e888e1405f8,
-    type: 3}
-  label_prefab: {fileID: 78729819680227589, guid: ee79b8c838787b448b0571afc7740ea8,
-    type: 3}
 --- !u!1 &4974859157436102698
 GameObject:
   m_ObjectHideFlags: 0
