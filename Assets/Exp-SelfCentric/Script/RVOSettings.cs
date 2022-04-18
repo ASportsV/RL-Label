@@ -1,18 +1,32 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.MLAgents;
 using UnityEngine;
+using System.Linq;
 
-struct Task
+[Serializable]
+public class TaskItem {
+    public int id;
+    public int point;
+    public string color;
+    public int occ;
+}
+
+[Serializable]
+public class Task
 {
-    public int sceneIdx;
-    public string task;
- 
-    public Task(int sIdx, string q)
-    {
-        task = q;
-        sceneIdx = sIdx;
-    }
+    public int track_id;
+    public string type;
+    public string Q;
+    public string A;
+    public List<TaskItem> setting;
+}
+
+[Serializable]
+public class TaskList
+{
+    public List<Task> tasks;
 }
 
 enum Tech
@@ -25,25 +39,33 @@ enum Tech
 [System.Serializable]
 public class RVOSettings : MonoBehaviour
 {
-    public int MaxSteps;
-    public bool sync;
-
-    public int numOfPlayer;
     public float playerSpeedX = 1f;
     public float playerSppedZ = 1f;
-
-    internal int maxNumOfPlayer;
-    internal int minNumOfPlayer;
 
     public int courtX = 14;
     public int courtZ = 7;
 
-    internal bool evaluate = true;
+    internal float minZInCam;
+    internal float maxZInCam;
 
+    internal bool obW = false;
+    // label parameters
+    internal float labelY = 1.8f;
+    internal float xzDistThres;
+    internal float maxLabelSpeed;
+    internal float moveUnit;
+    internal float moveSmooth;
+    internal Queue<int> testingTrack;
+
+    internal bool evaluate = false;
+    internal bool evaluate_metrics = false;
+    int finished = 0;
+    int courtCount = 8;
+
+    // UI
     internal bool sceneFinished = false;
     internal bool sceneStarted = false;
 
-    internal Queue<int> testingScenes;
     internal List<Task> tasks;
     List<Tech> techOrders = new List<Tech>();
     int _currentTaskIdx = 0;
@@ -53,14 +75,26 @@ public class RVOSettings : MonoBehaviour
 
     private void Awake()
     {
-        maxNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("maxPlayerNum", 10);
-        minNumOfPlayer = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("minPlayerNum", 6);
+        obW = Academy.Instance.EnvironmentParameters.GetWithDefault("ob_w", 0f) == 1.0f;
+        evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 0f) == 1.0f;
+        evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 0f) == 1.0f;
+        courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
 
         // decide which order the user use
         var orders = getOrderByUserId(0);
         for(int i = 0; i < 12; ++i) // 3 * 12 trials
         {
             techOrders.AddRange(orders);
+        }
+    }
+
+    public void FinishACourt()
+    {
+        finished += 1;
+        if(finished >= courtCount)
+        {
+            finished = 0;
+            Academy.Instance.StatsRecorder.Add("_test/_test_end", 1.0f);
         }
     }
 

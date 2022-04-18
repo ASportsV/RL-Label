@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3933635731914576204}
   - component: {fileID: 966761223852352586}
   m_Layer: 0
-  m_Name: AgentLabel_RL
+  m_Name: PlayerLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -248,6 +248,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6861740193128462264, guid: 98b591507de72954099c958f0452b9fd, type: 3}
+    - {fileID: 6863877820660453592, guid: 98b591507de72954099c958f0452b9fd, type: 3}
+    - {fileID: 7278368080911663354, guid: 98b591507de72954099c958f0452b9fd, type: 3}
+    - {fileID: 4058794625399830715, guid: 98b591507de72954099c958f0452b9fd, type: 3}
+    - {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 98b591507de72954099c958f0452b9fd, type: 3}
 --- !u!4 &4015864275688061341 stripped
 Transform:

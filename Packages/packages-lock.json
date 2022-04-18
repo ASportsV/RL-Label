@@ -11,7 +11,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.barracuda": {
-      "version": "2.3.1-preview",
+      "version": "2.0.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -89,14 +89,15 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ml-agents": {
-      "version": "file:F:/ml-agents/com.unity.ml-agents",
+      "version": "2.0.1",
       "depth": 0,
-      "source": "local",
+      "source": "registry",
       "dependencies": {
-        "com.unity.barracuda": "2.3.1-preview",
+        "com.unity.barracuda": "2.0.0",
         "com.unity.modules.imageconversion": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
-      }
+      },
+      "url": "https://packages.unity.com"
     },
     "com.unity.nuget.newtonsoft-json": {
       "version": "2.0.0",
@@ -106,7 +107,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.postprocessing": {
-      "version": "3.1.1",
+      "version": "3.2.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -162,7 +163,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.timeline": {
-      "version": "1.6.2",
+      "version": "1.6.3",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -182,14 +183,24 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
+    "com.unity.xr.core-utils": {
+      "version": "2.0.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.xr": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.xr.interaction.toolkit": {
-      "version": "1.0.0-pre.8",
+      "version": "2.0.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.inputsystem": "1.0.2",
+        "com.unity.inputsystem": "1.2.0",
         "com.unity.ugui": "1.0.0",
-        "com.unity.xr.legacyinputhelpers": "2.1.7",
+        "com.unity.xr.core-utils": "2.0.0",
+        "com.unity.xr.legacyinputhelpers": "2.1.8",
         "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.modules.physics": "1.0.0"
@@ -207,7 +218,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.management": {
-      "version": "4.2.0",
+      "version": "4.2.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -220,12 +231,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.oculus": {
-      "version": "1.11.0",
+      "version": "3.0.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.xr.management": "4.0.1",
-        "com.unity.ugui": "1.0.0"
+        "com.unity.xr.management": "4.2.0"
       },
       "url": "https://packages.unity.com"
     },

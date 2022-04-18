@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class UIControl : MonoBehaviour
 {
     RVOSettings m_RVOSettings;
+    public PrimaryButtonWatcher watcher;
     // control
     Transform btn;
     Transform panel;
@@ -31,7 +32,7 @@ public class UIControl : MonoBehaviour
         var trackSelect = transform.Find("TrackSelect");
         dropdown = trackSelect.GetComponent<TMPro.TMP_Dropdown>();
         dropdown.options.Clear();
-        foreach (var testId in m_RVOSettings.testingScenes)
+        foreach (var testId in m_RVOSettings.testingTrack)
         {
             dropdown.options.Add(new TMPro.TMP_Dropdown.OptionData("track_" + testId));
         }
@@ -50,7 +51,8 @@ public class UIControl : MonoBehaviour
             .FindIndex(o => o.text.Contains(currentScene.ToString()));
             
         // button
-        btn.GetComponent<Button>().onClick.AddListener(ClickButton);
+        // btn.GetComponent<Button>().onClick.AddListener(ClickButton);
+        watcher.primaryButtonPress.AddListener(ClickButton);
         // deactivate
         playergroup.gameObject.SetActive(false);
 
@@ -60,15 +62,16 @@ public class UIControl : MonoBehaviour
     void LoadTaskQuestionInUI(Task task)
     {
         dropdown.value = dropdown.options
-            .FindIndex(o => o.text.Contains(task.sceneIdx.ToString()));
+            .FindIndex(o => o.text.Contains(task.track_id.ToString()));
 
         // update question
         var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = task.task;
+        text.text = task.Q;
     }
 
-    void ClickButton()
+    void ClickButton(bool press)
     {
+        if(!press) return;
         bool beforeTrial = !m_RVOSettings.sceneStarted && !m_RVOSettings.sceneFinished;
         bool inTrial = m_RVOSettings.sceneStarted && !m_RVOSettings.sceneFinished;
         bool afterTrial = m_RVOSettings.sceneStarted && m_RVOSettings.sceneFinished;
@@ -87,7 +90,7 @@ public class UIControl : MonoBehaviour
 
             // load and start the scene
             var task = m_RVOSettings.CurrentTask;
-            groupControl.LoadScene(task.sceneIdx);
+            groupControl.LoadTrack(task.track_id);
             // if(groupControl)
             // {
             // }

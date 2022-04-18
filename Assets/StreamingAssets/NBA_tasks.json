@@ -1,0 +1,1228 @@
+{
+    "tasks": [
+        {
+            "track_id": 0,
+            "type": "identify",
+            "Q": "Who got 83 points?",
+            "A": "7",
+            "setting": [
+                {
+                    "id": "7",
+                    "point": 83,
+                    "color": "red",
+                    "occ": 192
+                },
+                {
+                    "id": "2",
+                    "point": 95,
+                    "color": "blue",
+                    "occ": 142
+                },
+                {
+                    "id": "4",
+                    "point": 67,
+                    "color": "red",
+                    "occ": 90
+                },
+                {
+                    "id": "0",
+                    "point": 91,
+                    "color": "blue",
+                    "occ": 89
+                },
+                {
+                    "id": "1",
+                    "point": 66,
+                    "color": "red",
+                    "occ": 82
+                },
+                {
+                    "id": "3",
+                    "point": 16,
+                    "color": "blue",
+                    "occ": 68
+                },
+                {
+                    "id": "9",
+                    "point": 80,
+                    "color": "red",
+                    "occ": 30
+                },
+                {
+                    "id": "6",
+                    "point": 32,
+                    "color": "blue",
+                    "occ": 23
+                },
+                {
+                    "id": "5",
+                    "point": 11,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "8",
+                    "point": 61,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 0,
+            "type": "compare",
+            "Q": "Who got the most points in blue team?",
+            "A": "2",
+            "setting": [
+                {
+                    "id": "2",
+                    "point": 58,
+                    "color": "blue",
+                    "occ": 142
+                },
+                {
+                    "id": "4",
+                    "point": 51,
+                    "color": "blue",
+                    "occ": 90
+                },
+                {
+                    "id": "0",
+                    "point": 35,
+                    "color": "blue",
+                    "occ": 89
+                },
+                {
+                    "id": "1",
+                    "point": 52,
+                    "color": "blue",
+                    "occ": 82
+                },
+                {
+                    "id": "3",
+                    "point": 53,
+                    "color": "blue",
+                    "occ": 68
+                },
+                {
+                    "id": "7",
+                    "point": 97,
+                    "color": "red",
+                    "occ": 192
+                },
+                {
+                    "id": "9",
+                    "point": 49,
+                    "color": "red",
+                    "occ": 30
+                },
+                {
+                    "id": "6",
+                    "point": 15,
+                    "color": "red",
+                    "occ": 23
+                },
+                {
+                    "id": "5",
+                    "point": 51,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "8",
+                    "point": 69,
+                    "color": "red",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 0,
+            "type": "summary",
+            "Q": "Overall, which team gets more points?",
+            "A": "blue",
+            "setting": [
+                {
+                    "id": "7",
+                    "point": 13,
+                    "color": "red",
+                    "occ": 192
+                },
+                {
+                    "id": "2",
+                    "point": 54,
+                    "color": "blue",
+                    "occ": 142
+                },
+                {
+                    "id": "4",
+                    "point": 16,
+                    "color": "red",
+                    "occ": 90
+                },
+                {
+                    "id": "0",
+                    "point": 52,
+                    "color": "blue",
+                    "occ": 89
+                },
+                {
+                    "id": "1",
+                    "point": 14,
+                    "color": "red",
+                    "occ": 82
+                },
+                {
+                    "id": "3",
+                    "point": 51,
+                    "color": "blue",
+                    "occ": 68
+                },
+                {
+                    "id": "9",
+                    "point": 11,
+                    "color": "red",
+                    "occ": 30
+                },
+                {
+                    "id": "6",
+                    "point": 50,
+                    "color": "blue",
+                    "occ": 23
+                },
+                {
+                    "id": "5",
+                    "point": 15,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "8",
+                    "point": 53,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 13,
+            "type": "identify",
+            "Q": "Who got 25 points?",
+            "A": "2",
+            "setting": [
+                {
+                    "id": "2",
+                    "point": 25,
+                    "color": "red",
+                    "occ": 367
+                },
+                {
+                    "id": "5",
+                    "point": 23,
+                    "color": "blue",
+                    "occ": 152
+                },
+                {
+                    "id": "6",
+                    "point": 83,
+                    "color": "red",
+                    "occ": 115
+                },
+                {
+                    "id": "9",
+                    "point": 98,
+                    "color": "blue",
+                    "occ": 111
+                },
+                {
+                    "id": "8",
+                    "point": 41,
+                    "color": "red",
+                    "occ": 100
+                },
+                {
+                    "id": "7",
+                    "point": 37,
+                    "color": "blue",
+                    "occ": 57
+                },
+                {
+                    "id": "4",
+                    "point": 75,
+                    "color": "red",
+                    "occ": 26
+                },
+                {
+                    "id": "0",
+                    "point": 92,
+                    "color": "blue",
+                    "occ": 0
+                },
+                {
+                    "id": "1",
+                    "point": 14,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "3",
+                    "point": 69,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 13,
+            "type": "compare",
+            "Q": "Who got the most points in blue team?",
+            "A": "5",
+            "setting": [
+                {
+                    "id": "5",
+                    "point": 99,
+                    "color": "blue",
+                    "occ": 152
+                },
+                {
+                    "id": "6",
+                    "point": 59,
+                    "color": "blue",
+                    "occ": 115
+                },
+                {
+                    "id": "9",
+                    "point": 52,
+                    "color": "blue",
+                    "occ": 111
+                },
+                {
+                    "id": "8",
+                    "point": 13,
+                    "color": "blue",
+                    "occ": 100
+                },
+                {
+                    "id": "7",
+                    "point": 74,
+                    "color": "blue",
+                    "occ": 57
+                },
+                {
+                    "id": "2",
+                    "point": 97,
+                    "color": "red",
+                    "occ": 367
+                },
+                {
+                    "id": "4",
+                    "point": 92,
+                    "color": "red",
+                    "occ": 26
+                },
+                {
+                    "id": "0",
+                    "point": 46,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "1",
+                    "point": 95,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "3",
+                    "point": 45,
+                    "color": "red",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 13,
+            "type": "summary",
+            "Q": "Overall, which team gets more points?",
+            "A": "red",
+            "setting": [
+                {
+                    "id": "2",
+                    "point": 54,
+                    "color": "red",
+                    "occ": 367
+                },
+                {
+                    "id": "5",
+                    "point": 15,
+                    "color": "blue",
+                    "occ": 152
+                },
+                {
+                    "id": "6",
+                    "point": 52,
+                    "color": "red",
+                    "occ": 115
+                },
+                {
+                    "id": "9",
+                    "point": 14,
+                    "color": "blue",
+                    "occ": 111
+                },
+                {
+                    "id": "8",
+                    "point": 50,
+                    "color": "red",
+                    "occ": 100
+                },
+                {
+                    "id": "7",
+                    "point": 11,
+                    "color": "blue",
+                    "occ": 57
+                },
+                {
+                    "id": "4",
+                    "point": 51,
+                    "color": "red",
+                    "occ": 26
+                },
+                {
+                    "id": "0",
+                    "point": 16,
+                    "color": "blue",
+                    "occ": 0
+                },
+                {
+                    "id": "1",
+                    "point": 53,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "3",
+                    "point": 13,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 15,
+            "type": "identify",
+            "Q": "Who got 61 points?",
+            "A": "8",
+            "setting": [
+                {
+                    "id": "8",
+                    "point": 61,
+                    "color": "red",
+                    "occ": 267
+                },
+                {
+                    "id": "2",
+                    "point": 71,
+                    "color": "blue",
+                    "occ": 168
+                },
+                {
+                    "id": "7",
+                    "point": 54,
+                    "color": "red",
+                    "occ": 107
+                },
+                {
+                    "id": "9",
+                    "point": 97,
+                    "color": "blue",
+                    "occ": 90
+                },
+                {
+                    "id": "0",
+                    "point": 98,
+                    "color": "red",
+                    "occ": 48
+                },
+                {
+                    "id": "1",
+                    "point": 90,
+                    "color": "blue",
+                    "occ": 47
+                },
+                {
+                    "id": "6",
+                    "point": 12,
+                    "color": "red",
+                    "occ": 44
+                },
+                {
+                    "id": "5",
+                    "point": 35,
+                    "color": "blue",
+                    "occ": 30
+                },
+                {
+                    "id": "3",
+                    "point": 52,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "4",
+                    "point": 29,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 15,
+            "type": "compare",
+            "Q": "Who got the most points in blue team?",
+            "A": "2",
+            "setting": [
+                {
+                    "id": "2",
+                    "point": 99,
+                    "color": "blue",
+                    "occ": 168
+                },
+                {
+                    "id": "7",
+                    "point": 51,
+                    "color": "blue",
+                    "occ": 107
+                },
+                {
+                    "id": "9",
+                    "point": 84,
+                    "color": "blue",
+                    "occ": 90
+                },
+                {
+                    "id": "0",
+                    "point": 62,
+                    "color": "blue",
+                    "occ": 48
+                },
+                {
+                    "id": "1",
+                    "point": 48,
+                    "color": "blue",
+                    "occ": 47
+                },
+                {
+                    "id": "8",
+                    "point": 74,
+                    "color": "red",
+                    "occ": 267
+                },
+                {
+                    "id": "6",
+                    "point": 35,
+                    "color": "red",
+                    "occ": 44
+                },
+                {
+                    "id": "5",
+                    "point": 90,
+                    "color": "red",
+                    "occ": 30
+                },
+                {
+                    "id": "3",
+                    "point": 38,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "4",
+                    "point": 91,
+                    "color": "red",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 15,
+            "type": "summary",
+            "Q": "Overall, which team gets more points?",
+            "A": "blue",
+            "setting": [
+                {
+                    "id": "8",
+                    "point": 12,
+                    "color": "red",
+                    "occ": 267
+                },
+                {
+                    "id": "2",
+                    "point": 51,
+                    "color": "blue",
+                    "occ": 168
+                },
+                {
+                    "id": "7",
+                    "point": 16,
+                    "color": "red",
+                    "occ": 107
+                },
+                {
+                    "id": "9",
+                    "point": 52,
+                    "color": "blue",
+                    "occ": 90
+                },
+                {
+                    "id": "0",
+                    "point": 13,
+                    "color": "red",
+                    "occ": 48
+                },
+                {
+                    "id": "1",
+                    "point": 53,
+                    "color": "blue",
+                    "occ": 47
+                },
+                {
+                    "id": "6",
+                    "point": 15,
+                    "color": "red",
+                    "occ": 44
+                },
+                {
+                    "id": "5",
+                    "point": 50,
+                    "color": "blue",
+                    "occ": 30
+                },
+                {
+                    "id": "3",
+                    "point": 14,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "4",
+                    "point": 54,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 16,
+            "type": "identify",
+            "Q": "Who got 18 points?",
+            "A": "1",
+            "setting": [
+                {
+                    "id": "1",
+                    "point": 18,
+                    "color": "red",
+                    "occ": 216
+                },
+                {
+                    "id": "9",
+                    "point": 14,
+                    "color": "blue",
+                    "occ": 189
+                },
+                {
+                    "id": "3",
+                    "point": 24,
+                    "color": "red",
+                    "occ": 92
+                },
+                {
+                    "id": "0",
+                    "point": 47,
+                    "color": "blue",
+                    "occ": 80
+                },
+                {
+                    "id": "7",
+                    "point": 25,
+                    "color": "red",
+                    "occ": 64
+                },
+                {
+                    "id": "2",
+                    "point": 45,
+                    "color": "blue",
+                    "occ": 0
+                },
+                {
+                    "id": "4",
+                    "point": 36,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "5",
+                    "point": 66,
+                    "color": "blue",
+                    "occ": 0
+                },
+                {
+                    "id": "6",
+                    "point": 69,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "8",
+                    "point": 21,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 16,
+            "type": "compare",
+            "Q": "Who got the most points in blue team?",
+            "A": "9",
+            "setting": [
+                {
+                    "id": "9",
+                    "point": 99,
+                    "color": "blue",
+                    "occ": 189
+                },
+                {
+                    "id": "3",
+                    "point": 22,
+                    "color": "blue",
+                    "occ": 92
+                },
+                {
+                    "id": "0",
+                    "point": 64,
+                    "color": "blue",
+                    "occ": 80
+                },
+                {
+                    "id": "7",
+                    "point": 71,
+                    "color": "blue",
+                    "occ": 64
+                },
+                {
+                    "id": "2",
+                    "point": 23,
+                    "color": "blue",
+                    "occ": 0
+                },
+                {
+                    "id": "1",
+                    "point": 42,
+                    "color": "red",
+                    "occ": 216
+                },
+                {
+                    "id": "4",
+                    "point": 30,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "5",
+                    "point": 12,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "6",
+                    "point": 51,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "8",
+                    "point": 41,
+                    "color": "red",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 16,
+            "type": "summary",
+            "Q": "Overall, which team gets more points?",
+            "A": "blue",
+            "setting": [
+                {
+                    "id": "1",
+                    "point": 11,
+                    "color": "red",
+                    "occ": 216
+                },
+                {
+                    "id": "9",
+                    "point": 51,
+                    "color": "blue",
+                    "occ": 189
+                },
+                {
+                    "id": "3",
+                    "point": 14,
+                    "color": "red",
+                    "occ": 92
+                },
+                {
+                    "id": "0",
+                    "point": 54,
+                    "color": "blue",
+                    "occ": 80
+                },
+                {
+                    "id": "7",
+                    "point": 15,
+                    "color": "red",
+                    "occ": 64
+                },
+                {
+                    "id": "2",
+                    "point": 52,
+                    "color": "blue",
+                    "occ": 0
+                },
+                {
+                    "id": "4",
+                    "point": 13,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "5",
+                    "point": 50,
+                    "color": "blue",
+                    "occ": 0
+                },
+                {
+                    "id": "6",
+                    "point": 12,
+                    "color": "red",
+                    "occ": 0
+                },
+                {
+                    "id": "8",
+                    "point": 53,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 21,
+            "type": "identify",
+            "Q": "Who got 38 points?",
+            "A": "0",
+            "setting": [
+                {
+                    "id": "0",
+                    "point": 38,
+                    "color": "red",
+                    "occ": 126
+                },
+                {
+                    "id": "5",
+                    "point": 85,
+                    "color": "blue",
+                    "occ": 117
+                },
+                {
+                    "id": "9",
+                    "point": 17,
+                    "color": "red",
+                    "occ": 115
+                },
+                {
+                    "id": "3",
+                    "point": 64,
+                    "color": "blue",
+                    "occ": 67
+                },
+                {
+                    "id": "1",
+                    "point": 96,
+                    "color": "red",
+                    "occ": 65
+                },
+                {
+                    "id": "4",
+                    "point": 74,
+                    "color": "blue",
+                    "occ": 56
+                },
+                {
+                    "id": "2",
+                    "point": 81,
+                    "color": "red",
+                    "occ": 49
+                },
+                {
+                    "id": "7",
+                    "point": 80,
+                    "color": "blue",
+                    "occ": 35
+                },
+                {
+                    "id": "6",
+                    "point": 56,
+                    "color": "red",
+                    "occ": 15
+                },
+                {
+                    "id": "8",
+                    "point": 67,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 21,
+            "type": "compare",
+            "Q": "Who got the most points in blue team?",
+            "A": "5",
+            "setting": [
+                {
+                    "id": "5",
+                    "point": 99,
+                    "color": "blue",
+                    "occ": 117
+                },
+                {
+                    "id": "9",
+                    "point": 22,
+                    "color": "blue",
+                    "occ": 115
+                },
+                {
+                    "id": "3",
+                    "point": 91,
+                    "color": "blue",
+                    "occ": 67
+                },
+                {
+                    "id": "1",
+                    "point": 45,
+                    "color": "blue",
+                    "occ": 65
+                },
+                {
+                    "id": "4",
+                    "point": 69,
+                    "color": "blue",
+                    "occ": 56
+                },
+                {
+                    "id": "0",
+                    "point": 67,
+                    "color": "red",
+                    "occ": 126
+                },
+                {
+                    "id": "2",
+                    "point": 48,
+                    "color": "red",
+                    "occ": 49
+                },
+                {
+                    "id": "7",
+                    "point": 93,
+                    "color": "red",
+                    "occ": 35
+                },
+                {
+                    "id": "6",
+                    "point": 66,
+                    "color": "red",
+                    "occ": 15
+                },
+                {
+                    "id": "8",
+                    "point": 68,
+                    "color": "red",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 21,
+            "type": "summary",
+            "Q": "Overall, which team gets more points?",
+            "A": "red",
+            "setting": [
+                {
+                    "id": "0",
+                    "point": 53,
+                    "color": "red",
+                    "occ": 126
+                },
+                {
+                    "id": "5",
+                    "point": 13,
+                    "color": "blue",
+                    "occ": 117
+                },
+                {
+                    "id": "9",
+                    "point": 51,
+                    "color": "red",
+                    "occ": 115
+                },
+                {
+                    "id": "3",
+                    "point": 16,
+                    "color": "blue",
+                    "occ": 67
+                },
+                {
+                    "id": "1",
+                    "point": 52,
+                    "color": "red",
+                    "occ": 65
+                },
+                {
+                    "id": "4",
+                    "point": 14,
+                    "color": "blue",
+                    "occ": 56
+                },
+                {
+                    "id": "2",
+                    "point": 54,
+                    "color": "red",
+                    "occ": 49
+                },
+                {
+                    "id": "7",
+                    "point": 11,
+                    "color": "blue",
+                    "occ": 35
+                },
+                {
+                    "id": "6",
+                    "point": 50,
+                    "color": "red",
+                    "occ": 15
+                },
+                {
+                    "id": "8",
+                    "point": 12,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 22,
+            "type": "identify",
+            "Q": "Who got 97 points?",
+            "A": "0",
+            "setting": [
+                {
+                    "id": "0",
+                    "point": 97,
+                    "color": "red",
+                    "occ": 210
+                },
+                {
+                    "id": "7",
+                    "point": 66,
+                    "color": "blue",
+                    "occ": 150
+                },
+                {
+                    "id": "3",
+                    "point": 27,
+                    "color": "red",
+                    "occ": 80
+                },
+                {
+                    "id": "2",
+                    "point": 36,
+                    "color": "blue",
+                    "occ": 69
+                },
+                {
+                    "id": "4",
+                    "point": 31,
+                    "color": "red",
+                    "occ": 46
+                },
+                {
+                    "id": "9",
+                    "point": 37,
+                    "color": "blue",
+                    "occ": 45
+                },
+                {
+                    "id": "6",
+                    "point": 50,
+                    "color": "red",
+                    "occ": 38
+                },
+                {
+                    "id": "8",
+                    "point": 48,
+                    "color": "blue",
+                    "occ": 31
+                },
+                {
+                    "id": "1",
+                    "point": 56,
+                    "color": "red",
+                    "occ": 30
+                },
+                {
+                    "id": "5",
+                    "point": 88,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 22,
+            "type": "compare",
+            "Q": "Who got the most points in blue team?",
+            "A": "7",
+            "setting": [
+                {
+                    "id": "7",
+                    "point": 99,
+                    "color": "blue",
+                    "occ": 150
+                },
+                {
+                    "id": "3",
+                    "point": 87,
+                    "color": "blue",
+                    "occ": 80
+                },
+                {
+                    "id": "2",
+                    "point": 46,
+                    "color": "blue",
+                    "occ": 69
+                },
+                {
+                    "id": "4",
+                    "point": 22,
+                    "color": "blue",
+                    "occ": 46
+                },
+                {
+                    "id": "9",
+                    "point": 85,
+                    "color": "blue",
+                    "occ": 45
+                },
+                {
+                    "id": "0",
+                    "point": 96,
+                    "color": "red",
+                    "occ": 210
+                },
+                {
+                    "id": "6",
+                    "point": 37,
+                    "color": "red",
+                    "occ": 38
+                },
+                {
+                    "id": "8",
+                    "point": 51,
+                    "color": "red",
+                    "occ": 31
+                },
+                {
+                    "id": "1",
+                    "point": 15,
+                    "color": "red",
+                    "occ": 30
+                },
+                {
+                    "id": "5",
+                    "point": 91,
+                    "color": "red",
+                    "occ": 0
+                }
+            ]
+        },
+        {
+            "track_id": 22,
+            "type": "summary",
+            "Q": "Overall, which team gets more points?",
+            "A": "blue",
+            "setting": [
+                {
+                    "id": "0",
+                    "point": 12,
+                    "color": "red",
+                    "occ": 210
+                },
+                {
+                    "id": "7",
+                    "point": 52,
+                    "color": "blue",
+                    "occ": 150
+                },
+                {
+                    "id": "3",
+                    "point": 15,
+                    "color": "red",
+                    "occ": 80
+                },
+                {
+                    "id": "2",
+                    "point": 54,
+                    "color": "blue",
+                    "occ": 69
+                },
+                {
+                    "id": "4",
+                    "point": 13,
+                    "color": "red",
+                    "occ": 46
+                },
+                {
+                    "id": "9",
+                    "point": 50,
+                    "color": "blue",
+                    "occ": 45
+                },
+                {
+                    "id": "6",
+                    "point": 16,
+                    "color": "red",
+                    "occ": 38
+                },
+                {
+                    "id": "8",
+                    "point": 53,
+                    "color": "blue",
+                    "occ": 31
+                },
+                {
+                    "id": "1",
+                    "point": 11,
+                    "color": "red",
+                    "occ": 30
+                },
+                {
+                    "id": "5",
+                    "point": 51,
+                    "color": "blue",
+                    "occ": 0
+                }
+            ]
+        }
+    ]
+}
