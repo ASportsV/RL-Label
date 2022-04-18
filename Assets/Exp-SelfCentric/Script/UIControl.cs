@@ -51,7 +51,7 @@ public class UIControl : MonoBehaviour
             .FindIndex(o => o.text.Contains(currentScene.ToString()));
             
         // button
-        // btn.GetComponent<Button>().onClick.AddListener(ClickButton);
+        btn.GetComponent<Button>().onClick.AddListener(MouseClickButton);
         watcher.primaryButtonPress.AddListener(ClickButton);
         // deactivate
         playergroup.gameObject.SetActive(false);
@@ -67,6 +67,11 @@ public class UIControl : MonoBehaviour
         // update question
         var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = task.Q;
+    }
+
+    void MouseClickButton()
+    {
+        ClickButton(true);
     }
 
     void ClickButton(bool press)
@@ -100,8 +105,6 @@ public class UIControl : MonoBehaviour
             //         m_RVOSettings.CurrentTech == Tech.Opti;
             //     playergroup.GetComponent<STUPlayersGroup>().LoadScene(task.sceneIdx);
             // }
-
-            // start to count the time
         } 
         else if (inTrial) // -> exectue the code for the next
         {
@@ -117,7 +120,7 @@ public class UIControl : MonoBehaviour
             
             // update the text in the panel
             text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
-            text.text = "Your answer is ____ ";
+            text.text = "Your answer is ____ . You took " + m_RVOSettings.ansTime.ToString("F") + "s.";
 
         }
         else if (afterTrial) // -> exectue the code for the next

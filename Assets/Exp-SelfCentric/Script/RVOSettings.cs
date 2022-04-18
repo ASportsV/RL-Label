@@ -72,6 +72,7 @@ public class RVOSettings : MonoBehaviour
     internal int currentTaskIdx { get { return _currentTaskIdx; } }
     internal Task CurrentTask => tasks[currentTaskIdx];
     internal Tech CurrentTech => techOrders[currentTaskIdx];
+    internal float ansTime = 0;
 
     private void Awake()
     {
