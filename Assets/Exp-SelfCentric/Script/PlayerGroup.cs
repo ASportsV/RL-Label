@@ -135,9 +135,8 @@ public abstract class PlayerGroup : MonoBehaviour
         for (int tIdx = 0; tIdx < tracks.Count; ++tIdx)
         {
             List<PlayerData> track = new List<PlayerData>();
-            int minIdxInthisTrack = tracks[tIdx].Keys.Min();
-
-            foreach (var entry in tracks[tIdx])
+            int eIdx = 0;
+            foreach (var entry in tracks[tIdx].OrderBy(t => t.Key))
             {
                 int playerIdx = entry.Key;
                 Vector3[] pos = entry.Value.ToArray();
@@ -155,7 +154,7 @@ public abstract class PlayerGroup : MonoBehaviour
                     vel[pos.Length - 1] = vel[pos.Length - 2];
 
                 PlayerData student = new PlayerData();
-                student.id = playerIdx - minIdxInthisTrack;
+                student.id = eIdx++;
                 student.positions = pos;
                 student.velocities = vel;
                 student.startStep = playerStartedInTrack[tIdx.ToString() + '_' + playerIdx.ToString()];
