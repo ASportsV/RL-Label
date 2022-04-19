@@ -48,7 +48,7 @@ public class RVOSettings : MonoBehaviour
     internal float minZInCam;
     internal float maxZInCam;
 
-    internal bool obW = false;
+    internal bool obW;
     // label parameters
     internal float labelY = 1.8f;
     internal float xzDistThres;
@@ -76,7 +76,7 @@ public class RVOSettings : MonoBehaviour
 
     private void Awake()
     {
-        obW = Academy.Instance.EnvironmentParameters.GetWithDefault("ob_w", 0f) == 1.0f;
+        obW = Academy.Instance.EnvironmentParameters.GetWithDefault("ob_w", 1f) == 1.0f;
         evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 0f) == 1.0f;
         evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 0f) == 1.0f;
         courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
