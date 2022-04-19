@@ -14,9 +14,14 @@ public class BaselineForce : MonoBehaviour
     public float MOVEMENT_SPEED = .5f;
     private const int DEFAULT_SPRING_LENGTH = 100;
     public bool debug = false;
+    private bool init = false;
 
     void Update()
     {
+        if (!init)
+        {
+            return;
+        }
         UpdateForces();
         foreach (var l in labelNodes)
         {
@@ -114,6 +119,7 @@ public class BaselineForce : MonoBehaviour
         viewplaneCollider = GetViewplaneCollider();
         for (int i = 0; i < lG.Count; i++)
             AddLabel(lG[i], l[i]);
+        init = true;
     }
 
     public void AddLabel(GameObject lG, GameObject l)
@@ -163,5 +169,6 @@ public class BaselineForce : MonoBehaviour
 
         labelNodes = new List<LabelNode>();
         viewplaneCollider = null;
+        init = false;
     }
 }
