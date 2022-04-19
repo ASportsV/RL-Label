@@ -70,14 +70,14 @@ public class RVOSettings : MonoBehaviour
     List<Tech> techOrders = new List<Tech>();
     int _currentTaskIdx = 0;
     internal int currentTaskIdx { get { return _currentTaskIdx; } }
-    internal Task CurrentTask => tasks[currentTaskIdx];
+    public Task CurrentTask => tasks[currentTaskIdx];
     internal Tech CurrentTech => techOrders[currentTaskIdx];
     internal float ansTime = 0;
 
     private void Awake()
     {
         obW = Academy.Instance.EnvironmentParameters.GetWithDefault("ob_w", 1f) == 1.0f;
-        evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 0f) == 1.0f;
+        evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 1f) == 1.0f;
         evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 0f) == 1.0f;
         courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
 

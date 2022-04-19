@@ -146,7 +146,10 @@ public abstract class PlayerGroup : MonoBehaviour
         for (int tIdx = 0; tIdx < tracks.Count; ++tIdx)
         {
             List<PlayerData> track = new List<PlayerData>();
-            foreach (var entry in tracks[tIdx])
+            // int minIdxInthisTrack = tracks[tIdx].Keys.Min();
+
+            int eIdx = 0;
+            foreach (var entry in tracks[tIdx].OrderBy(t => t.Key))
             {
                 int playerIdx = entry.Key;
                 Vector3[] pos = entry.Value.ToArray();
@@ -164,7 +167,7 @@ public abstract class PlayerGroup : MonoBehaviour
                     vel[pos.Length - 1] = vel[pos.Length - 2];
 
                 PlayerData student = new PlayerData();
-                student.id = playerIdx;
+                student.id = eIdx++; // playerIdx - minIdxInthisTrack;
                 student.positions = pos;
                 student.velocities = vel;
                 student.startStep = playerStartedInTrack[tIdx.ToString() + '_' + playerIdx.ToString()];
@@ -295,6 +298,8 @@ public abstract class PlayerGroup : MonoBehaviour
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         // label name
         var agentSetting = m_RVOSettings.CurrentTask.setting.Find(t => t.id == sid);
+        Debug.Log("sid " + sid);
+        Debug.Log(agentSetting);
         name.text = agentSetting.point.ToString();
 
         // set color

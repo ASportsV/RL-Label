@@ -27,6 +27,18 @@ public class STUPlayersGroup : PlayerGroup
     protected override void LoadParameters()
     {
         m_RVOSettings.testingTrack = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
+        string fileName = Path.Combine(Application.streamingAssetsPath, "STU_tasks.json");
+        string json;
+#if UNITY_EDITOR || !UNITY_ANDROID
+        StreamReader r = new StreamReader(fileName);
+        json = r.ReadToEnd();
+#else
+        WWW reader = new WWW (fileName);
+        while (!reader.isDone) {}
+        json = reader.text;  
+#endif
+        m_RVOSettings.tasks = JsonUtility.FromJson<TaskList>(json).tasks;
+
         var rnd = new System.Random();
         trainingTrack = new Queue<int>(Enumerable.Range(0, scenes.Count)
             .Where(i => !m_RVOSettings.testingTrack.Contains(i))
@@ -48,7 +60,7 @@ public class STUPlayersGroup : PlayerGroup
         currentStep += 1;
 
         var players = scenes[currentScene];
-        foreach(var student in players)
+        foreach (var student in players)
         {
             if (currentStep == student.startStep)
             {
