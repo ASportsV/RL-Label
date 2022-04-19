@@ -26,8 +26,8 @@ public class RVOSettings : MonoBehaviour
     internal float moveUnit;
     internal float moveSmooth;
 
-    internal bool evaluate = false;
-    internal bool evaluate_metrics = false;
+    internal bool evaluate;
+    internal bool evaluate_metrics;
 
     int finished = 0;
     int courtCount = 8;
