@@ -29,12 +29,12 @@ public struct Metrics
 
 public abstract class PlayerGroup : MonoBehaviour
 {
-    protected abstract string sceneName { get;  }
+    protected abstract string sceneName { get; }
     protected abstract string dataFileName { get; }
 
     protected RVOSettings m_RVOSettings;
     // player + label
-    public GameObject playerLabel_prefab, playerLabel_prefab_rl;
+    public GameObject playerLabel_prefab, playerLabel_prefab_rl, playerLabel_baseline_prefab;
     public Sprite redLabel, blueLabel;
 
     public int currentStep = 0;
@@ -63,13 +63,13 @@ public abstract class PlayerGroup : MonoBehaviour
     abstract protected (int, int, int, float, float) parseRecord(string record);
     abstract protected void LoadParameters();
 
-   private void Awake()
+    private void Awake()
     {
-        root = useBaseline ? "player_parent/player" : "player";
         m_RVOSettings = FindObjectOfType<RVOSettings>();
+        root = useBaseline ? "player_parent/player" : "player";
         Camera cam = transform.parent.Find("Camera").GetComponent<Camera>();
         //court = transform.parent.Find("fancy_court");
-        if(m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
+        if (m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
         {
             stringChannel = new StringLogSideChannel();
             SideChannelManager.RegisterSideChannel(stringChannel);
@@ -201,7 +201,7 @@ public abstract class PlayerGroup : MonoBehaviour
         List<GameObject> labelGroups = new List<GameObject>(),
             labels = new List<GameObject>();
 
-        foreach(var student in startedPlayers)
+        foreach (var student in startedPlayers)
         {
             var playerLab = CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
             labelGroups.Add(playerLab.Item1);
@@ -220,15 +220,16 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         int nextTask = currentScene;
         var queue = m_RVOSettings.evaluate ? m_RVOSettings.testingTrack : trainingTrack;
-        if(queue.Count <= 0)
+        if (queue.Count <= 0)
         {
-            if (m_RVOSettings.evaluate) {
+            if (m_RVOSettings.evaluate)
+            {
                 m_RVOSettings.FinishACourt();
-                m_RVOSettings.testingTrack  = doneTrack;
+                m_RVOSettings.testingTrack = doneTrack;
             }
             else trainingTrack = doneTrack;
             doneTrack = new Queue<int>();
-            queue = m_RVOSettings.evaluate ? m_RVOSettings.testingTrack  : trainingTrack;
+            queue = m_RVOSettings.evaluate ? m_RVOSettings.testingTrack : trainingTrack;
         }
 
         nextTask = queue.Dequeue();
@@ -242,14 +243,16 @@ public abstract class PlayerGroup : MonoBehaviour
         var pos = student.positions[0];
         var agentSetting = m_RVOSettings.CurrentTask.setting.Find(t => t.id == sid);
         isAgent = agentSetting.isAgent;
-        GameObject toInstantiate = isAgent ? playerLabel_prefab_rl : playerLabel_prefab;
+        GameObject toInstantiate = isAgent
+            ? useBaseline ? playerLabel_baseline_prefab : playerLabel_prefab_rl
+            : playerLabel_prefab;
         GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = sid + "_PlayerLabel";
         playerObj.SetActive(true);
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
-        player.Init(sid, root, student.positions, student.velocities);
+        player.Init(sid, (!isAgent && useBaseline) ? "player" : root, student.positions, student.velocities);
         m_playerMap[sid] = player;
         // add to set
         if (isAgent) agentSet.Add(sid);
@@ -257,10 +260,14 @@ public abstract class PlayerGroup : MonoBehaviour
         Transform label = playerObj.gameObject.transform.Find("label");
         label.localPosition = new Vector3(0f, m_RVOSettings.labelY, 0f);
 
-        var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         // label name
-
+        var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         name.text = agentSetting.point.ToString();
+
+        if (useBaseline && isAgent)
+        {
+            playerObj.GetComponentInChildren<LabelIdHandler>().sId = sid;
+        }
 
         // set color
         var iamge = label.Find("panel/Player_info").GetComponent<Image>();
@@ -280,7 +287,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected void TrackFinished()
     {
-        if(m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
+        if (m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
         {
             SaveMetricToJson();
             Academy.Instance.StatsRecorder.Add("_test/_track_end", currentScene);
@@ -298,7 +305,7 @@ public abstract class PlayerGroup : MonoBehaviour
             if (p.gameObject.activeSelf) p.GetComponentInChildren<RVOLabelAgent>()?.SyncReset();
             // else, ensure the agent is active
             else p.transform.GetChild(1).gameObject.SetActive(true);
-  
+
             p.GetComponentInChildren<Label>()?.cleanMetrics();
             Destroy(p.gameObject);
         }
@@ -342,7 +349,7 @@ public abstract class PlayerGroup : MonoBehaviour
             labelPositions.AddRange(labelAgent.posOverTime.Select(v => labelAgent.PlayerLabel.sid + "," + v.x + "," + v.y + "," + v.z));
             targetPositions.AddRange(labelAgent.targetPosOverTime.Select(d => labelAgent.PlayerLabel.sid + "," + d.x + "," + d.y + "," + d.z));
         }
-    
+
         Metrics met = new Metrics();
         met.trackId = currentScene;
         met.occludedObjPerStep = accumulatedOcclusion.Select(p => string.Join(',', p)).ToList();
