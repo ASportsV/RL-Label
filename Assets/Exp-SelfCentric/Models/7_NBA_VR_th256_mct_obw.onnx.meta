@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: be9cb77fe961fa941961539d8691070d
+guid: 2aeb1bdb2e31642fdbb53decf648f15b
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -12,5 +12,3 @@ ScriptedImporter:
   forceArbitraryBatchSize: 1
   treatErrorsAsWarnings: 0
   importMode: 1
-  weightsTypeMode: 0
-  activationTypeMode: 0
