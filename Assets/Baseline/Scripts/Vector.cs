@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using UnityEngine;
 
 public struct Vector
 {
@@ -60,13 +61,13 @@ public struct Vector
 		return new Vector(vector.Magnitude * multiplier, vector.Direction);
 	}
 
-	public Point ToPoint()
+	public Vector2 ToPoint()
 	{
 		// break into x-y components
 		double aX = mMagnitude * Math.Cos((Math.PI / 180.0) * mDirection);
 		double aY = mMagnitude * Math.Sin((Math.PI / 180.0) * mDirection);
 
-		return new Point((int)aX, (int)aY);
+		return new Vector2((float)aX, (float)aY);
 	}
 
 	public override string ToString()

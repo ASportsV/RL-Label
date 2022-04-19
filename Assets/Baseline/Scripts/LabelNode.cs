@@ -7,20 +7,33 @@ public class LabelNode
 	Vector totalForce;
 	LabelNode player;
 	public Collider collider, viewplaneCollider;
-	private GameObject sphere;
+	public GameObject sphere, plane;
 
 	private const float MAX_DISTANCE = 1000000f;
+	public float DUMPING = .001f;
 
-    public void UpdateSphere(bool debug)
+    public void UpdateSphere(bool debug, float dumping)
     {
         if (!debug)
         {
 			sphere.transform.localScale = Vector3.zero;
 			return;
         }
-        sphere.transform.localScale = 0.01f * Vector3.one;
+		Vector3 currentPos3 = GetObjPosOnViewPlane();
+		Vector2 currentPos2 = new Vector2(currentPos3.x, currentPos3.z);
+		sphere.transform.localScale = 0.01f * Vector3.one;
 		sphere.transform.position = viewplaneCollider.transform.TransformPoint(
-			GetObjPosOnViewPlane());
+			currentPos3);
+
+		Vector currentPosition = new Vector(
+			BaselineForce.CalcDistance(Vector2.zero, currentPos2),
+			BaselineForce.GetBearingAngle(Vector2.zero, currentPos2)),
+			nextPosition = (currentPosition + totalForce) * dumping;
+		Vector2 nextPos2 = nextPosition.ToPoint();
+		Vector3 nextPos3 = new Vector3(nextPos2.x, currentPos3.y, nextPos2.y);
+
+		Debug.DrawLine(sphere.transform.position,
+			viewplaneCollider.transform.TransformPoint(nextPos3));
     }
 
     public LabelNode(Collider collider, Collider viewplaneCollider)
@@ -54,7 +67,6 @@ public class LabelNode
 		return Vector3.zero;
     }
 
-	// change this with label to viewpoint
 	public Vector2 Location
 	{
 		get

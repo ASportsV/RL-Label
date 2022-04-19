@@ -9,21 +9,23 @@ public class BaselineForce : MonoBehaviour
     private List<LabelNode> labelNodes = new List<LabelNode>();
     private Collider viewplaneCollider;
 
-    private const double ATTRACTION_CONSTANT = 0.1;     
-    private const double REPULSION_CONSTANT = 10000;
+    public double ATTRACTION_CONSTANT = 10;     
+    public double REPULSION_CONSTANT = 100;
     private const int DEFAULT_SPRING_LENGTH = 100;
 
+    public float dumping = .001f;
     public bool debug = false;
 
     void Update()
     {
+        UpdateForces();
         foreach (var l in labelNodes)
         {
-            l.UpdateSphere(debug);
+            l.UpdateSphere(debug, dumping);
         }
     }
 
-    private double GetBearingAngle(Vector2 start, Vector2 end)
+    public static double GetBearingAngle(Vector2 start, Vector2 end)
     {
         Vector2 half = new Vector2(start.x + ((end.x - start.x) / 2), start.y + ((end.y - start.y) / 2));
 
@@ -144,6 +146,16 @@ public class BaselineForce : MonoBehaviour
 
     public void CleanUp()
     {
+        foreach (var l in labelNodes)
+        {
+            if (l.sphere != null)
+                Destroy(l.sphere);
+            if (l.plane != null)
+                Destroy(l.plane);
+        }
+        if (viewplaneCollider != null)
+            Destroy(viewplaneCollider);
+
         labelNodes = new List<LabelNode>();
         viewplaneCollider = null;
     }
