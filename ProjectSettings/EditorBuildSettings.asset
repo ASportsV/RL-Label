@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Exp-SelfCentric/Scene/NBA.unity
     guid: cb867a905180a444089d8d2b5a88f8b9
+  - enabled: 1
+    path: Assets/Exp-SelfCentric/Scene/STU.unity
+    guid: 067c72324c0b2fb4688787e75d98bbda
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 599bfcdeeb4cc4e5485798c6db489402,
       type: 2}
