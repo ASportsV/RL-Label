@@ -18,6 +18,7 @@ public struct PlayerData
 public struct Metrics
 {
     public int trackId;
+    public List<int> agentIds;
     public List<string> occludedObjPerStep; // sid
     public List<string> intersectedObjPerStep;
     public List<string> labelPositions;
@@ -331,6 +332,7 @@ public abstract class PlayerGroup : MonoBehaviour
         met.intersectedObjPerStep = accumulatedIntersection.Select(p => string.Join(',', p)).ToList();
         met.labelPositions = labelPositions;
         met.targetPositions = targetPositions;
+        met.agentIds = players.Select(i => i.id).ToList();
 
         stringChannel.SendMetricsToPython(JsonUtility.ToJson(met));
 
