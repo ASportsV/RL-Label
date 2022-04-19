@@ -23,14 +23,9 @@ public class LabelNode
 
 		sphere.transform.localScale = 0.02f * Vector3.one;
 
-		Vector3 from = viewplaneCollider.transform.TransformPoint(
-			GetObjPosOnViewPlane()),
-			to = GetNextPos(),
-			dir = (to - from).normalized;
-
 		sphere.transform.position = label.transform.position;
 		Debug.DrawLine(sphere.transform.position,
-			sphere.transform.position + (STEP * dir));
+			GetNextPosFinal());
 
 		// sphere.transform.position = viewplaneCollider.transform.TransformPoint(
 		// GetObjPosOnViewPlane());
@@ -44,21 +39,21 @@ public class LabelNode
 	private void UpdatePlane()
 	{
 		plane.transform.position =
-				player.collider.bounds.center;
-		Vector3 dir = plane.GetComponent<Renderer>().bounds.center -
-			Camera.main.transform.position;
-		plane.transform.up = -dir;
+				player.collider.bounds.center +
+				new Vector3(0f, 1f, 0f);
+		plane.transform.up = player.collider.transform.up;
 	}
 
 	public Vector3 GetNextPosFinal()
     {
+		UpdatePlane();
 		Vector3 from = viewplaneCollider.transform.TransformPoint(
 			GetObjPosOnViewPlane()),
 			to = GetNextPos(),
-			dir = (to-from).normalized;
+			dir = (to-from).normalized,
+			newPos = label.transform.position + (STEP * dir);
 
-		return label.transform.position + (STEP * dir);
-
+		return plane.GetComponent<Collider>().ClosestPoint(newPos);
 		/*
 		UpdatePlane();
 		Vector3 nextPosInViewpoint = GetNextPos();
@@ -80,6 +75,7 @@ public class LabelNode
 		this.sphere = sphere;
 
 		plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+		plane.transform.localScale = 0.2f * Vector3.one;
 		plane.GetComponent<MeshRenderer>().enabled = false;
 		plane.GetComponent<MeshCollider>().convex = true;
 	}

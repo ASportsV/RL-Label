@@ -9,9 +9,9 @@ public class BaselineForce : MonoBehaviour
     private List<LabelNode> labelNodes = new List<LabelNode>();
     private Collider viewplaneCollider;
 
-    public double ATTRACTION_CONSTANT = 0.1;     
-    public double REPULSION_CONSTANT = 10000;
-    public float MOVEMENT_SPEED = .25f;
+    public double ATTRACTION_CONSTANT = 100;     
+    public double REPULSION_CONSTANT = 1000;
+    public float MOVEMENT_SPEED = .5f;
     private const int DEFAULT_SPRING_LENGTH = 100;
     public bool debug = false;
 
@@ -21,7 +21,7 @@ public class BaselineForce : MonoBehaviour
         foreach (var l in labelNodes)
         {
             l.UpdateSphere(debug);
-            // l.MoveTowardsNewPos(MOVEMENT_SPEED);
+            l.MoveTowardsNewPos(MOVEMENT_SPEED);
         }
     }
 

@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 7747825478542495356}
   - component: {fileID: 3745049587107037629}
   - component: {fileID: 873151914015541553}
-  - component: {fileID: 7292513594800612247}
+  - component: {fileID: 1454804545057453923}
   m_Layer: 8
   m_Name: panel
   m_TagString: label
@@ -211,7 +211,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 0.6, z: 0.0001}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7292513594800612247
+--- !u!114 &1454804545057453923
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -224,6 +224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lId: 0
+  sId: 0
   newSphere: {fileID: 0}
 --- !u!1 &2797620668410909298
 GameObject:
@@ -954,7 +955,6 @@ GameObject:
   - component: {fileID: 8888566918352332370}
   - component: {fileID: 6211818096133400212}
   - component: {fileID: 3860728042212645599}
-  - component: {fileID: 9201106590991729788}
   - component: {fileID: 5935770978129952232}
   m_Layer: 8
   m_Name: label
@@ -1107,21 +1107,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   end: {fileID: 2976346511293885445}
---- !u!114 &9201106590991729788
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4391264606213972775}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c40e68d2749374b3892a92148c825c7c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 2974557568796607435}
-  followX: 1
-  planeBased: 0
 --- !u!114 &5935770978129952232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1134,6 +1119,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41a510421ac0942679358882b089fb4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cam: {fileID: 0}
+  PlayerLabel: {fileID: 0}
+  distToTargetOverTime: []
+  posOverTime: []
 --- !u!1 &4985842136559148688
 GameObject:
   m_ObjectHideFlags: 0
