@@ -300,6 +300,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected virtual void Clean()
     {
+        b.CleanUp();
         // remove all existing
         foreach (var entry in m_playerMap)
         {
