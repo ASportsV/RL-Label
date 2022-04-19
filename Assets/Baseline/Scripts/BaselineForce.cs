@@ -7,10 +7,31 @@ using System;
 public class BaselineForce : MonoBehaviour
 {
     private List<LabelNode> labelNodes;
+    private Collider viewplaneCollider;
 
     private const double ATTRACTION_CONSTANT = 0.1;     
     private const double REPULSION_CONSTANT = 10000;
     private const int DEFAULT_SPRING_LENGTH = 100;
+
+    public bool debug = false;
+    private bool oldDebug;
+
+    void Start()
+    {
+        oldDebug = debug;
+    }
+
+    void Update()
+    {
+        if(debug != oldDebug)
+        {
+            foreach (var l in labelNodes)
+            {
+                l.debug = debug;
+            }
+            oldDebug = debug;
+        }    
+    }
 
     private double GetBearingAngle(Vector2 start, Vector2 end)
     {
@@ -90,5 +111,35 @@ public class BaselineForce : MonoBehaviour
 
             label.Force = netForce;
         }
+    }
+
+    public void InitFrom(List<GameObject> lG)
+    {
+        viewplaneCollider = GetViewplaneCollider();
+        foreach (var l in lG)
+            AddLabel(l);
+    }
+
+    private void AddLabel(GameObject l)
+    {
+        GameObject label = l.transform.Find("label").gameObject,
+                player = l.transform.Find("player_parent").gameObject;
+        LabelNode nodeP = new LabelNode
+            (player.GetComponentInChildren<Collider>(), viewplaneCollider),
+            nodeL = new LabelNode
+            (label.GetComponentInChildren<Collider>(), viewplaneCollider, nodeP);
+        labelNodes.Add(nodeL);
+    }
+
+    private Collider GetViewplaneCollider()
+    {
+        GameObject parallelToCam = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        parallelToCam.GetComponent<MeshRenderer>().enabled = false;
+        parallelToCam.transform.position =
+                Camera.main.transform.position + Camera.main.transform.forward;
+        Vector3 dir = parallelToCam.GetComponent<Collider>().bounds.center -
+            Camera.main.transform.position;
+        parallelToCam.transform.up = dir;
+        return parallelToCam.GetComponent<Collider>();
     }
 }
