@@ -80,17 +80,24 @@ public class Label : MonoBehaviour
             Vector3 direction = origin - cam.transform.position;
             Debug.DrawRay(origin, direction, new Color(1, 0, 0));
             // raycast, count hit
-            RaycastHit hit;
-            if (Physics.Raycast(origin, direction, out hit, Mathf.Infinity, labelLayerMask | playerLayerMask))
+            // RaycastHit hit;
+
+            RaycastHit[] forHits = Physics.RaycastAll(origin, direction, Mathf.Infinity, labelLayerMask | playerLayerMask)
+                    .Where(hit => !GameObject.ReferenceEquals(hit.collider.transform.parent.gameObject, gameObject) && hit.collider.transform.IsChildOf(transform.parent.parent))
+                    .ToArray();
+            if (forHits.Length > 0)
             {
-                if (!GameObject.ReferenceEquals(hit.collider.transform.parent.gameObject, gameObject))
-                    hits.Add(hit);
+                hits.Add(forHits[0]);
             }
+            
+            // if (Physics.Raycast(origin, direction, out hit, Mathf.Infinity, labelLayerMask | playerLayerMask))
+            // {
+            //     if (!GameObject.ReferenceEquals(hit.collider.transform.parent.gameObject, gameObject))
+            //         hits.Add(hit);
+            // }
         }
 
         var ids = new HashSet<string>();
-
-
         hits.ForEach(hit => {
 
             string id;
