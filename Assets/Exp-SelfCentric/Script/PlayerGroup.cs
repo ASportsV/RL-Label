@@ -65,7 +65,6 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         root = "player";
         m_RVOSettings = FindObjectOfType<RVOSettings>();
-        Camera cam = transform.parent.Find("Camera").GetComponent<Camera>();
         //court = transform.parent.Find("fancy_court");
         if(m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
         {
@@ -76,18 +75,20 @@ public abstract class PlayerGroup : MonoBehaviour
 
         bool onlyTestMC = Academy.Instance.EnvironmentParameters.GetWithDefault("onlyTestMC", 0.0f) == 1.0f;
         bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
+
+        GameObject camGo = transform.parent.Find("Camera").gameObject;
         if (onlyTestMC ? (m_RVOSettings.evaluate && movingCam) : movingCam)
         {
-            cam.gameObject.AddComponent<MovingCamera>();
+            camGo.AddComponent<MovingCamera>();
         }
 
         // geometry min and max
-        m_RVOSettings.minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
-        var tmp = cam.transform.forward;
-        var cornerInWorld = cam.transform.parent.TransformPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
-        cam.transform.LookAt(cornerInWorld);
-        m_RVOSettings.maxZInCam = cam.WorldToViewportPoint(cornerInWorld).z;
-        cam.transform.forward = tmp;
+        m_RVOSettings.minZInCam = Mathf.Abs(camGo.transform.localPosition.z - -m_RVOSettings.courtZ);
+        var tmp = camGo.transform.forward;
+        var cornerInWorld = camGo.transform.parent.TransformPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
+        camGo.transform.LookAt(cornerInWorld);
+        m_RVOSettings.maxZInCam = camGo.transform.InverseTransformPoint(cornerInWorld).z; //cam.WorldToViewportPoint(cornerInWorld).z;
+        camGo.transform.forward = tmp;
 
         Debug.Log("Min and Max Z in Cam: (" + m_RVOSettings.minZInCam.ToString() + "," + m_RVOSettings.maxZInCam.ToString() + ")");
 
