@@ -3681,7 +3681,7 @@ MonoBehaviour:
   root: 
   totalStep: 0
   brain: {fileID: 0}
-  b: {fileID: 0}
+  b: {fileID: 1046965414}
 --- !u!1 &1929724315
 GameObject:
   m_ObjectHideFlags: 0

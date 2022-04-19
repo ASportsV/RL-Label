@@ -204,8 +204,11 @@ public abstract class PlayerGroup : MonoBehaviour
         foreach (var student in startedPlayers)
         {
             var playerLab = CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
-            labelGroups.Add(playerLab.Item1);
-            labels.Add(playerLab.Item2);
+            if(playerLab.Item1) 
+            {
+                labelGroups.Add(playerLab.Item2);
+                labels.Add(playerLab.Item3);
+            }
         }
 
         totalStep = players.Max(s => s.startStep + s.totalStep);
@@ -237,7 +240,7 @@ public abstract class PlayerGroup : MonoBehaviour
         return nextTask;
     }
 
-    protected (GameObject, GameObject) CreatePlayerLabelFromPos(PlayerData student, bool isAgent)
+    protected (bool, GameObject, GameObject) CreatePlayerLabelFromPos(PlayerData student, bool isAgent)
     {
         int sid = student.id;
         var pos = student.positions[0];
@@ -282,7 +285,7 @@ public abstract class PlayerGroup : MonoBehaviour
             cubeRenderer.material.SetColor("_Color", color);
         }
 
-        return (playerObj, label.gameObject);
+        return (isAgent, playerObj, label.gameObject);
     }
 
     protected void TrackFinished()
