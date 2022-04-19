@@ -10,6 +10,7 @@ public class LabelNode
 	public GameObject sphere, plane, label;
 
 	private const float MAX_DISTANCE = 1000000f;
+	private const float STEP = 2f;
 	public float DUMPING = .001f;
 
     public void UpdateSphere(bool debug)
@@ -21,14 +22,24 @@ public class LabelNode
         }
 
 		sphere.transform.localScale = 0.02f * Vector3.one;
+
+		Vector3 from = viewplaneCollider.transform.TransformPoint(
+			GetObjPosOnViewPlane()),
+			to = GetNextPos(),
+			dir = (to - from).normalized;
+
+		sphere.transform.position = label.transform.position;
+		Debug.DrawLine(sphere.transform.position,
+			sphere.transform.position + (STEP * dir));
+
 		// sphere.transform.position = viewplaneCollider.transform.TransformPoint(
-			// GetObjPosOnViewPlane());
+		// GetObjPosOnViewPlane());
 
 		// Debug.DrawLine(sphere.transform.position,
-			// GetNextPos(dumping));
-		UpdatePlane();
-		sphere.transform.position = GetNextPosFinal();
-    }
+		// GetNextPos(dumping));
+		// UpdatePlane();
+		// sphere.transform.position = GetNextPosFinal();
+	}
 
 	private void UpdatePlane()
 	{
@@ -41,9 +52,18 @@ public class LabelNode
 
 	public Vector3 GetNextPosFinal()
     {
+		Vector3 from = viewplaneCollider.transform.TransformPoint(
+			GetObjPosOnViewPlane()),
+			to = GetNextPos(),
+			dir = (to-from).normalized;
+
+		return label.transform.position + (STEP * dir);
+
+		/*
 		UpdatePlane();
 		Vector3 nextPosInViewpoint = GetNextPos();
 		return plane.GetComponent<Collider>().ClosestPoint(nextPosInViewpoint);
+		*/
     }
 
 	public LabelNode(Collider collider, Collider viewplaneCollider)
