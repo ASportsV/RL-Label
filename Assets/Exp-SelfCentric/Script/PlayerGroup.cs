@@ -58,14 +58,14 @@ public abstract class PlayerGroup : MonoBehaviour
 
     // baseline
     protected bool useBaseline => m_RVOSettings.CurrentTech == Tech.Opti;
-    public Baseline b;
+    public BaselineForce b;
 
     abstract protected (int, int, int, float, float) parseRecord(string record);
     abstract protected void LoadParameters();
 
    private void Awake()
     {
-        root = "player";
+        root = useBaseline ? "player_parent/player" : "player";
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         Camera cam = transform.parent.Find("Camera").GetComponent<Camera>();
         //court = transform.parent.Find("fancy_court");
@@ -198,12 +198,22 @@ public abstract class PlayerGroup : MonoBehaviour
             .Where(s => s.startStep == currentStep)
             .OrderBy(_ => rnd.Next());
 
+        List<GameObject> labelGroups = new List<GameObject>(),
+            labels = new List<GameObject>();
+
         foreach(var student in startedPlayers)
         {
-            CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
+            var playerLab = CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
+            labelGroups.Add(playerLab.Item1);
+            labels.Add(playerLab.Item2);
         }
 
         totalStep = players.Max(s => s.startStep + s.totalStep);
+
+        if (useBaseline)
+        {
+            b.InitFrom(labelGroups, labels);
+        }
     }
 
     protected int getNextTrack()
