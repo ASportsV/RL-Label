@@ -7,13 +7,12 @@ public class LabelNode
 	Vector totalForce;
 	LabelNode player;
 	public Collider collider, viewplaneCollider;
-	public GameObject sphere, plane;
-	private Plane p;
+	public GameObject sphere, plane, label;
 
 	private const float MAX_DISTANCE = 1000000f;
-	public float DUMPING = .00001f;
+	public float DUMPING = .001f;
 
-    public void UpdateSphere(bool debug, float dumping)
+    public void UpdateSphere(bool debug)
     {
         if (!debug)
         {
@@ -21,13 +20,14 @@ public class LabelNode
 			return;
         }
 
-		sphere.transform.localScale = 0.01f * Vector3.one;
-		sphere.transform.position = viewplaneCollider.transform.TransformPoint(
-			GetObjPosOnViewPlane());
+		sphere.transform.localScale = 0.02f * Vector3.one;
+		// sphere.transform.position = viewplaneCollider.transform.TransformPoint(
+			// GetObjPosOnViewPlane());
 
-		Debug.DrawLine(sphere.transform.position,
-			GetNextPos(dumping));
+		// Debug.DrawLine(sphere.transform.position,
+			// GetNextPos(dumping));
 		UpdatePlane();
+		sphere.transform.position = GetNextPosFinal();
     }
 
 	private void UpdatePlane()
@@ -41,6 +41,7 @@ public class LabelNode
 
 	public Vector3 GetNextPosFinal()
     {
+		UpdatePlane();
 		Vector3 nextPosInViewpoint = GetNextPos();
 		return plane.GetComponent<Collider>().ClosestPoint(nextPosInViewpoint);
     }
@@ -60,6 +61,7 @@ public class LabelNode
 
 		plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
 		plane.GetComponent<MeshRenderer>().enabled = false;
+		plane.GetComponent<MeshCollider>().convex = true;
 	}
 
 	private Vector3 GetObjPosOnViewPlane()
@@ -75,8 +77,8 @@ public class LabelNode
 			return planePoint;
 		}
 
-		Debug.LogError("No intersection with camera plane!");
-		return Vector3.zero;
+		// Debug.LogError("No intersection with camera plane!");
+		return -8f * Vector3.one;
     }
 
 	public Vector3 GetNextPos(float dumping = -1f)
@@ -115,4 +117,12 @@ public class LabelNode
 		get { return player; }
 		set { player = value; }
     }
+
+	public void MoveTowardsNewPos(float movementSpeed)
+    {
+		Vector3 targetPos = GetNextPosFinal(),
+			oldPos = label.transform.position;
+		float step = movementSpeed * Time.deltaTime;
+		label.transform.position = Vector3.MoveTowards(oldPos, targetPos, step);
+	}
 }

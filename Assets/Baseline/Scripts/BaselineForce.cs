@@ -9,11 +9,10 @@ public class BaselineForce : MonoBehaviour
     private List<LabelNode> labelNodes = new List<LabelNode>();
     private Collider viewplaneCollider;
 
-    public double ATTRACTION_CONSTANT = 10;     
-    public double REPULSION_CONSTANT = 100;
+    public double ATTRACTION_CONSTANT = 0.1;     
+    public double REPULSION_CONSTANT = 10000;
+    public float MOVEMENT_SPEED = .25f;
     private const int DEFAULT_SPRING_LENGTH = 100;
-
-    public float dumping = .001f;
     public bool debug = false;
 
     void Update()
@@ -21,7 +20,8 @@ public class BaselineForce : MonoBehaviour
         UpdateForces();
         foreach (var l in labelNodes)
         {
-            l.UpdateSphere(debug, dumping);
+            l.UpdateSphere(debug);
+            // l.MoveTowardsNewPos(MOVEMENT_SPEED);
         }
     }
 
@@ -84,24 +84,28 @@ public class BaselineForce : MonoBehaviour
     {
         foreach (var label in labelNodes)
         {
-            Vector netForce = new Vector(0d, 0d);
-
-            foreach (var otherLabel in labelNodes)
+            if (label.Location.x != -8f)
             {
-                if (label == otherLabel)
-                {
-                    netForce += CalcAttractionForce(
-                        label, otherLabel.Player, DEFAULT_SPRING_LENGTH);
-                } else
-                {
-                    netForce += CalcRepulsionForce(
-                        label, otherLabel);
-                    netForce += CalcRepulsionForce(
-                        label, otherLabel.Player);
-                }
-            }
+                Vector netForce = new Vector(0f, 0f);
 
-            label.Force = netForce;
+                foreach (var otherLabel in labelNodes)
+                {
+                    if (label == otherLabel)
+                    {
+                        netForce += CalcAttractionForce(
+                            label, otherLabel.Player, DEFAULT_SPRING_LENGTH);
+                    }
+                    else
+                    {
+                        netForce += CalcRepulsionForce(
+                            label, otherLabel);
+                        netForce += CalcRepulsionForce(
+                            label, otherLabel.Player);
+                    }
+                }
+
+                label.Force = netForce;
+            }
         }
     }
 
@@ -124,6 +128,7 @@ public class BaselineForce : MonoBehaviour
         sphere.name = l.name;
         LabelNode nodeL = new LabelNode
             (l.GetComponentInChildren<Collider>(), viewplaneCollider, nodeP, sphere);
+        nodeL.label = l;
         labelNodes.Add(nodeL);
     }
 
