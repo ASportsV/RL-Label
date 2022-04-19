@@ -113,7 +113,6 @@ public abstract class PlayerGroup : MonoBehaviour
         Dictionary<string, int> playerStartedInTrack = new Dictionary<string, int>();
         for (int i = 0; i < records.Length; ++i)
         {
-
             var (trackIdx, currentStep, playerIdx, px, py) = parseRecord(records[i]);
 
             if ((trackIdx + 1) > tracks.Count) tracks.Add(new Dictionary<int, List<Vector3>>());
@@ -136,6 +135,8 @@ public abstract class PlayerGroup : MonoBehaviour
         for (int tIdx = 0; tIdx < tracks.Count; ++tIdx)
         {
             List<PlayerData> track = new List<PlayerData>();
+            int minIdxInthisTrack = tracks[tIdx].Keys.Min();
+
             foreach (var entry in tracks[tIdx])
             {
                 int playerIdx = entry.Key;
@@ -154,7 +155,7 @@ public abstract class PlayerGroup : MonoBehaviour
                     vel[pos.Length - 1] = vel[pos.Length - 2];
 
                 PlayerData student = new PlayerData();
-                student.id = playerIdx;
+                student.id = playerIdx - minIdxInthisTrack;
                 student.positions = pos;
                 student.velocities = vel;
                 student.startStep = playerStartedInTrack[tIdx.ToString() + '_' + playerIdx.ToString()];
