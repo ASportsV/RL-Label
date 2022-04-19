@@ -36,7 +36,7 @@ public class RVOSettings : MonoBehaviour
     {
         obW = Academy.Instance.EnvironmentParameters.GetWithDefault("ob_w", 1f) == 1.0f;
         evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 1f) == 1.0f;
-        evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 0f) == 1.0f;
+        evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 1f) == 1.0f;
         courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
     }
 

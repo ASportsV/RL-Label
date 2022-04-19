@@ -43,6 +43,11 @@ public class Label : MonoBehaviour
     private void FixedUpdate()
     {
         m_Panel.LookAt(cam.transform);
+
+    }
+
+    public void Collect()
+    {
         if(m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
         {
             CollectOccluding();
@@ -112,6 +117,7 @@ public class Label : MonoBehaviour
                 id = "l_" + hit.collider.GetComponentInParent<Label>().PlayerLabel.sid;
             }
             ids.Add(id);
+            if(id.Contains("_4")) Debug.Log(id + " at step " + occludedObjectOverTime.Count());
         });
         occludedObjectOverTime.Add(ids);
     }

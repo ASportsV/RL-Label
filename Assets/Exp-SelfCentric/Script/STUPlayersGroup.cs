@@ -37,6 +37,7 @@ public class STUPlayersGroup : PlayerGroup
             if (currentStep == student.startStep)
             {
                 CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
+                m_playerMap[student.id].step(currentStep - student.startStep);
             }
             else if (currentStep > student.startStep && currentStep < (student.startStep + student.totalStep))
             {

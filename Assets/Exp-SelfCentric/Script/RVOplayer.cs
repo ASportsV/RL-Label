@@ -9,6 +9,7 @@ public class RVOplayer : MonoBehaviour
     [HideInInspector] public string root { get; private set; }
     public int currentStep = 0;
     public Transform player;
+    public Label label;
     public Vector3[] positions { get; private set; }
     public Vector3[] velocities { get; private set; }
 
@@ -21,6 +22,7 @@ public class RVOplayer : MonoBehaviour
         this.velocities = velocities;
 
         player = transform.Find("player");
+        label = transform.Find("label").GetComponent<Label>();
         var text = transform.Find(string.Format("{0}/BackCanvas/Text", root))
             .GetComponent<TMPro.TextMeshProUGUI>();
         text.text = transform.GetSiblingIndex().ToString(); //sid.ToString();
@@ -50,6 +52,7 @@ public class RVOplayer : MonoBehaviour
             currentStep = idx;
             transform.localPosition = positions[idx];
             player.transform.forward = velocities[idx].normalized;
+            label.Collect();
         }
     }
 

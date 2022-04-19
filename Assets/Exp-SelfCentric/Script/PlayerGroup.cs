@@ -188,6 +188,7 @@ public abstract class PlayerGroup : MonoBehaviour
         foreach(var student in startedPlayers)
         {
             CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
+            m_playerMap[student.id].step(currentStep - student.startStep);
         }
 
         totalStep = players.Max(s => s.startStep + s.totalStep);
@@ -300,7 +301,7 @@ public abstract class PlayerGroup : MonoBehaviour
             foreach (var student in players.Where(s => i >= s.startStep && i < (s.startStep + s.totalStep)))
             {
                 var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<Label>();
-
+                // Debug.Log("Len:" + labelAgent.occludedObjectOverTime.Count() + ", startStep:" + student.startStep + ", totalStep:" + student.totalStep + ", i:" + i);
                 occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
                 intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
             }
