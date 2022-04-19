@@ -11,6 +11,7 @@ public class TaskItem {
     public int point;
     public string color;
     public int occ;
+    public bool isAgent;
 }
 
 [Serializable]

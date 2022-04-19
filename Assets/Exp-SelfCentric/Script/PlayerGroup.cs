@@ -226,60 +226,12 @@ public abstract class PlayerGroup : MonoBehaviour
         return nextTask;
     }
 
-
-    // public void LoadScene(int sceneIdx)
-    // {
-    //     Clean();
-    //     Init();
-
-    //     // reset
-    //     currentScene = sceneIdx;
-    //     currentStep = 0;
-    //     var students = scenes[currentScene];
-    //     int numPlayers = students.Count;
-
-    //     List<GameObject> labelGroups = new List<GameObject>(),
-    //         labels = new List<GameObject>();
-
-    //     for (int i = 0, len = numPlayers; i < len; ++i)
-    //     {
-    //         var student = students[i];
-    //         if (currentStep == student.startStep)
-    //         {
-    //             var playerLab = CreatePlayerLabelFromPos(student);
-    //             labelGroups.Add(playerLab.Item1);
-    //             labels.Add(playerLab.Item2);
-    //         }
-    //     }
-    //     this.totalStep = students.Max(s => s.startStep + s.totalStep);
-
-    //     if (useBaseline)
-    //     {
-    //         b.InitFrom(labelGroups, labels);
-    //     }
-    // }
-
-    // protected void Init()
-    // {
-    //     root = useBaseline ? "player_parent/player" : "player";
-
-    //     cam = transform.parent.Find("Camera").GetComponent<Camera>();
-    //     court = transform.parent.Find("fancy_court");
-
-    //     // geometry min and max
-    //     minZInCam = Mathf.Abs(cam.transform.localPosition.z - -m_RVOSettings.courtZ);
-    //     var tmp = cam.transform.forward;
-    //     cam.transform.LookAt(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));
-    //     maxZInCam = cam.WorldToViewportPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ)).z;
-    //     cam.transform.forward = tmp;
-
-    //     Debug.Log("Min and Max Z in Cam: (" + minZInCam.ToString() + "," + maxZInCam.ToString() + "), old max: " + cam.WorldToViewportPoint(new Vector3(0, 0, m_RVOSettings.courtZ)).z);
-    // }
-
     protected (GameObject, GameObject) CreatePlayerLabelFromPos(PlayerData student, bool isAgent)
     {
         int sid = student.id;
         var pos = student.positions[0];
+        var agentSetting = m_RVOSettings.CurrentTask.setting.Find(t => t.id == sid);
+        isAgent = agentSetting.isAgent;
         GameObject toInstantiate = isAgent ? playerLabel_prefab_rl : playerLabel_prefab;
         GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
@@ -297,9 +249,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         // label name
-        var agentSetting = m_RVOSettings.CurrentTask.setting.Find(t => t.id == sid);
-        Debug.Log("sid " + sid);
-        Debug.Log(agentSetting);
+
         name.text = agentSetting.point.ToString();
 
         // set color
