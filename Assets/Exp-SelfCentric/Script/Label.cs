@@ -27,7 +27,11 @@ public class Label : MonoBehaviour
         m_Panel = transform.Find("panel");
         rTransform = GetComponentInChildren<RectTransform>();
         PlayerLabel = transform.parent.GetComponent<RVOplayer>();
-        cam = transform.parent.parent.parent.Find("Camera").GetComponentInChildren<Camera>();
+        Debug.Log("====?");
+        Debug.Log(transform.parent.name);
+        // Debug.Log(transform.parent.parent.name);
+        cam =  Camera.main;
+        // transform.parent.parent.parent.Find("Camera").GetComponentInChildren<Camera>();
     }
 
     public Vector3 velocity => PlayerLabel.velocity + m_Rbody.velocity;

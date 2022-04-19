@@ -20,7 +20,7 @@ public class RVOplayer : MonoBehaviour
         this.positions = positions;
         this.velocities = velocities;
 
-        player = transform.Find("player");
+        player = transform.Find(root);
         var text = transform.Find(string.Format("{0}/BackCanvas/Text", root))
             .GetComponent<TMPro.TextMeshProUGUI>();
         text.text = sid.ToString(); // transform.GetSiblingIndex().ToString(); //sid.ToString();
