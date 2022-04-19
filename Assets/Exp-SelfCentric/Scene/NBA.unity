@@ -202,7 +202,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1046965413}
-  - component: {fileID: 1046965412}
   - component: {fileID: 1046965414}
   m_Layer: 0
   m_Name: LabelGroup
@@ -211,35 +210,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1046965412
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1046965411}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f744e150bdcf4022bc89143fd5e467d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  labelPrefab: {fileID: 4009644357339790710, guid: 8f50fe4af39004f9faa3dce58227683d,
-    type: 3}
-  labelGroups: []
-  labels: []
-  lower: {fileID: 2100000, guid: 03c35f21145994dc5be5d3bdeeb5d21b, type: 2}
-  upper: {fileID: 2100000, guid: 941f325c5881c4479a6bd562d914681f, type: 2}
-  center: {fileID: 2100000, guid: 69abf9f1fdd72495982c2e67719e1d9f, type: 2}
-  planeDirs: {fileID: 2100000, guid: 45f09cce0ec7b494ba8730ce8c02a027, type: 2}
-  middleMats:
-  - {fileID: 2100000, guid: 60124a42f17934459a9e1a49c4a48925, type: 2}
-  - {fileID: 2100000, guid: 1f1eac914fad84b5e878bbeff41ccccb, type: 2}
-  - {fileID: 2100000, guid: 6e49b695b297d45558ed4f2174de3c0b, type: 2}
-  - {fileID: 2100000, guid: 28a230a4ab9b34d6c8b5f74cd74c8ac7, type: 2}
-  hideSpheres: 1
-  hidePlanes: 1
-  hidePlaneSpheres: 1
-  algo: 2
 --- !u!4 &1046965413
 Transform:
   m_ObjectHideFlags: 0
@@ -267,6 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff225dd13d29f4cd983cd08e9f2258d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debug: 0
 --- !u!1 &1124511748
 GameObject:
   m_ObjectHideFlags: 0
@@ -358,7 +329,7 @@ MonoBehaviour:
   currentScene: 0
   brain: {fileID: 5022602860645237092, guid: 93d3dc14098f3984c842bdb8df62be66, type: 3}
   root: 
-  b: {fileID: 1046965412}
+  b: {fileID: 1046965414}
   totalStep: 0
 --- !u!1001 &149470760851930646
 PrefabInstance:

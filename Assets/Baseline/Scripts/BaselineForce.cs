@@ -6,7 +6,7 @@ using System;
 
 public class BaselineForce : MonoBehaviour
 {
-    private List<LabelNode> labelNodes;
+    private List<LabelNode> labelNodes = new List<LabelNode>();
     private Collider viewplaneCollider;
 
     private const double ATTRACTION_CONSTANT = 0.1;     
@@ -14,23 +14,13 @@ public class BaselineForce : MonoBehaviour
     private const int DEFAULT_SPRING_LENGTH = 100;
 
     public bool debug = false;
-    private bool oldDebug;
-
-    void Start()
-    {
-        oldDebug = debug;
-    }
 
     void Update()
     {
-        if(debug != oldDebug)
+        foreach (var l in labelNodes)
         {
-            foreach (var l in labelNodes)
-            {
-                l.debug = debug;
-            }
-            oldDebug = debug;
-        }    
+            l.UpdateSphere(debug);
+        }
     }
 
     private double GetBearingAngle(Vector2 start, Vector2 end)
@@ -113,26 +103,35 @@ public class BaselineForce : MonoBehaviour
         }
     }
 
-    public void InitFrom(List<GameObject> lG)
+    public void InitFrom(List<GameObject> lG, List<GameObject> l)
     {
         viewplaneCollider = GetViewplaneCollider();
-        foreach (var l in lG)
-            AddLabel(l);
+        for (int i = 0; i < lG.Count; i++)
+            AddLabel(lG[i], l[i]);
     }
 
-    private void AddLabel(GameObject l)
+    public void AddLabel(GameObject lG, GameObject l)
     {
-        GameObject label = l.transform.Find("label").gameObject,
-                player = l.transform.Find("player_parent").gameObject;
+        GameObject player = lG.transform.Find("player_parent").gameObject;
         LabelNode nodeP = new LabelNode
-            (player.GetComponentInChildren<Collider>(), viewplaneCollider),
-            nodeL = new LabelNode
-            (label.GetComponentInChildren<Collider>(), viewplaneCollider, nodeP);
+            (player.GetComponentInChildren<Collider>(), viewplaneCollider);
+
+        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        Destroy(sphere.GetComponent<SphereCollider>());
+        sphere.transform.localScale = Vector3.zero;
+        sphere.name = l.name;
+        LabelNode nodeL = new LabelNode
+            (l.GetComponentInChildren<Collider>(), viewplaneCollider, nodeP, sphere);
         labelNodes.Add(nodeL);
     }
 
     private Collider GetViewplaneCollider()
     {
+        if (viewplaneCollider != null)
+        {
+            return viewplaneCollider;
+        }
+
         GameObject parallelToCam = GameObject.CreatePrimitive(PrimitiveType.Plane);
         parallelToCam.GetComponent<MeshRenderer>().enabled = false;
         parallelToCam.transform.position =
@@ -141,5 +140,11 @@ public class BaselineForce : MonoBehaviour
             Camera.main.transform.position;
         parallelToCam.transform.up = dir;
         return parallelToCam.GetComponent<Collider>();
+    }
+
+    public void CleanUp()
+    {
+        labelNodes = new List<LabelNode>();
+        viewplaneCollider = null;
     }
 }

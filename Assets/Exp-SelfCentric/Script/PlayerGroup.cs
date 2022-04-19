@@ -44,7 +44,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected bool useBaseline => m_RVOSettings.CurrentTech == Tech.Opti;
     [HideInInspector] public string root;
-    public Baseline b;
+    public BaselineForce b;
 
     public List<List<PlayerData>> scenes = new List<List<PlayerData>>();
     protected Dictionary<int, RVOplayer> m_playerMap = new Dictionary<int, RVOplayer>();
@@ -186,7 +186,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected virtual void Clean()
     {
-        b.CleanEverything();
+        b.CleanUp();
         // remove all existing
         foreach (var entry in m_playerMap)
         {

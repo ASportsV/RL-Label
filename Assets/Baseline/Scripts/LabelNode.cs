@@ -2,23 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LabelNode : MonoBehaviour
+public class LabelNode
 {
 	Vector totalForce;
 	LabelNode player;
 	public Collider collider, viewplaneCollider;
 	private GameObject sphere;
-	public bool debug = false;
 
 	private const float MAX_DISTANCE = 1000000f;
 
-    void Update()
+    public void UpdateSphere(bool debug)
     {
-        if(debug)
+        if (!debug)
         {
-			sphere.transform.localScale = Vector3.one;
-			sphere.transform.position = GetObjPosOnViewPlane();
+			sphere.transform.localScale = Vector3.zero;
+			return;
         }
+        sphere.transform.localScale = 0.01f * Vector3.one;
+		sphere.transform.position = viewplaneCollider.transform.TransformPoint(
+			GetObjPosOnViewPlane());
     }
 
     public LabelNode(Collider collider, Collider viewplaneCollider)
@@ -27,16 +29,12 @@ public class LabelNode : MonoBehaviour
 		this.viewplaneCollider = viewplaneCollider;
 	}
 
-	public LabelNode(Collider collider, Collider viewplaneCollider, LabelNode player)
+	public LabelNode(Collider collider, Collider viewplaneCollider, LabelNode player, GameObject sphere)
 	{
 		this.collider = collider;
 		this.viewplaneCollider = viewplaneCollider;
 		this.player = player;
-
-		sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-		Destroy(sphere.GetComponent<SphereCollider>());
-		sphere.transform.localScale = Vector3.zero;
-		sphere.name = collider.name;
+		this.sphere = sphere;
 	}
 
 	private Vector3 GetObjPosOnViewPlane()
