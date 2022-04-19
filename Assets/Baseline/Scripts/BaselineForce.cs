@@ -159,7 +159,7 @@ public class BaselineForce : MonoBehaviour
                 Destroy(l.plane);
         }
         if (viewplaneCollider != null)
-            Destroy(viewplaneCollider);
+            Destroy(viewplaneCollider.transform.gameObject);
 
         labelNodes = new List<LabelNode>();
         viewplaneCollider = null;

@@ -237,6 +237,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff225dd13d29f4cd983cd08e9f2258d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ATTRACTION_CONSTANT: 100
+  REPULSION_CONSTANT: 1000
+  MOVEMENT_SPEED: 0.75
   debug: 0
 --- !u!1 &1124511748
 GameObject:
