@@ -10,7 +10,7 @@ public class NBAPlayerGroup : PlayerGroup
 
     protected override void LoadParameters()
     {
-        testingTrack = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
+        testingTrack = new Queue<int>(); //new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
         var rnd = new System.Random();
         trainingTrack = new Queue<int>(Enumerable.Range(0, scenes.Count)
             .Where(i => !testingTrack.Contains(i))
