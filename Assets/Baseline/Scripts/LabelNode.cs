@@ -13,6 +13,8 @@ public class LabelNode
 	private const float STEP = 2f;
 	public float DUMPING = .001f;
 
+	bool isAgent;
+
     public void UpdateSphere(bool debug)
     {
         if (!debug)
@@ -67,12 +69,13 @@ public class LabelNode
 		this.viewplaneCollider = viewplaneCollider;
 	}
 
-	public LabelNode(Collider collider, Collider viewplaneCollider, LabelNode player, GameObject sphere)
+	public LabelNode(Collider collider, Collider viewplaneCollider, LabelNode player, GameObject sphere, bool isAgent)
 	{
 		this.collider = collider;
 		this.viewplaneCollider = viewplaneCollider;
 		this.player = player;
 		this.sphere = sphere;
+		this.isAgent = isAgent;
 
 		plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
 		plane.transform.localScale = 0.2f * Vector3.one;
@@ -136,9 +139,11 @@ public class LabelNode
 
 	public void MoveTowardsNewPos(float movementSpeed)
     {
+		if(!isAgent) return;
 		Vector3 targetPos = GetNextPosFinal(),
 			oldPos = label.transform.position;
 		float step = movementSpeed * Time.deltaTime;
+	
 		label.transform.position = Vector3.MoveTowards(oldPos, targetPos, step);
 	}
 }

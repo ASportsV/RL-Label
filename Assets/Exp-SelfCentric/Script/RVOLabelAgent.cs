@@ -316,6 +316,7 @@ public class RVOLabelAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
+        if(m_RVOSettings.CurrentTech != Tech.Ours) return;
         addForceMove(actionBuffers);
     }
 

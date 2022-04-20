@@ -66,7 +66,7 @@ public abstract class PlayerGroup : MonoBehaviour
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
-        root = useBaseline ? "player_parent/player" : "player";
+        root = "player";
         Camera cam = transform.parent.Find("Camera").GetComponent<Camera>();
         //court = transform.parent.Find("fancy_court");
         if (m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
@@ -200,22 +200,21 @@ public abstract class PlayerGroup : MonoBehaviour
 
         List<GameObject> labelGroups = new List<GameObject>(),
             labels = new List<GameObject>();
+        List<bool> isAgents = new List<bool>();
 
         foreach (var student in startedPlayers)
         {
             var playerLab = CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
-            if(playerLab.Item1) 
-            {
-                labelGroups.Add(playerLab.Item2);
-                labels.Add(playerLab.Item3);
-            }
+            isAgents.Add(playerLab.Item1);
+            labelGroups.Add(playerLab.Item2);
+            labels.Add(playerLab.Item3);
         }
 
         totalStep = players.Max(s => s.startStep + s.totalStep);
 
         if (useBaseline)
         {
-            b.InitFrom(labelGroups, labels);
+            b.InitFrom(labelGroups, labels, isAgents);
         }
     }
 

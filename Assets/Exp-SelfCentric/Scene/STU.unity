@@ -2470,7 +2470,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1046965413}
-  - component: {fileID: 1046965412}
+  - component: {fileID: 1046965414}
   m_Layer: 0
   m_Name: LabelGroup
   m_TagString: Untagged
@@ -2478,35 +2478,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1046965412
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1046965411}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f744e150bdcf4022bc89143fd5e467d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  labelPrefab: {fileID: 4009644357339790710, guid: 8f50fe4af39004f9faa3dce58227683d,
-    type: 3}
-  labelGroups: []
-  labels: []
-  lower: {fileID: 2100000, guid: 03c35f21145994dc5be5d3bdeeb5d21b, type: 2}
-  upper: {fileID: 2100000, guid: 941f325c5881c4479a6bd562d914681f, type: 2}
-  center: {fileID: 2100000, guid: 69abf9f1fdd72495982c2e67719e1d9f, type: 2}
-  planeDirs: {fileID: 2100000, guid: 45f09cce0ec7b494ba8730ce8c02a027, type: 2}
-  middleMats:
-  - {fileID: 2100000, guid: 60124a42f17934459a9e1a49c4a48925, type: 2}
-  - {fileID: 2100000, guid: 1f1eac914fad84b5e878bbeff41ccccb, type: 2}
-  - {fileID: 2100000, guid: 6e49b695b297d45558ed4f2174de3c0b, type: 2}
-  - {fileID: 2100000, guid: 28a230a4ab9b34d6c8b5f74cd74c8ac7, type: 2}
-  hideSpheres: 1
-  hidePlanes: 1
-  hidePlaneSpheres: 1
-  algo: 2
 --- !u!4 &1046965413
 Transform:
   m_ObjectHideFlags: 0
@@ -2522,6 +2493,22 @@ Transform:
   m_Father: {fileID: 5849866393272827402}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1046965414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046965411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 673cd2a98737249ae837860328c11e7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ATTRACTION_CONSTANT: 100
+  REPULSION_CONSTANT: 1000
+  MOVEMENT_SPEED: 0.5
+  debug: 0
 --- !u!1 &1079807079
 GameObject:
   m_ObjectHideFlags: 0
@@ -4202,6 +4189,8 @@ MonoBehaviour:
     type: 3}
   playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
+  playerLabel_baseline_prefab: {fileID: 4009644357339790710, guid: 519291690fe2846c6a66b8bbd2e59f8a,
+    type: 3}
   redLabel: {fileID: 21300000, guid: 04cda55ab2885c542831667cfa564c54, type: 3}
   blueLabel: {fileID: 21300000, guid: 17ebe7c5b60aad24eb04093b8031dee5, type: 3}
   currentStep: 0
@@ -4209,7 +4198,7 @@ MonoBehaviour:
   root: 
   totalStep: 0
   brain: {fileID: 0}
-  b: {fileID: 0}
+  b: {fileID: 1046965414}
 --- !u!4 &2088034914147222496
 Transform:
   m_ObjectHideFlags: 0

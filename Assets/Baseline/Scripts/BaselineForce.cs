@@ -114,17 +114,17 @@ public class BaselineForce : MonoBehaviour
         }
     }
 
-    public void InitFrom(List<GameObject> lG, List<GameObject> l)
+    public void InitFrom(List<GameObject> lG, List<GameObject> l, List<bool> isAgents)
     {
         viewplaneCollider = GetViewplaneCollider();
         for (int i = 0; i < lG.Count; i++)
-            AddLabel(lG[i], l[i]);
+            AddLabel(lG[i], l[i], isAgents[i]);
         init = true;
     }
 
-    public void AddLabel(GameObject lG, GameObject l)
+    public void AddLabel(GameObject lG, GameObject l, bool isAgent)
     {
-        GameObject player = lG.transform.Find("player_parent").gameObject;
+        GameObject player = lG.transform.Find("player").gameObject;
         LabelNode nodeP = new LabelNode
             (player.GetComponentInChildren<Collider>(), viewplaneCollider);
 
@@ -133,7 +133,7 @@ public class BaselineForce : MonoBehaviour
         sphere.transform.localScale = Vector3.zero;
         sphere.name = l.name;
         LabelNode nodeL = new LabelNode
-            (l.GetComponentInChildren<Collider>(), viewplaneCollider, nodeP, sphere);
+            (l.GetComponentInChildren<Collider>(), viewplaneCollider, nodeP, sphere, isAgent);
         nodeL.label = l;
         labelNodes.Add(nodeL);
     }

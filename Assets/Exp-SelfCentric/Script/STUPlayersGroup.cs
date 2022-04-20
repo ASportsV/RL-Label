@@ -64,7 +64,8 @@ public class STUPlayersGroup : PlayerGroup
         {
             if (currentStep == student.startStep)
             {
-                CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
+                var playerLab  = CreatePlayerLabelFromPos(student, agentSet.Count() < numOfAgent);
+                if(useBaseline) b.AddLabel(playerLab.Item2, playerLab.Item3, playerLab.Item1);
             }
             else if (currentStep > student.startStep && currentStep < (student.startStep + student.totalStep))
             {
