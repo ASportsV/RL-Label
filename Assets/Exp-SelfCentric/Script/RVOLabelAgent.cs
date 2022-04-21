@@ -180,8 +180,8 @@ public class RVOLabelAgent : Agent
         sensor.AddObservation(relativeVel.z / scaleSpeed.z);
 
         // dummy
-        sensor.AddObservation(0);
-        sensor.AddObservation(0);
+        // sensor.AddObservation(0);
+        // sensor.AddObservation(0);
 
         // attentions to others
         foreach (Transform other in transform.parent.parent)
@@ -231,13 +231,13 @@ public class RVOLabelAgent : Agent
             playerOBs.Add(labelRelativePos.x / m_RVOSettings.courtX);
             playerOBs.Add(labelRelativePos.z / m_RVOSettings.courtZ);
             // dummy
-            playerOBs.Add(0);
+            // playerOBs.Add(0);
             bSensor.AppendObservation(playerOBs.ToArray());
 
             labelOBs.Add(playerRelativePos.x / m_RVOSettings.courtX);
             labelOBs.Add(playerRelativePos.z / m_RVOSettings.courtZ);
             // dummy
-            labelOBs.Add(0);
+            // labelOBs.Add(0);
             bSensor.AppendObservation(labelOBs.ToArray());
         }
     }

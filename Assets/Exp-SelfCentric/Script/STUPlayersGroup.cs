@@ -6,21 +6,7 @@ using Unity.MLAgents;
 
 public class STUPlayersGroup : PlayerGroup
 {
-    // protected override void LoadTasks()
-    // {
-    //     // load the study data
-    //     m_RVOSettings.testingScenes = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
-    //     m_RVOSettings.tasks = new List<Task>() {
-    //         new Task(4, "Whose label value is XXX?"),
-    //         new Task(4, "who has the highest value in blue team?"),
-    //         new Task(4, "In average, which team has the highest value?"),
 
-    //         new Task(8, "Whose label value is XXX?"),
-    //         new Task(8, "who has the highest value in blue team?"),
-    //         new Task(8, "In average, which team has the highest value?"),
-
-    //     };
-    // }
     protected override string sceneName => "stu";
     protected override string dataFileName => "student_full.csv";
 
@@ -45,10 +31,10 @@ public class STUPlayersGroup : PlayerGroup
             .OrderBy(item => rnd.Next())
             .ToList());
 
-        m_RVOSettings.xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1f);
-        m_RVOSettings.moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
+        m_RVOSettings.xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 0.8f);
+        m_RVOSettings.moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 1f);
         m_RVOSettings.moveSmooth = Academy.Instance.EnvironmentParameters.GetWithDefault("moveSmooth", 0.005f);
-        m_RVOSettings.maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 5f);
+        m_RVOSettings.maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 4f);
     }
 
     private void FixedUpdate()

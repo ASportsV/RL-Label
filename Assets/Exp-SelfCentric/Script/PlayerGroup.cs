@@ -244,7 +244,7 @@ public abstract class PlayerGroup : MonoBehaviour
         int sid = student.id;
         var pos = student.positions[0];
         var agentSetting = m_RVOSettings.CurrentTask.setting.Find(t => t.id == sid);
-        isAgent = agentSetting.isAgent;
+        isAgent = true; //agentSetting.isAgent;
         GameObject toInstantiate = isAgent
             ? useBaseline ? playerLabel_baseline_prefab : playerLabel_prefab_rl
             : playerLabel_prefab;
