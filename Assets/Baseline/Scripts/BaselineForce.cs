@@ -56,16 +56,16 @@ public class BaselineForce : MonoBehaviour
         return angle;
     }
 
-    public static int CalcDistance(Vector2 a, Vector2 b)
+    public static double CalcDistance(Vector2 a, Vector2 b)
     {
         double xDist = (a.x - b.x);
         double yDist = (a.y - b.y);
-        return (int)Math.Sqrt(Math.Pow(xDist, 2) + Math.Pow(yDist, 2));
+        return Math.Sqrt(Math.Pow(xDist, 2) + Math.Pow(yDist, 2));
     }
 
     private Vector CalcAttractionForce(LabelNode x, LabelNode y, double springLength)
     {
-        int proximity = Math.Max(CalcDistance(x.Location, y.Location), 1);
+        double proximity = 1.0 + CalcDistance(x.Location, y.Location);
 
         // Hooke's Law: F = -kx
         double force = ATTRACTION_CONSTANT * Math.Max(proximity - springLength, 0);
@@ -76,7 +76,7 @@ public class BaselineForce : MonoBehaviour
 
     private Vector CalcRepulsionForce(LabelNode x, LabelNode y)
     {
-        int proximity = Math.Max(CalcDistance(x.Location, y.Location), 1);
+        double proximity = 1.0 + CalcDistance(x.Location, y.Location); // [1, +Inf 
 
         // Coulomb's Law: F = k(Qq/r^2)
         double force = -(REPULSION_CONSTANT / Math.Pow(proximity, 2));
@@ -104,8 +104,10 @@ public class BaselineForce : MonoBehaviour
                     {
                         netForce += CalcRepulsionForce(
                             label, otherLabel);
+                        Debug.Log("Froce from " + otherLabel.sid + " to " + label.sid);
                         netForce += CalcRepulsionForce(
                             label, otherLabel.Player);
+                        Debug.Log("Froce from " + otherLabel.Player.sid + " to " + label.sid);
                     }
                 }
 
@@ -125,15 +127,16 @@ public class BaselineForce : MonoBehaviour
     public void AddLabel(GameObject lG, GameObject l, bool isAgent)
     {
         GameObject player = lG.transform.Find("player").gameObject;
+        RVOplayer m_player = lG.GetComponent<RVOplayer>();
         LabelNode nodeP = new LabelNode
-            (player.GetComponentInChildren<Collider>(), viewplaneCollider);
+            ("player_" + m_player.sid, player.GetComponentInChildren<Collider>(), viewplaneCollider);
 
         GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         Destroy(sphere.GetComponent<SphereCollider>());
         sphere.transform.localScale = Vector3.zero;
         sphere.name = l.name;
         LabelNode nodeL = new LabelNode
-            (l.GetComponentInChildren<Collider>(), viewplaneCollider, nodeP, sphere, isAgent);
+            ("label_" + m_player.sid, l.GetComponentInChildren<Collider>(), viewplaneCollider, nodeP, sphere, isAgent);
         nodeL.label = l;
         labelNodes.Add(nodeL);
     }
