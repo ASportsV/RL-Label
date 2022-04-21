@@ -5,12 +5,15 @@ using UnityEngine.XR;
 
 [System.Serializable]
 public class PrimaryButtonEvent : UnityEvent<bool> { }
+public class SecondaryButtonEvent : UnityEvent<bool> { }
 
 public class PrimaryButtonWatcher : MonoBehaviour
 {
     public PrimaryButtonEvent primaryButtonPress;
+    public SecondaryButtonEvent secondaryButtonPress;
 
     private bool lastButtonState = false;
+    private bool lastSecondaryButtonState = false;
     private List<InputDevice> devicesWithPrimaryButton;
 
     private void Awake()
@@ -18,6 +21,10 @@ public class PrimaryButtonWatcher : MonoBehaviour
         if (primaryButtonPress == null)
         {
             primaryButtonPress = new PrimaryButtonEvent();
+        }
+        if (secondaryButtonPress == null)
+        {
+            secondaryButtonPress = new SecondaryButtonEvent();
         }
 
         devicesWithPrimaryButton = new List<InputDevice>();
@@ -27,7 +34,7 @@ public class PrimaryButtonWatcher : MonoBehaviour
     {
         List<InputDevice> allDevices = new List<InputDevice>();
         InputDevices.GetDevices(allDevices);
-        foreach(InputDevice device in allDevices)
+        foreach (InputDevice device in allDevices)
             InputDevices_deviceConnected(device);
 
         InputDevices.deviceConnected += InputDevices_deviceConnected;
@@ -58,19 +65,31 @@ public class PrimaryButtonWatcher : MonoBehaviour
 
     void Update()
     {
-        bool tempState = false;
+        bool primaryTempState = false;
+        bool secondaryTempState = false;
         foreach (var device in devicesWithPrimaryButton)
         {
             bool primaryButtonState = false;
-            tempState = device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButtonState) // did get a value
-                        && primaryButtonState // the value we got
-                        || tempState; // cumulative result from other controllers
+            primaryTempState = device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButtonState) // did get a value
+                && primaryButtonState // the value we got
+                || primaryTempState; // cumulative result from other controllers
+
+            bool secondaryButtonState = false;
+            secondaryTempState = device.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryButtonState)
+                && secondaryButtonState
+                || secondaryTempState;
         }
 
-        if (tempState != lastButtonState) // Button state changed since last frame
+        if (secondaryTempState != lastSecondaryButtonState)
         {
-            primaryButtonPress.Invoke(tempState);
-            lastButtonState = tempState;
+            secondaryButtonPress.Invoke(secondaryTempState);
+            lastSecondaryButtonState = secondaryTempState;
+        }
+
+        if (primaryTempState != lastButtonState) // Button state changed since last frame
+        {
+            primaryButtonPress.Invoke(primaryTempState);
+            lastButtonState = primaryTempState;
         }
     }
 }

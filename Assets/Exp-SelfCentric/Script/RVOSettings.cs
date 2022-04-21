@@ -81,13 +81,6 @@ public class RVOSettings : MonoBehaviour
         evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 1f) == 1.0f;
         evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 0f) == 1.0f;
         courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
-
-        // decide which order the user use
-        var orders = getOrderByUserId(0);
-        for(int i = 0; i < 12; ++i) // 3 * 12 trials
-        {
-            techOrders.AddRange(orders);
-        }
     }
 
     public void FinishACourt()
@@ -100,19 +93,24 @@ public class RVOSettings : MonoBehaviour
         }
     }
 
-    Tech[] getOrderByUserId(int userId)
+    public void getOrderByUserId(int userId)
     {
-        Tech[] order1 = new[] { Tech.No, Tech.Opti, Tech.Ours };
-        Tech[] order2 = new[] { Tech.Opti, Tech.Ours, Tech.No };
-        Tech[] order3 = new[] { Tech.Ours, Tech.No, Tech.Opti };
-
-        return order2;
+        Tech[][] orders = new[] {
+            new[] { Tech.No, Tech.Opti, Tech.Ours },
+            new[] { Tech.Opti, Tech.Ours, Tech.No },
+            new[] { Tech.Ours, Tech.No, Tech.Opti }
+        };
+        Tech[] order = orders[userId % 3];
+        for(int i = 0; i < 12; ++i) // 3 * 12 trials
+        {
+            techOrders.AddRange(order);
+        }
     }
 
     public void NextTask()
     {
         this._currentTaskIdx += 1;
-        if (this._currentTaskIdx > tasks.Count) this._currentTaskIdx = -1;
+        if (this._currentTaskIdx >= tasks.Count) this._currentTaskIdx = -1;
     }
 
 }

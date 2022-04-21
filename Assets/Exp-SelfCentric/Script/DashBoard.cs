@@ -28,7 +28,7 @@ public class DashBoard : MonoBehaviour
             var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
             text.text = (m_RVOSettings.ansTime).ToString("F") + "s";
             text = panel.Find("Q").GetComponent<TMPro.TextMeshProUGUI>();
-            text.text = m_RVOSettings.CurrentTask.Q;
+            text.text = "Task" + m_RVOSettings.currentTaskIdx + ": " + m_RVOSettings.CurrentTask.Q;
         }
     }
 }
