@@ -20,7 +20,7 @@ public class RVOSettings : MonoBehaviour
     internal bool obW = false;
 
     // label parameters
-    internal float labelY = 1.8f;
+    internal float labelY = 2.8f;
     internal float xzDistThres;
     internal float maxLabelSpeed;
     internal float moveUnit;
