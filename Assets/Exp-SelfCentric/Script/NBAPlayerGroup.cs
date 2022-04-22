@@ -13,7 +13,7 @@ public class NBAPlayerGroup : PlayerGroup
         testingTrack = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
         var rnd = new System.Random();
         trainingTrack = new Queue<int>(Enumerable.Range(0, scenes.Count)
-            .Where(i => !testingTrack.Contains(i))
+            // .Where(i => !testingTrack.Contains(i))
             .OrderBy(item => rnd.Next())
             .ToList());
 
