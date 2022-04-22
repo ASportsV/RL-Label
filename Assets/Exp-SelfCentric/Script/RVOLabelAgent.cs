@@ -268,7 +268,7 @@ public class RVOLabelAgent : Agent
         }
         else
         {
-            Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", <moveZ is " + moveZ);
+            //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", <moveZ is " + moveZ);
             AddReward(-rwd.rew_z);
         }
 
@@ -281,7 +281,7 @@ public class RVOLabelAgent : Agent
         }
         else
         {
-            Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", <moveX is " + moveX);
+            //Debug.Log(transform.parent.parent.parent.name + "/" + transform.parent.name + ", <moveX is " + moveX);
             AddReward(-rwd.rew_x);
         }
 
