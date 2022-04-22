@@ -34,7 +34,7 @@ public class LabelNode
     {
         plane.transform.position =
                 player.collider.bounds.center +
-                new Vector3(0f, 1f, 0f);
+                new Vector3(0f, 2.5f, 0f);
         plane.transform.up = player.collider.transform.up;
     }
     public Vector3 GetNextPosFinal(bool closest = true)

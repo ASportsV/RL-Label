@@ -104,10 +104,10 @@ public class BaselineForce : MonoBehaviour
                     {
                         netForce += CalcRepulsionForce(
                             label, otherLabel);
-                        Debug.Log("Froce from " + otherLabel.sid + " to " + label.sid);
+                        Debug.Log("Froce "+ netForce.ToString() + " from " + otherLabel.sid + " to " + label.sid);
                         netForce += CalcRepulsionForce(
                             label, otherLabel.Player);
-                        Debug.Log("Froce from " + otherLabel.Player.sid + " to " + label.sid);
+                        Debug.Log("Froce "+ netForce.ToString() + " from " + otherLabel.Player.sid + " to " + label.sid);
                     }
                 }
 
