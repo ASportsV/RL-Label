@@ -4,7 +4,7 @@ using UnityEngine;
 public class LabelNode
 {
 	public string sid;
-    Vector totalForce;
+    public Vector totalForce;
     LabelNode player;
     public Collider collider, viewplaneCollider;
     public GameObject sphere, plane, label;
@@ -92,11 +92,14 @@ public class LabelNode
         if (dumping == -1f)
             dumping = DUMPING;
         Vector3 currentPos3 = GetObjPosOnViewPlane();
+
         Vector2 currentPos2 = new Vector2(currentPos3.x, currentPos3.z);
         Vector currentPosition = new Vector(
             BaselineForce.CalcDistance(Vector2.zero, currentPos2),
             BaselineForce.GetBearingAngle(Vector2.zero, currentPos2)),
-            nextPosition = (currentPosition + totalForce) * dumping;
+
+            nextPosition = (currentPosition) + totalForce * dumping;
+
         Vector2 nextPos2 = nextPosition.ToPoint();
         Vector3 nextPos3 = new Vector3(nextPos2.x, currentPos3.y, nextPos2.y);
         return viewplaneCollider.transform.TransformPoint(nextPos3);
@@ -109,11 +112,7 @@ public class LabelNode
             return new Vector2(planePos.x, planePos.z);
         }
     }
-    public Vector Force
-    {
-        get { return totalForce; }
-        set { totalForce = value; }
-    }
+
     public LabelNode Player
     {
         get { return player; }

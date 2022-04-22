@@ -36,22 +36,23 @@ public struct Vector
 
 	public static Vector operator +(Vector a, Vector b)
 	{
-		double aX = a.Magnitude * Math.Cos((Math.PI / 180.0) * a.Direction);
-		double aY = a.Magnitude * Math.Sin((Math.PI / 180.0) * a.Direction);
+		//double aX = a.Magnitude * Math.Cos((Math.PI / 180.0) * a.Direction);
+		//double aY = a.Magnitude * Math.Sin((Math.PI / 180.0) * a.Direction);
 
-		double bX = b.Magnitude * Math.Cos((Math.PI / 180.0) * b.Direction);
-		double bY = b.Magnitude * Math.Sin((Math.PI / 180.0) * b.Direction);
+		//double bX = b.Magnitude * Math.Cos((Math.PI / 180.0) * b.Direction);
+		//double bY = b.Magnitude * Math.Sin((Math.PI / 180.0) * b.Direction);
 
-		aX += bX;
-		aY += bY;
+		//aX += bX;
+		//aY += bY;
 
-		double magnitude = Math.Sqrt(Math.Pow(aX, 2) + Math.Pow(aY, 2));
+		Vector2 total = a.ToPoint() + b.ToPoint();
+		double magnitude = Math.Sqrt(Math.Pow(total.x, 2) + Math.Pow(total.y, 2));
 
 		double direction;
 		if (magnitude == 0)
 			direction = 0;
 		else
-			direction = (180.0 / Math.PI) * Math.Atan2(aY, aX);
+			direction = (180.0 / Math.PI) * Math.Atan2(total.y, total.x);
 
 		return new Vector(magnitude, direction);
 	}

@@ -22,6 +22,7 @@ public class BaselineForce : MonoBehaviour
         {
             return;
         }
+        UpdateViewPlane();
         UpdateForces();
         foreach (var l in labelNodes)
         {
@@ -65,7 +66,7 @@ public class BaselineForce : MonoBehaviour
 
     private Vector CalcAttractionForce(LabelNode x, LabelNode y, double springLength)
     {
-        double proximity = 1.0 + CalcDistance(x.Location, y.Location);
+        double proximity = 0.00000001 + CalcDistance(x.Location, y.Location);
 
         // Hooke's Law: F = -kx
         double force = ATTRACTION_CONSTANT * Math.Max(proximity - springLength, 0);
@@ -76,12 +77,12 @@ public class BaselineForce : MonoBehaviour
 
     private Vector CalcRepulsionForce(LabelNode x, LabelNode y)
     {
-        double proximity = 1.0 + CalcDistance(x.Location, y.Location); // [1, +Inf 
+        double proximity = 0.00000001 + CalcDistance(x.Location, y.Location); // [1, +Inf 
 
         // Coulomb's Law: F = k(Qq/r^2)
-        double force = -(REPULSION_CONSTANT / Math.Pow(proximity, 2));
+        double force = -(REPULSION_CONSTANT / Math.Pow(5 * proximity, 2));
         double angle = GetBearingAngle(x.Location, y.Location);
-
+        //Debug.Log("To " + x.sid  +" from " + y.sid + ": force " + force.ToString() + ", dist " + proximity);
         return new Vector(force, angle);
     }
 
@@ -102,16 +103,14 @@ public class BaselineForce : MonoBehaviour
                     }
                     else
                     {
-                        netForce += CalcRepulsionForce(
-                            label, otherLabel);
-                        Debug.Log("Froce "+ netForce.ToString() + " from " + otherLabel.sid + " to " + label.sid);
-                        netForce += CalcRepulsionForce(
-                            label, otherLabel.Player);
-                        Debug.Log("Froce "+ netForce.ToString() + " from " + otherLabel.Player.sid + " to " + label.sid);
+                        var f1 = CalcRepulsionForce(label, otherLabel);                     
+                        netForce += f1;
+                        var f2 = CalcRepulsionForce(label, otherLabel.Player);
+                        netForce += f2;
                     }
                 }
 
-                label.Force = netForce;
+                label.totalForce = netForce;
             }
         }
     }
@@ -149,13 +148,21 @@ public class BaselineForce : MonoBehaviour
         }
 
         GameObject parallelToCam = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        parallelToCam.GetComponent<MeshRenderer>().enabled = false;
+        parallelToCam.GetComponent<MeshRenderer>().enabled = debug;
         parallelToCam.transform.position =
                 Camera.main.transform.position + Camera.main.transform.forward;
         Vector3 dir = parallelToCam.GetComponent<Collider>().bounds.center -
             Camera.main.transform.position;
         parallelToCam.transform.up = dir;
+        parallelToCam.name = "parallelToCam";
         return parallelToCam.GetComponent<Collider>();
+    }
+
+    private void UpdateViewPlane()
+    {
+        viewplaneCollider.gameObject.transform.position =
+            Camera.main.transform.position + Camera.main.transform.forward;
+        viewplaneCollider.gameObject.transform.up = Camera.main.transform.forward;
     }
 
     public void CleanUp()
