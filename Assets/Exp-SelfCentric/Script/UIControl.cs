@@ -16,8 +16,6 @@ public class UIControl : MonoBehaviour
 
     PlayerGroup groupControl;
 
-    int userId = 0;
-    bool setUserId = false;
 
     private void Awake()
     {
@@ -65,9 +63,9 @@ public class UIControl : MonoBehaviour
     void IncreUserId(bool press)
     {
         if (!press) return;
-        userId = (++userId % 12);
+        m_RVOSettings.userId = (++m_RVOSettings.userId % 12);
         var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = "UserId:" + userId;
+        text.text = "UserId:" + m_RVOSettings.userId;
     }
 
     void LoadTaskQuestionInUI(Task task)
@@ -87,10 +85,10 @@ public class UIControl : MonoBehaviour
     void ClickButton(bool press)
     {
         if (!press) return;
-        if(!setUserId)
+        if(!m_RVOSettings.setUserId)
         {
-            setUserId = true;
-            m_RVOSettings.getOrderByUserId(userId);
+            m_RVOSettings.setUserId = true;
+            m_RVOSettings.getOrderByUserId();
             playergroup.gameObject.SetActive(true);
             groupControl = playergroup.GetComponent<PlayerGroup>();
             LoadTaskQuestionInUI(m_RVOSettings.CurrentTask);
@@ -141,6 +139,7 @@ public class UIControl : MonoBehaviour
             // update the text in the panel
             text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
             text.text = "Task" + m_RVOSettings.currentTaskIdx + ": Your answer is ____ . You took " + m_RVOSettings.ansTime.ToString("F") + "s.";
+            m_RVOSettings.saveToSheet();
 
         }
         else if (afterTrial) // -> exectue the code for the next
@@ -158,9 +157,11 @@ public class UIControl : MonoBehaviour
             text.text = "Start";
 
             // load the next task, only update the UI question, but not load and start the scene
+            if(m_RVOSettings.currentTaskIdx != -1)
+                m_RVOSettings.NextTask();
+
             if (m_RVOSettings.currentTaskIdx != -1)
             {
-                m_RVOSettings.NextTask();
                 LoadTaskQuestionInUI(m_RVOSettings.CurrentTask);
             }
             else

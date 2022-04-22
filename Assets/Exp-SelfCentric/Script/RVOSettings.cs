@@ -67,13 +67,37 @@ public class RVOSettings : MonoBehaviour
     internal bool sceneFinished = false;
     internal bool sceneStarted = false;
 
-    internal List<Task> tasks;
+    internal List<Task> _tasks;
+    internal List<Task> tasks {
+        get { return _tasks; }
+        set {
+            _tasks = value;
+            // new sheet
+            srd.AddNewSheet(sheetName, techOrders, _tasks);
+        }
+    }
+
     List<Tech> techOrders = new List<Tech>();
     int _currentTaskIdx = 0;
     internal int currentTaskIdx { get { return _currentTaskIdx; } }
     public Task CurrentTask => tasks[currentTaskIdx];
     internal Tech CurrentTech => techOrders[currentTaskIdx];
     internal float ansTime = 0;
+
+    //sheet
+    SheetReader srd = new SheetReader();
+    public int userId = 0;
+
+    string sheetName;
+    bool _setUserId = false;
+    internal bool setUserId {
+        get { return _setUserId; }
+        set { 
+            if (value != true) return; 
+            _setUserId = value; 
+            sheetName = string.Format("{0}_{1}_{2}_userId{3}", DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, userId);
+        }
+    }
 
     private void Awake()
     {
@@ -93,7 +117,7 @@ public class RVOSettings : MonoBehaviour
         }
     }
 
-    public void getOrderByUserId(int userId)
+    public void getOrderByUserId()
     {
         Tech[][] orders = new[] {
             new[] { Tech.No, Tech.Opti, Tech.Ours },
@@ -101,10 +125,16 @@ public class RVOSettings : MonoBehaviour
             new[] { Tech.Ours, Tech.No, Tech.Opti }
         };
         Tech[] order = orders[userId % 3];
-        for(int i = 0; i < 12; ++i) // 3 * 12 trials
+        for(int i = 0; i < 6; ++i) // 3 * 12 trials
         {
             techOrders.AddRange(order);
         }
+
+    }
+
+    public void saveToSheet()
+    {
+        srd.SetAns(sheetName, currentTaskIdx, ansTime);
     }
 
     public void NextTask()
