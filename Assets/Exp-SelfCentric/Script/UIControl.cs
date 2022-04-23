@@ -53,19 +53,38 @@ public class UIControl : MonoBehaviour
 
         // button
         btn.GetComponent<Button>().onClick.AddListener(MouseClickButton);
+        transform.Find("Task").GetComponent<Button>().onClick.AddListener(MouseClickTaskId);
         watcher.primaryButtonPress.AddListener(ClickButton);
         watcher.secondaryButtonPress.AddListener(IncreUserId);
+        watcher.triggerButtonPress.AddListener(IncreTaskId);
         // deactivate
         // playergroup.gameObject.SetActive(false);
 
     }
+    void MouseClickButton()
+    {
+        ClickButton(true);
+    }
 
+    void MouseClickTaskId()
+    {
+        IncreTaskId(true);
+    }
     void IncreUserId(bool press)
     {
         if (!press) return;
         m_RVOSettings.userId = (++m_RVOSettings.userId % 12);
         var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = "UserId:" + m_RVOSettings.userId;
+    }
+
+    void IncreTaskId(bool press)
+    {
+        Debug.Log("Click next task " + press);
+        if(!press) return;
+        m_RVOSettings.NextTask(true);
+        var text = panel.Find("TaskId").GetComponent<TMPro.TextMeshProUGUI>();
+        text.text = "Start from Task" + m_RVOSettings.currentTaskIdx.ToString(); 
     }
 
     void LoadTaskQuestionInUI(Task task)
@@ -77,10 +96,6 @@ public class UIControl : MonoBehaviour
         text.text = "Task" + m_RVOSettings.currentTaskIdx + ": " + task.Q;
     }
 
-    void MouseClickButton()
-    {
-        ClickButton(true);
-    }
 
     void ClickButton(bool press)
     {
@@ -89,6 +104,7 @@ public class UIControl : MonoBehaviour
         {
             m_RVOSettings.setUserId = true;
             m_RVOSettings.getOrderByUserId();
+            panel.Find("TaskId").gameObject.SetActive(false);
             playergroup.gameObject.SetActive(true);
             groupControl = playergroup.GetComponent<PlayerGroup>();
             LoadTaskQuestionInUI(m_RVOSettings.CurrentTask);

@@ -8,7 +8,7 @@ using System.Linq;
 [Serializable]
 public class TaskItem {
     public int id;
-    public int point;
+    public int[] point;
     public string color;
     public int occ;
     public bool isAgent;
@@ -137,9 +137,15 @@ public class RVOSettings : MonoBehaviour
         srd.SetAns(sheetName, currentTaskIdx, ansTime);
     }
 
-    public void NextTask()
+    public void NextTask(bool round = false)
     {
         this._currentTaskIdx += 1;
+        // in the setting view
+        if(round)  {
+            this._currentTaskIdx = this._currentTaskIdx % 18;
+            return;
+        }
+        
         if (this._currentTaskIdx >= tasks.Count) this._currentTaskIdx = -1;
     }
 

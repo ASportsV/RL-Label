@@ -7,13 +7,17 @@ using UnityEngine.XR;
 public class PrimaryButtonEvent : UnityEvent<bool> { }
 public class SecondaryButtonEvent : UnityEvent<bool> { }
 
+public class TriggerButtonEvent : UnityEvent<bool> { }
+
 public class PrimaryButtonWatcher : MonoBehaviour
 {
     public PrimaryButtonEvent primaryButtonPress;
     public SecondaryButtonEvent secondaryButtonPress;
+    public TriggerButtonEvent triggerButtonPress;
 
     private bool lastButtonState = false;
     private bool lastSecondaryButtonState = false;
+    private bool lastTriggerButtonState = false;
     private List<InputDevice> devicesWithPrimaryButton;
 
     private void Awake()
@@ -25,6 +29,10 @@ public class PrimaryButtonWatcher : MonoBehaviour
         if (secondaryButtonPress == null)
         {
             secondaryButtonPress = new SecondaryButtonEvent();
+        }
+        if (triggerButtonPress == null)
+        {
+            triggerButtonPress = new TriggerButtonEvent();
         }
 
         devicesWithPrimaryButton = new List<InputDevice>();
@@ -67,6 +75,7 @@ public class PrimaryButtonWatcher : MonoBehaviour
     {
         bool primaryTempState = false;
         bool secondaryTempState = false;
+        bool triggerTempState = false;
         foreach (var device in devicesWithPrimaryButton)
         {
             bool primaryButtonState = false;
@@ -78,6 +87,11 @@ public class PrimaryButtonWatcher : MonoBehaviour
             secondaryTempState = device.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryButtonState)
                 && secondaryButtonState
                 || secondaryTempState;
+
+            bool triggerButtonState = false;
+            triggerTempState = device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerButtonState)
+                && triggerButtonState
+                || triggerTempState;
         }
 
         if (secondaryTempState != lastSecondaryButtonState)
@@ -90,6 +104,12 @@ public class PrimaryButtonWatcher : MonoBehaviour
         {
             primaryButtonPress.Invoke(primaryTempState);
             lastButtonState = primaryTempState;
+        }
+
+        if (triggerTempState != lastTriggerButtonState)
+        {
+            triggerButtonPress.Invoke(triggerTempState);
+            lastTriggerButtonState = triggerTempState;
         }
     }
 }

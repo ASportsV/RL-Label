@@ -263,9 +263,15 @@ public abstract class PlayerGroup : MonoBehaviour
         Transform label = playerObj.gameObject.transform.Find("label");
         label.localPosition = new Vector3(0f, m_RVOSettings.labelY, 0f);
 
-        // label name
-        var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
-        name.text = agentSetting.point.ToString();
+        // label data
+        var cell = label.Find("panel/Player_info/q11").GetComponent<TMPro.TextMeshProUGUI>();
+        cell.text = agentSetting.point[0].ToString();
+        cell = label.Find("panel/Player_info/q12").GetComponent<TMPro.TextMeshProUGUI>();
+        cell.text = agentSetting.point[1].ToString();
+        cell = label.Find("panel/Player_info/q21").GetComponent<TMPro.TextMeshProUGUI>();
+        cell.text = agentSetting.point[2].ToString();
+        cell = label.Find("panel/Player_info/q22").GetComponent<TMPro.TextMeshProUGUI>();
+        cell.text = agentSetting.point[3].ToString();
 
         if (useBaseline && isAgent)
         {

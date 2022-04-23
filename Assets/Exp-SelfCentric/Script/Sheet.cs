@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 using Google.Apis.Services;
@@ -28,9 +29,9 @@ class SheetReader
         jsonCred = (Stream)File.Open(fileName, FileMode.Open);
 #else
     // streamingAssets are compressed in android (not readable with File).
-        jsonCred = (Stream) new WWW (fileName);
-        //while (!reader.isDone) {}
-        //key = reader.text;
+        WWW reader = new WWW(fileName);
+        while (!reader.isDone) {}
+        jsonCred = new MemoryStream( Encoding.UTF8.GetBytes( reader.text ) );
 #endif
 
         //Debug.Log(key);
