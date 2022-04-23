@@ -102,22 +102,9 @@ public class UIControl : MonoBehaviour
             // hide the panel
             panel.gameObject.SetActive(false);
 
-            // update the text in the btn
-            // var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-            // text.text = "Answer";
-
             // load and start the scene
             var task = m_RVOSettings.CurrentTask;
             groupControl.LoadTrack(task.track_id);
-            // if(groupControl)
-            // {
-            // }
-            // else
-            // {
-            //     playergroup.GetComponent<STUPlayersGroup>().useBaseline =
-            //         m_RVOSettings.CurrentTech == Tech.Opti;
-            //     playergroup.GetComponent<STUPlayersGroup>().LoadScene(task.sceneIdx);
-            // }
         }
         else if (inTrial) // -> exectue the code for the next
         {
@@ -164,6 +151,8 @@ public class UIControl : MonoBehaviour
                 // finish
                 var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
                 text.text = "Finished! Thanks!";
+                m_RVOSettings.sceneStarted = true;
+                m_RVOSettings.sceneFinished = true;
                 // btn.GetComponent<Button>().interactable = false;
             }
         }
