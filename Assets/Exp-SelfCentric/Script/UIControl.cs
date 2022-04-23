@@ -8,7 +8,6 @@ public class UIControl : MonoBehaviour
     RVOSettings m_RVOSettings;
     public PrimaryButtonWatcher watcher;
     // control
-    Transform btn;
     Transform panel;
     TMPro.TMP_Dropdown dropdown;
 
@@ -20,43 +19,23 @@ public class UIControl : MonoBehaviour
     private void Awake()
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
-        btn = transform.Find("Next");
         panel = transform.Find("Panel");
-
         playergroup = transform.parent.Find("PlayerGroup");
     }
 
     void Start()
     {
-        Debug.Log("start at UI");
-        // UIs
-        // var trackSelect = transform.Find("TrackSelect");
-        // dropdown = trackSelect.GetComponent<TMPro.TMP_Dropdown>();
-        // dropdown.options.Clear();
-        // foreach (var testId in m_RVOSettings.testingTrack)
-        // {
-        //     dropdown.options.Add(new TMPro.TMP_Dropdown.OptionData("track_" + testId));
-        // }
-
-        // groupControl = playergroup.GetComponent<PlayerGroup>();
-        // if(groupControl)
-        // {
-        //     currentTrack = groupControl.currentScene;
-        // }
-        // else
-        // {
-        //     currentTrack = playergroup.GetComponent<STUPlayersGroup>().currentScene;
-        // }
-        // int currentScene = groupControl.currentScene;
-        // dropdown.value = dropdown.options
-        //     .FindIndex(o => o.text.Contains(currentScene.ToString()));
-
         // button
-        btn.GetComponent<Button>().onClick.AddListener(MouseClickButton);
+#if UNITY_EDITOR || !UNITY_ANDROID
+        transform.Find("Next").GetComponent<Button>().onClick.AddListener(MouseClickButton);
         transform.Find("Task").GetComponent<Button>().onClick.AddListener(MouseClickTaskId);
+#else
+        transform.Find("Next").gameObject.SetActive(false);
+        transform.Find("Task").gameObject.SetActive(false);
         watcher.primaryButtonPress.AddListener(ClickButton);
         watcher.secondaryButtonPress.AddListener(IncreUserId);
         watcher.triggerButtonPress.AddListener(IncreTaskId);
+#endif
         // deactivate
         // playergroup.gameObject.SetActive(false);
 
@@ -72,7 +51,7 @@ public class UIControl : MonoBehaviour
     }
     void IncreUserId(bool press)
     {
-        if (!press) return;
+        if (!press || m_RVOSettings.setUserId) return;
         m_RVOSettings.userId = (++m_RVOSettings.userId % 12);
         var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = "UserId:" + m_RVOSettings.userId;
@@ -81,7 +60,7 @@ public class UIControl : MonoBehaviour
     void IncreTaskId(bool press)
     {
         Debug.Log("Click next task " + press);
-        if(!press) return;
+        if(!press || m_RVOSettings.setUserId) return;
         m_RVOSettings.NextTask(true);
         var text = panel.Find("TaskId").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = "Start from Task" + m_RVOSettings.currentTaskIdx.ToString(); 
@@ -124,8 +103,8 @@ public class UIControl : MonoBehaviour
             panel.gameObject.SetActive(false);
 
             // update the text in the btn
-            var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-            text.text = "Answer";
+            // var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            // text.text = "Answer";
 
             // load and start the scene
             var task = m_RVOSettings.CurrentTask;
@@ -149,11 +128,11 @@ public class UIControl : MonoBehaviour
             panel.gameObject.SetActive(true);
 
             // update the text in the btn
-            var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-            text.text = "Next";
+            // var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            // text.text = "Next";
 
             // update the text in the panel
-            text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
+            var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
             text.text = "Task" + m_RVOSettings.currentTaskIdx + ": Your answer is ____ . You took " + m_RVOSettings.ansTime.ToString("F") + "s.";
             m_RVOSettings.saveToSheet();
 
@@ -169,8 +148,8 @@ public class UIControl : MonoBehaviour
             playergroup.gameObject.SetActive(false);
 
             // update the text in the btn
-            var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-            text.text = "Start";
+            // var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+            // text.text = "Start";
 
             // load the next task, only update the UI question, but not load and start the scene
             if(m_RVOSettings.currentTaskIdx != -1)
@@ -183,9 +162,9 @@ public class UIControl : MonoBehaviour
             else
             {
                 // finish
-                text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
+                var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
                 text.text = "Finished! Thanks!";
-                btn.GetComponent<Button>().interactable = false;
+                // btn.GetComponent<Button>().interactable = false;
             }
         }
     }

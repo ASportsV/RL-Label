@@ -95,7 +95,7 @@ public class RVOSettings : MonoBehaviour
         set { 
             if (value != true) return; 
             _setUserId = value; 
-            sheetName = string.Format("{0}_{1}_{2}_userId{3}", DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, userId);
+            sheetName = string.Format("{0}_{1}_{2}_{3}_userId{4}", DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second, userId);
         }
     }
 

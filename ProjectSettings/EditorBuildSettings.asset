@@ -8,9 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Exp-SelfCentric/Scene/NBA.unity
     guid: cb867a905180a444089d8d2b5a88f8b9
-  - enabled: 0
-    path: Assets/Exp-SelfCentric/Scene/STU@bk.unity
-    guid: f5f3f8731fcaf49e6bbf0d9ca5ef2986
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 599bfcdeeb4cc4e5485798c6db489402,
       type: 2}
