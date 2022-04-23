@@ -88,6 +88,14 @@ public class RVOSettings : MonoBehaviour
     SheetReader srd = new SheetReader();
     public int userId = 0;
 
+    string _sceneName;
+    internal string sceneName {
+        get { return _sceneName; }
+        set {
+            _sceneName = value;
+            sheetName = string.Format("{0}_{1}_{2}_{3}_{4}_userId{5}", DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second, sceneName, userId);
+        }
+    }
     string sheetName;
     bool _setUserId = false;
     internal bool setUserId {
@@ -95,7 +103,7 @@ public class RVOSettings : MonoBehaviour
         set { 
             if (value != true) return; 
             _setUserId = value; 
-            sheetName = string.Format("{0}_{1}_{2}_{3}_userId{4}", DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second, userId);
+            sheetName = string.Format("{0}_{1}_{2}_{3}_{4}_userId{5}", DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second, sceneName, userId);
         }
     }
 

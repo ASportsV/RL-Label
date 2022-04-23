@@ -85,6 +85,7 @@ public abstract class PlayerGroup : MonoBehaviour
         }
 
         // geometry min and max
+        m_RVOSettings.sceneName = sceneName;
         m_RVOSettings.minZInCam = Mathf.Abs(camGo.transform.localPosition.z - -m_RVOSettings.courtZ);
         var tmp = camGo.transform.forward;
         var cornerInWorld = camGo.transform.parent.TransformPoint(new Vector3(m_RVOSettings.courtX, 0, m_RVOSettings.courtZ));

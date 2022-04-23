@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 using Unity.MLAgents;
 
-public class TRAPlayer : PlayerGroup
+public class TRAPlayerGroup : PlayerGroup
 {
 
     protected override string sceneName => "tra";
@@ -12,8 +12,8 @@ public class TRAPlayer : PlayerGroup
 
     protected override void LoadParameters()
     {
-        m_RVOSettings.testingTrack = new Queue<int>(new[] { 12, 11 });
-        string fileName = Path.Combine(Application.streamingAssetsPath, "STU_tasks.json");
+        m_RVOSettings.testingTrack = new Queue<int>(new[] { 0, 1 });
+        string fileName = Path.Combine(Application.streamingAssetsPath, "TRA_tasks.json");
         string json;
 #if UNITY_EDITOR || !UNITY_ANDROID
         StreamReader r = new StreamReader(fileName);
