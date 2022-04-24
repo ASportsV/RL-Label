@@ -60,8 +60,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: bd55cdb28be514339b0627c8d2542432,
-        type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_UseChildSensors
@@ -81,6 +80,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_BrainParameters.VectorActionSize.Array.size
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_BrainParameters.NumStackedVectorObservations
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 24136461344765374, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -295,7 +299,7 @@ PrefabInstance:
     - target: {fileID: 7278368080911663354, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_MaxNumObservables
-      value: 60
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 7865552096013063794, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
