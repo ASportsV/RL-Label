@@ -11,7 +11,7 @@ public class TRAPlayerGroup : PlayerGroup
 
     protected override void LoadParameters()
     {
-        testingTrack = new Queue<int>(new[] { 0, 1 });        
+        testingTrack = new Queue<int>(new[] { 0, 1, 2, 3, 4, 5 });        
         var rnd = new System.Random();
         trainingTrack = new Queue<int>(Enumerable.Range(0, scenes.Count)
             .Where(i => !testingTrack.Contains(i))
