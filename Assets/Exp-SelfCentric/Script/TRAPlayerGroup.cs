@@ -8,7 +8,7 @@ public class TRAPlayerGroup : PlayerGroup
 {
 
     protected override string sceneName => "tra";
-    protected override string dataFileName => "train_tasks.csv";
+    protected override string dataFileName => "clean_tra.csv";
 
     protected override void LoadParameters()
     {
