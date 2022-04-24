@@ -85,7 +85,7 @@ public class RVOSettings : MonoBehaviour
     internal float ansTime = 0;
 
     //sheet
-    SheetReader srd = new SheetReader();
+    SheetReader srd;
     public int userId = 0;
 
     string _sceneName;
@@ -113,6 +113,7 @@ public class RVOSettings : MonoBehaviour
         evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 1f) == 1.0f;
         evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 0f) == 1.0f;
         courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
+        srd = new SheetReader();
     }
 
     public void FinishACourt()
