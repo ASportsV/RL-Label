@@ -8,7 +8,7 @@ public class STUPlayersGroup : PlayerGroup
 {
 
     protected override string sceneName => "stu";
-    protected override string dataFileName => "student_full.csv";
+    protected override string dataFileName => "clean_stu.csv";
 
     protected override void LoadParameters()
     {
