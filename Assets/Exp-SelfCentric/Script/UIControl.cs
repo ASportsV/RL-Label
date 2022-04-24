@@ -52,7 +52,7 @@ public class UIControl : MonoBehaviour
     void IncreUserId(bool press)
     {
         if (!press || m_RVOSettings.setUserId) return;
-        m_RVOSettings.userId = (++m_RVOSettings.userId % 12);
+        m_RVOSettings.userId = (++m_RVOSettings.userId % 19);
         var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
         text.text = "UserId:" + m_RVOSettings.userId;
     }
