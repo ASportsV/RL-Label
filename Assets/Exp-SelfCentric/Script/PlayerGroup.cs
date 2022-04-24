@@ -223,7 +223,7 @@ public abstract class PlayerGroup : MonoBehaviour
         GameObject toInstantiate = isAgent ? playerLabel_prefab_rl : playerLabel_prefab;
         GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
-        playerObj.name = student.oId + "_PlayerLabel";
+        playerObj.name = student.id + "_PlayerLabel";
         playerObj.SetActive(true);
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
@@ -237,7 +237,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
         var name = label.Find("panel/Player_info/Name").GetComponent<TMPro.TextMeshProUGUI>();
         // label name
-        name.text = Random.Range(10, 99).ToString();
+        name.text = sid.ToString();
 
         // set color
         var iamge = label.Find("panel/Player_info").GetComponent<Image>();
