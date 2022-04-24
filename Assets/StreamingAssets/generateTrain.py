@@ -36,10 +36,12 @@ print("nba tracks " + str(len(nba_group_by_track.keys())))
 print("stu tracks " + str(len(stu_group_by_track.keys())))
 
 trainning_records = []
-for tIdx, group in enumerate([nba_group_by_track, stu_group_by_track]):
+tIdx = 0
+for group in [nba_group_by_track, stu_group_by_track]:
     tracks = random.sample(list(group.values()), 3)
     for track in tracks:
         trainning_records += [",".join(map(str, [tIdx] + t[1:])) for t in track]
+        tIdx += 1
 print("Trainning records " + str(len(trainning_records)))
 
 trainning = "train_tasks.csv"
