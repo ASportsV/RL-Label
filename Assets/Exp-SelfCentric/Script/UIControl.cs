@@ -95,13 +95,13 @@ public class UIControl : MonoBehaviour
         }
         else if(task.type == "compare")
         {
-            text = panel.Find("q11").GetComponent<TMPro.TextMeshProUGUI>();
+            text = panel.Find("q22").GetComponent<TMPro.TextMeshProUGUI>();
             text.text = "goal";
             text.color = new Color (1,0,0, 1f);
         }
         else if(task.type == "summary")
         {
-            text = panel.Find("q22").GetComponent<TMPro.TextMeshProUGUI>();
+            text = panel.Find("q12").GetComponent<TMPro.TextMeshProUGUI>();
             text.text = "goal";
             text.color = new Color (1,0,0, 1f);
         }
