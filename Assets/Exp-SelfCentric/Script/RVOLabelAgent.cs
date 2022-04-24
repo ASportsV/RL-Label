@@ -187,24 +187,26 @@ public class RVOLabelAgent : Agent
         {
             if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
             if (!other.gameObject.activeSelf) continue;
-            others.Add(other);
+            others.Add(other.Find("player"));
+            others.Add(other.Find("label"));
         }
 
         Vector3 posInViewport = m_label.cam.WorldToViewportPoint(transform.position);
         var closet10 = others.OrderBy(o =>
         {
-            Transform player = o.Find("player");
-            Vector3 playerRelativePos = m_label.cam.WorldToViewportPoint(player.position);
-            Label labelAgent = o.GetComponentInChildren<Label>();
-            Vector3 labelRelativePos = m_label.cam.WorldToViewportPoint(labelAgent.transform.position);
+            Vector3 otherPosInViewport = m_label.cam.WorldToViewportPoint(o.position);
+            return Vector2.Distance(new Vector2(otherPosInViewport.x, otherPosInViewport.y), new Vector2(posInViewport.x, posInViewport.y));
+            //Transform player = o.Find("player");
+            //Vector3 playerRelativePos = m_label.cam.WorldToViewportPoint(player.position);
+            //Label labelAgent = o.GetComponentInChildren<Label>();
+            //Vector3 labelRelativePos = m_label.cam.WorldToViewportPoint(labelAgent.transform.position);
 
-            return Mathf.Min(
-                Vector2.Distance(new Vector2(playerRelativePos.x, playerRelativePos.y), new Vector2(posInViewport.x, posInViewport.y)),
-                Vector2.Distance(new Vector2(labelRelativePos.x, labelRelativePos.y), new Vector2(posInViewport.x, posInViewport.y))
-            );
-        }).Take(10);
+            //return Mathf.Min(
+            //    Vector2.Distance(new Vector2(playerRelativePos.x, playerRelativePos.y), new Vector2(posInViewport.x, posInViewport.y)),
+            //    Vector2.Distance(new Vector2(labelRelativePos.x, labelRelativePos.y), new Vector2(posInViewport.x, posInViewport.y))
+            //);
+        }).Take(15);
         //System.Array.Sort(bullets, (a, b) => (Vector3.Distance(a.transform.position, transform.position)).CompareTo(Vector3.Distance(b.transform.position, transform.position)));
-
 
         // attentions to others
         foreach (Transform other in closet10)
@@ -265,9 +267,107 @@ public class RVOLabelAgent : Agent
         }
     }
 
+    void OBWorldSM(VectorSensor sensor)
+    {
+        // 16 = (2 + 3 + 2) * 2 + 2
+        float maxLabelSpeed = m_RVOSettings.maxLabelSpeed;
+        Vector3 scaleSpeed = new Vector3(maxLabelSpeed + m_RVOSettings.playerSpeedX, 0, maxLabelSpeed + m_RVOSettings.playerSppedZ);
+
+        Vector3 agentPos = m_label.PlayerLabel.transform.parent.transform.InverseTransformPoint(transform.position);
+        // 2, world pos
+        sensor.AddObservation(agentPos.x / m_RVOSettings.courtX);
+        sensor.AddObservation(agentPos.z / m_RVOSettings.courtZ);
+        //sensor.AddObservation(posInViewport.z / scaleZInCam);
+        // 3, forward
+        sensor.AddObservation(m_label.m_Panel.forward);
+        // 2 speed
+        sensor.AddObservation(m_label.velocity.x / scaleSpeed.x);
+        sensor.AddObservation(m_label.velocity.z / scaleSpeed.z);
+
+        // 2. endpoint
+        Vector3 relativeToAgent = m_label.PlayerLabel.transform.localPosition - agentPos;
+        sensor.AddObservation(relativeToAgent.x / m_RVOSettings.courtX);
+        sensor.AddObservation(relativeToAgent.z / m_RVOSettings.courtZ);
+        //sensor.AddObservation(relativeTPosInviewport.z / scaleZInCam);
+        // 3, forward
+        sensor.AddObservation(m_label.PlayerLabel.transform.forward);
+        // 2, speed
+        Vector3 relativeVel = m_label.PlayerLabel.velocity - m_label.velocity;
+        sensor.AddObservation(relativeVel.x / scaleSpeed.x);
+        sensor.AddObservation(relativeVel.z / scaleSpeed.z);
+
+        var others = new List<Transform>();
+        foreach (Transform other in transform.parent.parent)
+        {
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+            if (!other.gameObject.activeSelf) continue;
+            others.Add(other.Find("player"));
+            others.Add(other.Find("label"));
+        }
+
+        Vector3 posInViewport = m_label.cam.WorldToViewportPoint(transform.position);
+        var closet10 = others.OrderBy(o =>
+        {
+            Vector3 otherPosInViewport = m_label.cam.WorldToViewportPoint(o.position);
+            return Vector2.Distance(new Vector2(otherPosInViewport.x, otherPosInViewport.y), new Vector2(posInViewport.x, posInViewport.y));
+        }).Take(15);
+
+        // attentions to others
+        foreach (Transform other in closet10)
+        {
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+            if (!other.gameObject.activeSelf) continue;
+
+            List<float> playerOBs = new List<float>();
+            if(other.name == "player")
+            {
+                playerOBs.Add(1);
+                // 2_relative pos
+                Vector3 playerRelativePos = m_label.PlayerLabel.transform.parent.transform.InverseTransformPoint(other.position) - agentPos; //m_label.cam.WorldToViewportPoint(player.position) - posInViewport;
+                playerOBs.Add(playerRelativePos.x / m_RVOSettings.courtX);
+                playerOBs.Add(playerRelativePos.z / m_RVOSettings.courtZ);
+                // forward
+                playerOBs.Add(other.forward.x);
+                playerOBs.Add(other.forward.y);
+                playerOBs.Add(other.forward.z);
+                // 2_relative vel
+                Vector3 playerRelativeVel = other.GetComponentInParent<RVOplayer>().velocity - m_label.velocity;
+                playerOBs.Add(playerRelativeVel.x / scaleSpeed.x);
+                playerOBs.Add(playerRelativeVel.z / scaleSpeed.z);
+                // endpoint
+                Label labelAgent = other.parent.GetComponentInChildren<Label>();
+                Vector3 labelRelativePos = m_label.PlayerLabel.transform.parent.transform.InverseTransformPoint(labelAgent.transform.position) - agentPos;
+                playerOBs.Add(labelRelativePos.x / m_RVOSettings.courtX);
+                playerOBs.Add(labelRelativePos.z / m_RVOSettings.courtZ);
+            }
+            else
+            {
+                playerOBs.Add(0);
+                Label labelAgent = other.GetComponentInChildren<Label>();
+                Vector3 labelRelativePos = m_label.PlayerLabel.transform.parent.transform.InverseTransformPoint(labelAgent.transform.position) - agentPos;
+                // 2 relative pos
+                playerOBs.Add(labelRelativePos.x / m_RVOSettings.courtX);
+                playerOBs.Add(labelRelativePos.z / m_RVOSettings.courtZ);
+                // 3 forward
+                playerOBs.Add(labelAgent.m_Panel.forward.x);
+                playerOBs.Add(labelAgent.m_Panel.forward.y);
+                playerOBs.Add(labelAgent.m_Panel.forward.z);
+                // relative vel
+                Vector3 labelRelativeVel = labelAgent.velocity - m_label.velocity;
+                playerOBs.Add(labelRelativeVel.x / scaleSpeed.x);
+                playerOBs.Add(labelRelativeVel.z / scaleSpeed.z);
+                // endpoint
+                Vector3 playerRelativePos = m_label.PlayerLabel.transform.parent.transform.InverseTransformPoint(labelAgent.PlayerLabel.player.position) - agentPos;
+                playerOBs.Add(playerRelativePos.x / m_RVOSettings.courtX);
+                playerOBs.Add(playerRelativePos.z / m_RVOSettings.courtZ);
+            }
+            bSensor.AppendObservation(playerOBs.ToArray());
+        }
+    }
+
     public override void CollectObservations(VectorSensor sensor)
     {
-        if (m_RVOSettings.obW) OBWorld(sensor);
+        if (m_RVOSettings.obW) OBWorldSM(sensor);
         else OBViewport(sensor);
         //OBViewport(sensor);
         //OBWorld(sensor);
