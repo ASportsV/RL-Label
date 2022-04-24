@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public struct PlayerData
 {
     public int id;
+    public int oId;
     public Vector3[] positions;
     public Vector3[] velocities;
     public int totalStep;
@@ -155,6 +156,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
                 PlayerData student = new PlayerData();
                 student.id = eIdx++;
+                student.oId = playerIdx;
                 student.positions = pos;
                 student.velocities = vel;
                 student.startStep = playerStartedInTrack[tIdx.ToString() + '_' + playerIdx.ToString()];
@@ -221,7 +223,7 @@ public abstract class PlayerGroup : MonoBehaviour
         GameObject toInstantiate = isAgent ? playerLabel_prefab_rl : playerLabel_prefab;
         GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
-        playerObj.name = sid + "_PlayerLabel";
+        playerObj.name = student.oId + "_PlayerLabel";
         playerObj.SetActive(true);
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
