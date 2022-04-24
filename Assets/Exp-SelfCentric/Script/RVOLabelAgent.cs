@@ -91,7 +91,6 @@ public class RVOLabelAgent : Agent
         sensor.AddObservation(relativeVel.x / scaleSpeed.x);
         sensor.AddObservation(relativeVel.z / scaleSpeed.z);
 
-
         // attentions to others
         foreach (Transform other in transform.parent.parent)
         {
@@ -183,8 +182,32 @@ public class RVOLabelAgent : Agent
         //sensor.AddObservation(0);
         //sensor.AddObservation(0);
 
-        // attentions to others
+        var others = new List<Transform>();
         foreach (Transform other in transform.parent.parent)
+        {
+            if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
+            if (!other.gameObject.activeSelf) continue;
+            others.Add(other);
+        }
+
+        Vector3 posInViewport = m_label.cam.WorldToViewportPoint(transform.position);
+        var closet10 = others.OrderBy(o =>
+        {
+            Transform player = o.Find("player");
+            Vector3 playerRelativePos = m_label.cam.WorldToViewportPoint(player.position);
+            Label labelAgent = o.GetComponentInChildren<Label>();
+            Vector3 labelRelativePos = m_label.cam.WorldToViewportPoint(labelAgent.transform.position);
+
+            return Mathf.Min(
+                Vector2.Distance(new Vector2(playerRelativePos.x, playerRelativePos.y), new Vector2(posInViewport.x, posInViewport.y)),
+                Vector2.Distance(new Vector2(labelRelativePos.x, labelRelativePos.y), new Vector2(posInViewport.x, posInViewport.y))
+            );
+        }).Take(10);
+        //System.Array.Sort(bullets, (a, b) => (Vector3.Distance(a.transform.position, transform.position)).CompareTo(Vector3.Distance(b.transform.position, transform.position)));
+
+
+        // attentions to others
+        foreach (Transform other in closet10)
         {
             if (GameObject.ReferenceEquals(other.gameObject, transform.parent.gameObject)) continue;
             if (!other.gameObject.activeSelf) continue;
