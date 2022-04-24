@@ -12,7 +12,7 @@ public class TRAPlayerGroup : PlayerGroup
 
     protected override void LoadParameters()
     {
-        m_RVOSettings.testingTrack = new Queue<int>(new[] { 0, 1 });
+        m_RVOSettings.testingTrack = new Queue<int>(new[] { 0, 1, 2, 3, 4, 5 });
         string fileName = Path.Combine(Application.streamingAssetsPath, "TRA_tasks.json");
         string json;
 #if UNITY_EDITOR || !UNITY_ANDROID
