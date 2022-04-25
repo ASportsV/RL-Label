@@ -152,7 +152,7 @@ public class UIControl : MonoBehaviour
 
             // update the text in the panel
             var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
-            text.text = "Task" + m_RVOSettings.currentTaskIdx + ": Your answer is ____ . You took " + m_RVOSettings.ansTime.ToString("F") + "s.";
+            text.text = "Task" + m_RVOSettings.currentTaskIdx + ": Your answer is ____ ."; // You took " + m_RVOSettings.ansTime.ToString("F") + "s.";
             m_RVOSettings.saveToSheet();
 
         }
