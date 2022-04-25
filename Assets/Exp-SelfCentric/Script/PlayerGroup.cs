@@ -37,7 +37,14 @@ public abstract class PlayerGroup : MonoBehaviour
     public GameObject playerLabel_prefab, playerLabel_prefab_rl, playerLabel_baseline_prefab;
     public Sprite redLabel, blueLabel;
 
-    public int currentStep = 0;
+    private int _currentStep = 0;
+    public int currentStep {
+        get { return _currentStep; }
+        set {
+            _currentStep = value;
+            transform.parent.Find("Canvas_2/Panel/Slider").GetComponent<Slider>().value = totalStep != 0 ? ((float)_currentStep / (float)totalStep) : 0;
+        }
+    }
     public int currentScene;
     [HideInInspector] public string root;
 
