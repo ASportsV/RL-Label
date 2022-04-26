@@ -13,7 +13,7 @@ public class STUPlayersGroup : PlayerGroup
     protected override void LoadParameters()
     {
         m_RVOSettings.testingTrack = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
-        string fileName = Path.Combine(Application.streamingAssetsPath, "STU_tasks.json");
+        string fileName = Path.Combine(Application.streamingAssetsPath, "STU_tasks_reorder.json");
         string json;
 #if UNITY_EDITOR || !UNITY_ANDROID
         StreamReader r = new StreamReader(fileName);

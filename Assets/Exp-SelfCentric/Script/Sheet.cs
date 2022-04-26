@@ -89,7 +89,7 @@ class SheetReader
 
         string WriteRange = sheetName + "!A1";
         var values = new List<IList<object>> {
-            new List<object> { "TaskIdx", "Tech", "TrackIdx", "Q", "Corrected A", "Time", "User Ans"},
+            new List<object> { "TaskIdx", "Tech", "TrackIdx", "Task Type", "Q", "Corrected A", "Time", "User Ans"},
         };
         for(int i = 0, len = tasks.Count; i < len; ++i)
         {
@@ -100,7 +100,15 @@ class SheetReader
                     ? "Force"
                     : "Ours";
             values.Add(
-                new List<object> { i.ToString(), tech, task.track_id, task.Q, task.A, "", "" }
+                new List<object> { 
+                    i.ToString(), 
+                    tech, 
+                    task.track_id, 
+                    task.type,
+                    task.Q, 
+                    task.A, 
+                    "", 
+                    "" }
             );
         }
         var valueRange = new ValueRange { 
@@ -113,7 +121,7 @@ class SheetReader
 
     public void SetAns(string sheetName, int taskIdx, float time)
     {
-        string WriteRange = sheetName + "!F" + (taskIdx+2);
+        string WriteRange = sheetName + "!G" + (taskIdx+2);
         var valueRange = new ValueRange
         {
             Values = new List<IList<object>> {

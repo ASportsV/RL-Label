@@ -134,14 +134,18 @@ public class RVOSettings : MonoBehaviour
             new[] { Tech.Ours, Tech.No, Tech.Opti }
         };
         Tech[] order = orders[userId % 3];
-        for(int i = 0; i < 2; ++i)
+        for(int i = 0; i < 6; ++i)
         {
-            foreach(Tech tech in order)
-            {
-                for(int j = 0; j < 3; ++j) 
-                    techOrders.Add(tech);
-            }
+            techOrders.AddRange(order);
         }
+        // for(int i = 0; i < 2; ++i)
+        // {
+        //     foreach(Tech tech in order)
+        //     {
+        //         for(int j = 0; j < 3; ++j) 
+        //             techOrders.Add(tech);
+        //     }
+        // }
     }
 
     public void saveToSheet()

@@ -13,7 +13,7 @@ public class NBAPlayerGroup : PlayerGroup
     {
         m_RVOSettings.testingTrack = new Queue<int>(new[] { 0, 13, 15, 16, 21, 22 });
 
-        string fileName = Path.Combine(Application.streamingAssetsPath, "NBA_tasks.json");
+        string fileName = Path.Combine(Application.streamingAssetsPath, "NBA_tasks_reorder.json");
         string json;
 #if UNITY_EDITOR || !UNITY_ANDROID
         StreamReader r = new StreamReader(fileName);
