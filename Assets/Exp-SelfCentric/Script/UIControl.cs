@@ -170,11 +170,47 @@ public class UIControl : MonoBehaviour
                 // load the ranking text
                 var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
                 text.gameObject.SetActive(true);
-                text.text = "Please order your mental load of the last three trails descendingly:";
+                text.text = "Plz order your mental load of the last three trails descendingly:";
                 // load the videos
-                panel.Find("Videos").gameObject.SetActive(true);
+                var videos = panel.Find("Videos");
+                videos.gameObject.SetActive(true);
                 // set the sources
-                
+                var rawImages = videos.GetComponentsInChildren<RawImage>();
+                for(int i = 0; i < 3; ++i)
+                {
+                    var currentTech = m_RVOSettings.techOrder[i];
+                    var rawImage = rawImages[i];
+                    if(currentTech == Tech.No)
+                    {
+                        rawImage.texture = m_RVOSettings.sceneName == "nba"
+                            ? m_RVOSettings.videoTextures[0]
+                            : m_RVOSettings.sceneName == "stu"
+                            ? m_RVOSettings.videoTextures[3]
+                            : m_RVOSettings.currentTaskIdx <= 8
+                            ? m_RVOSettings.videoTextures[0]
+                            : m_RVOSettings.videoTextures[3];
+                    }
+                    else if (currentTech == Tech.Opti)
+                    {
+                        rawImage.texture = m_RVOSettings.sceneName == "nba"
+                            ? m_RVOSettings.videoTextures[1]
+                            : m_RVOSettings.sceneName == "stu"
+                            ? m_RVOSettings.videoTextures[4]
+                            : m_RVOSettings.currentTaskIdx <= 8
+                            ? m_RVOSettings.videoTextures[1]
+                            : m_RVOSettings.videoTextures[4];
+                    }
+                    else if(currentTech == Tech.Ours)
+                    {
+                        rawImage.texture = m_RVOSettings.sceneName == "nba"
+                            ? m_RVOSettings.videoTextures[2]
+                            : m_RVOSettings.sceneName == "stu"
+                            ? m_RVOSettings.videoTextures[5]
+                            : m_RVOSettings.currentTaskIdx <= 8
+                            ? m_RVOSettings.videoTextures[2]
+                            : m_RVOSettings.videoTextures[5];
+                    }
+                }
             }
             else 
             {

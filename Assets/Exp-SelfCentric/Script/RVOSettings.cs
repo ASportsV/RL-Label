@@ -84,6 +84,7 @@ public class RVOSettings : MonoBehaviour
     internal int currentTaskIdx { get { return _currentTaskIdx; } }
     public Task CurrentTask => tasks[currentTaskIdx];
     internal Tech CurrentTech => techOrders[currentTaskIdx];
+    internal Tech[] techOrder;
     internal float ansTime = 0;
 
     //sheet
@@ -135,10 +136,10 @@ public class RVOSettings : MonoBehaviour
             new[] { Tech.No, Tech.Opti, Tech.Ours },
             new[] { Tech.Ours, Tech.No, Tech.Opti }
         };
-        Tech[] order = orders[userId % 3];
-        for(int i = 0; i < 6; ++i)
+        techOrder = orders[userId % 3];
+        for (int i = 0; i < 6; ++i)
         {
-            techOrders.AddRange(order);
+            techOrders.AddRange(techOrder);
         }
         // for(int i = 0; i < 2; ++i)
         // {

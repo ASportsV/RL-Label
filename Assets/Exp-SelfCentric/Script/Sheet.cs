@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Collections.Generic;
 
 using Google.Apis.Services;
@@ -34,19 +35,7 @@ class SheetReader
         jsonCred = new MemoryStream( Encoding.UTF8.GetBytes( reader.text ) );
 #endif
 
-        //Debug.Log(key);
-
-        //// Creating a  ServiceAccountCredential.Initializer
-        //// ref: https://googleapis.dev/dotnet/Google.Apis.Auth/latest/api/Google.Apis.Auth.OAuth2.ServiceAccountCredential.Initializer.html
-        //ServiceAccountCredential.Initializer initializer = new ServiceAccountCredential.Initializer(serviceAccountID);
-
-        //// Getting ServiceAccountCredential from the private key
-        //// ref: https://googleapis.dev/dotnet/Google.Apis.Auth/latest/api/Google.Apis.Auth.OAuth2.ServiceAccountCredential.html
-        //ServiceAccountCredential credential = new ServiceAccountCredential(
-        //    initializer.FromPrivateKey(key)
-        //);
         ServiceAccountCredential credential = ServiceAccountCredential.FromServiceAccountData(jsonCred);
-
 
         service = new SheetsService(
             new BaseClientService.Initializer()
@@ -72,6 +61,15 @@ class SheetReader
         }
     }
 
+    string getTechName(Tech tech)
+    {
+        return tech == Tech.No
+        ? "No"
+        : tech == Tech.Opti
+        ? "Force"
+        : "Ours";
+    }
+
     public void AddNewSheet(string sheetName, List<Tech> order, List<Task> tasks)
     {
         // Add new Sheet
@@ -94,11 +92,7 @@ class SheetReader
         for(int i = 0, len = tasks.Count; i < len; ++i)
         {
             Task task = tasks[i];
-            string tech = order[i] == Tech.No
-                    ? "No"
-                    : order[i] == Tech.Opti
-                    ? "Force"
-                    : "Ours";
+            string tech = getTechName(order[i]);
             values.Add(
                 new List<object> { 
                     i.ToString(), 
@@ -110,13 +104,93 @@ class SheetReader
                     "", 
                     "" }
             );
+            if(i%3 == 2)
+            {
+                values.Add(
+                    new List<object> { 
+                        "A_" + getTechName(order[i-2]) + " rank:",
+                        "",
+                        "B_" + getTechName(order[i-1]) + " rank:",
+                        "",
+                        "C_" + getTechName(order[i])   + " rank:",
+                        "",
+                        "Why?",
+                        ""
+                    }
+                );
+            }
         }
         var valueRange = new ValueRange { 
             Values = values
         };
         var update = service.Spreadsheets.Values.Update(valueRange, spreadsheetId, WriteRange);
-        update.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
+        update.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
         update.Execute();
+
+
+        Spreadsheet spr = service.Spreadsheets.Get(spreadsheetId).Execute();
+        Sheet sh = spr.Sheets.Where(s => s.Properties.Title == sheetName).FirstOrDefault();
+        int sheetId = (int)sh.Properties.SheetId;
+        //define cell color
+        var userEnteredFormat = new CellFormat()
+        {
+            TextFormat = new TextFormat()
+            {
+                Bold = true,
+                FontSize = 11
+            }
+        };
+        BatchUpdateSpreadsheetRequest bussr = new BatchUpdateSpreadsheetRequest();
+        //create the update request for cells from the first row
+        var updateCellsRequest = new Request()
+        {
+            RepeatCell = new RepeatCellRequest()
+            {
+                Range = new GridRange()
+                {
+                    SheetId = sheetId,
+                    StartColumnIndex = 0,
+                    StartRowIndex = 0,
+                    EndColumnIndex = 28,
+                    EndRowIndex = 1
+                },
+                Cell = new CellData()
+                {
+                    UserEnteredFormat = userEnteredFormat
+                },
+                Fields = "UserEnteredFormat(TextFormat)"
+            }
+        };
+        bussr.Requests = new List<Request>();
+        bussr.Requests.Add(updateCellsRequest);
+        for(int i = 0; i < 6; ++i)
+        {
+            for(int j = 0; j < 4; ++j)
+            {
+                updateCellsRequest = new Request()
+                {
+                    RepeatCell = new RepeatCellRequest()
+                    {
+                        Range = new GridRange()
+                        {
+                            SheetId = sheetId,
+                            StartColumnIndex = j * 2,
+                            StartRowIndex = i * 4 + 4,
+                            EndColumnIndex = j * 2 + 1,
+                            EndRowIndex = i * 4 + 4 + 1
+                        },
+                        Cell = new CellData()
+                        {
+                            UserEnteredFormat = userEnteredFormat
+                        },
+                        Fields = "UserEnteredFormat(TextFormat)"
+                    }
+                };
+                bussr.Requests.Add(updateCellsRequest);
+            }
+        }
+        batchUpdateRequest = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
+        batchUpdateRequest.Execute();
     }
 
     public void SetAns(string sheetName, int taskIdx, float time)
