@@ -9,6 +9,7 @@ public class UIControl : MonoBehaviour
     public PrimaryButtonWatcher watcher;
     // control
     Transform panel;
+    Transform panel_rating;
     TMPro.TMP_Dropdown dropdown;
 
     Transform playergroup;
@@ -20,6 +21,7 @@ public class UIControl : MonoBehaviour
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         panel = transform.Find("Panel");
+        panel_rating = transform.Find("Panel_rating");
         playergroup = transform.parent.Find("PlayerGroup");
     }
 
@@ -128,15 +130,16 @@ public class UIControl : MonoBehaviour
 
         if (beforeTrial) // -> exectue the code for the next
         {
-            m_RVOSettings.sceneStarted = true;
-            // show the scene
-            playergroup.gameObject.SetActive(true);
-            // hide the panel
-            panel.gameObject.SetActive(false);
 
-            // load and start the scene
-            var task = m_RVOSettings.CurrentTask;
-            groupControl.LoadTrack(task.track_id);
+                m_RVOSettings.sceneStarted = true;
+                // show the scene
+                playergroup.gameObject.SetActive(true);
+                // hide the panel
+                panel.gameObject.SetActive(false);
+
+                // load and start the scene
+                var task = m_RVOSettings.CurrentTask;
+                groupControl.LoadTrack(task.track_id);
         }
         else if (inTrial) // -> exectue the code for the next
         {
@@ -146,46 +149,65 @@ public class UIControl : MonoBehaviour
             // show the panel
             panel.gameObject.SetActive(true);
 
-            // update the text in the btn
-            // var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-            // text.text = "Next";
-
             // update the text in the panel
             var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
-            text.text = "Task" + m_RVOSettings.currentTaskIdx + ": Your answer is ____ ."; // You took " + m_RVOSettings.ansTime.ToString("F") + "s.";
+            text.text = "Task" + m_RVOSettings.currentTaskIdx + ": Your answer is __ ."; // You took " + m_RVOSettings.ansTime.ToString("F") + "s.";
             m_RVOSettings.saveToSheet();
 
         }
         else if (afterTrial) // -> exectue the code for the next
         {
-            m_RVOSettings.sceneStarted = false;
-            m_RVOSettings.sceneFinished = false;
-
-            // show the panel
-            panel.gameObject.SetActive(true);
             // hide the scene
             playergroup.gameObject.SetActive(false);
-
-            // update the text in the btn
-            // var text = btn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-            // text.text = "Start";
-
-            // load the next task, only update the UI question, but not load and start the scene
-            if(m_RVOSettings.currentTaskIdx != -1)
-                m_RVOSettings.NextTask();
-
-            if (m_RVOSettings.currentTaskIdx != -1)
+            if(m_RVOSettings.shouldRate && m_RVOSettings.currentTaskIdx % 3 == 2) // should rate
             {
-                LoadTaskQuestionInUI(m_RVOSettings.CurrentTask);
-            }
-            else
-            {
-                // finish
+                m_RVOSettings.shouldRate = false;
+                // disable all text
+                var texts = panel.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+                foreach(TMPro.TextMeshProUGUI child in texts)
+                    child.gameObject.SetActive(false);
+                panel.Find("Panel (1)").gameObject.SetActive(false);
+                // load the ranking text
                 var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
-                text.text = "Finished! Thanks!";
-                m_RVOSettings.sceneStarted = true;
-                m_RVOSettings.sceneFinished = true;
-                // btn.GetComponent<Button>().interactable = false;
+                text.gameObject.SetActive(true);
+                text.text = "Please order your mental load of the last three trails descendingly:";
+                // load the videos
+                panel.Find("Videos").gameObject.SetActive(true);
+                // set the sources
+                
+            }
+            else 
+            {
+                // activate all texts
+                foreach(Transform child in panel)
+                {
+                    if(child.name == "TaskId") continue;
+                    child.gameObject.SetActive(true);
+                }
+                // deactivate the videos
+                panel.Find("Videos").gameObject.SetActive(false);
+                //
+                m_RVOSettings.sceneStarted = false;
+                m_RVOSettings.sceneFinished = false;
+                m_RVOSettings.shouldRate = true;
+                // show the panel
+                panel.gameObject.SetActive(true);
+                // load the next task, only update the UI question, but not load and start the scene
+                if(m_RVOSettings.currentTaskIdx != -1)
+                    m_RVOSettings.NextTask();
+
+                if (m_RVOSettings.currentTaskIdx != -1)
+                {
+                    LoadTaskQuestionInUI(m_RVOSettings.CurrentTask);
+                }
+                else
+                {
+                    // finish
+                    var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
+                    text.text = "Finished! Thanks!";
+                    m_RVOSettings.sceneStarted = true;
+                    m_RVOSettings.sceneFinished = true;
+                }
             }
         }
     }

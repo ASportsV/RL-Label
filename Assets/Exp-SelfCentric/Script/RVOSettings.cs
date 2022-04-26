@@ -66,6 +66,7 @@ public class RVOSettings : MonoBehaviour
     // UI
     internal bool sceneFinished = false;
     internal bool sceneStarted = false;
+    internal bool shouldRate = true;
 
     internal List<Task> _tasks;
     internal List<Task> tasks {
@@ -78,6 +79,7 @@ public class RVOSettings : MonoBehaviour
     }
 
     List<Tech> techOrders = new List<Tech>();
+    public Texture[] videoTextures = new Texture[6];
     int _currentTaskIdx = 0;
     internal int currentTaskIdx { get { return _currentTaskIdx; } }
     public Task CurrentTask => tasks[currentTaskIdx];
@@ -86,7 +88,7 @@ public class RVOSettings : MonoBehaviour
 
     //sheet
     SheetReader srd;
-    public int userId = 0;
+    internal int userId = 0;
 
     string _sceneName;
     internal string sceneName {
@@ -129,8 +131,8 @@ public class RVOSettings : MonoBehaviour
     public void getOrderByUserId()
     {
         Tech[][] orders = new[] {
-            new[] { Tech.No, Tech.Opti, Tech.Ours },
             new[] { Tech.Opti, Tech.Ours, Tech.No },
+            new[] { Tech.No, Tech.Opti, Tech.Ours },
             new[] { Tech.Ours, Tech.No, Tech.Opti }
         };
         Tech[] order = orders[userId % 3];
