@@ -132,6 +132,7 @@ public class RVOSettings : MonoBehaviour
     public void getOrderByUserId()
     {
         Tech[][] orders = new[] {
+
             new[] { Tech.Opti, Tech.Ours, Tech.No },
             new[] { Tech.No, Tech.Opti, Tech.Ours },
             new[] { Tech.Ours, Tech.No, Tech.Opti }
