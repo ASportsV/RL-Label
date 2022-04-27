@@ -9,7 +9,6 @@ public class UIControl : MonoBehaviour
     public PrimaryButtonWatcher watcher;
     // control
     Transform panel;
-    Transform panel_rating;
     TMPro.TMP_Dropdown dropdown;
 
     Transform playergroup;
@@ -21,7 +20,6 @@ public class UIControl : MonoBehaviour
     {
         m_RVOSettings = FindObjectOfType<RVOSettings>();
         panel = transform.Find("Panel");
-        panel_rating = transform.Find("Panel_rating");
         playergroup = transform.parent.Find("PlayerGroup");
     }
 
@@ -172,7 +170,7 @@ public class UIControl : MonoBehaviour
                 text.gameObject.SetActive(true);
                 text.text = "Plz order your mental load of the last three trails descendingly:";
                 // load the videos
-                var videos = panel.Find("Videos");
+                var videos = panel.parent.Find("Videos");
                 videos.gameObject.SetActive(true);
                 // set the sources
                 var rawImages = videos.GetComponentsInChildren<RawImage>();
@@ -180,6 +178,8 @@ public class UIControl : MonoBehaviour
                 foreach(var rawImage in rawImages)
                 {
                     rawImage.gameObject.SetActive(false);
+                    // var rect = rawImage.GetComponent<RectTransform>();
+                    // rect.anchoredPosition = new Vector2(200, -38);
                 }
 
                 for(int i = 0; i < 3; ++i)
@@ -257,7 +257,7 @@ public class UIControl : MonoBehaviour
                     child.gameObject.SetActive(true);
                 }
                 // deactivate the videos
-                panel.Find("Videos").gameObject.SetActive(false);
+                panel.parent.Find("Videos").gameObject.SetActive(false);
                 //
                 m_RVOSettings.sceneStarted = false;
                 m_RVOSettings.sceneFinished = false;
