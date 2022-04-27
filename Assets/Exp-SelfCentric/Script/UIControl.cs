@@ -149,7 +149,7 @@ public class UIControl : MonoBehaviour
 
             // update the text in the panel
             var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
-            text.text = "Task" + m_RVOSettings.currentTaskIdx + ": Your answer is __ ."; // You took " + m_RVOSettings.ansTime.ToString("F") + "s.";
+            text.text = "Task" + m_RVOSettings.currentTaskIdx + ": Your answer is __ . Your mental load is __ (1~7)."; // You took " + m_RVOSettings.ansTime.ToString("F") + "s.";
             m_RVOSettings.saveToSheet();
 
         }
@@ -157,99 +157,99 @@ public class UIControl : MonoBehaviour
         {
             // hide the scene
             playergroup.gameObject.SetActive(false);
-            if(m_RVOSettings.shouldRate && m_RVOSettings.currentTaskIdx % 3 == 2) // should rate
-            {
-                m_RVOSettings.shouldRate = false;
-                // disable all text
-                var texts = panel.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-                foreach(TMPro.TextMeshProUGUI child in texts)
-                    child.gameObject.SetActive(false);
-                panel.Find("Panel (1)").gameObject.SetActive(false);
-                // load the ranking text
-                var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
-                text.gameObject.SetActive(true);
-                text.text = "Plz order your mental load of the last three trails descendingly:";
-                // load the videos
-                var videos = panel.parent.Find("Videos");
-                videos.gameObject.SetActive(true);
-                // set the sources
-                var rawImages = videos.GetComponentsInChildren<RawImage>();
-                // deactivate all
-                foreach(var rawImage in rawImages)
-                {
-                    rawImage.gameObject.SetActive(false);
-                    // var rect = rawImage.GetComponent<RectTransform>();
-                    // rect.anchoredPosition = new Vector2(200, -38);
-                }
+            // if(m_RVOSettings.shouldRate && m_RVOSettings.currentTaskIdx % 3 == 2) // should rate
+            // {
+            //     m_RVOSettings.shouldRate = false;
+            //     // disable all text
+            //     var texts = panel.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+            //     foreach(TMPro.TextMeshProUGUI child in texts)
+            //         child.gameObject.SetActive(false);
+            //     panel.Find("Panel (1)").gameObject.SetActive(false);
+            //     // load the ranking text
+            //     var text = panel.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
+            //     text.gameObject.SetActive(true);
+            //     text.text = "Plz order your mental load of the last three trails descendingly:";
+            //     // load the videos
+            //     var videos = panel.parent.Find("Videos");
+            //     videos.gameObject.SetActive(true);
+            //     // set the sources
+            //     var rawImages = videos.GetComponentsInChildren<RawImage>();
+            //     // deactivate all
+            //     foreach(var rawImage in rawImages)
+            //     {
+            //         rawImage.gameObject.SetActive(false);
+            //         // var rect = rawImage.GetComponent<RectTransform>();
+            //         // rect.anchoredPosition = new Vector2(200, -38);
+            //     }
 
-                for(int i = 0; i < 3; ++i)
-                {
-                    var currentTech = m_RVOSettings.techOrder[i];
+            //     for(int i = 0; i < 3; ++i)
+            //     {
+            //         var currentTech = m_RVOSettings.techOrder[i];
 
-                    // var rawImage = rawImages[i];
-                    Transform target;
-                    if(currentTech == Tech.No)
-                    {
-                        target = m_RVOSettings.sceneName == "nba"
-                            ? videos.Find("1")
-                            : m_RVOSettings.sceneName == "stu"
-                            ? videos.Find("4")
-                            : m_RVOSettings.currentTaskIdx <= 8
-                            ? videos.Find("1")
-                            : videos.Find("4");
-                    //     rawImage.texture = 
-                    //         ? m_RVOSettings.videoTextures[0]
-                    //         : m_RVOSettings.sceneName == "stu"
-                    //         ? m_RVOSettings.videoTextures[3]
-                    //         : m_RVOSettings.currentTaskIdx <= 8
-                    //         ? m_RVOSettings.videoTextures[0]
-                    //         : m_RVOSettings.videoTextures[3];
-                    }
-                    else if (currentTech == Tech.Opti)
-                    {
-                        target = m_RVOSettings.sceneName == "nba"
-                            ? videos.Find("2")
-                            : m_RVOSettings.sceneName == "stu"
-                            ? videos.Find("5")
-                            : m_RVOSettings.currentTaskIdx <= 8
-                            ? videos.Find("2")
-                            : videos.Find("5");
-                        //     rawImage.texture = m_RVOSettings.sceneName == "nba"
-                        //         ? m_RVOSettings.videoTextures[1]
-                        //         : m_RVOSettings.sceneName == "stu"
-                        //         ? m_RVOSettings.videoTextures[4]
-                        //         : m_RVOSettings.currentTaskIdx <= 8
-                        //         ? m_RVOSettings.videoTextures[1]
-                        //         : m_RVOSettings.videoTextures[4];
-                    }
-                    else //(currentTech == Tech.Ours)
-                    {
-                        target = m_RVOSettings.sceneName == "nba"
-                            ? videos.Find("3")
-                            : m_RVOSettings.sceneName == "stu"
-                            ? videos.Find("6")
-                            : m_RVOSettings.currentTaskIdx <= 8
-                            ? videos.Find("3")
-                            : videos.Find("6");
-                        //     rawImage.texture = m_RVOSettings.sceneName == "nba"
-                        //         ? m_RVOSettings.videoTextures[2]
-                        //         : m_RVOSettings.sceneName == "stu"
-                        //         ? m_RVOSettings.videoTextures[5]
-                        //         : m_RVOSettings.currentTaskIdx <= 8
-                        //         ? m_RVOSettings.videoTextures[2]
-                        //         : m_RVOSettings.videoTextures[5];
-                    }
-                    if (target == null) return;
+            //         // var rawImage = rawImages[i];
+            //         Transform target;
+            //         if(currentTech == Tech.No)
+            //         {
+            //             target = m_RVOSettings.sceneName == "nba"
+            //                 ? videos.Find("1")
+            //                 : m_RVOSettings.sceneName == "stu"
+            //                 ? videos.Find("4")
+            //                 : m_RVOSettings.currentTaskIdx <= 8
+            //                 ? videos.Find("1")
+            //                 : videos.Find("4");
+            //         //     rawImage.texture = 
+            //         //         ? m_RVOSettings.videoTextures[0]
+            //         //         : m_RVOSettings.sceneName == "stu"
+            //         //         ? m_RVOSettings.videoTextures[3]
+            //         //         : m_RVOSettings.currentTaskIdx <= 8
+            //         //         ? m_RVOSettings.videoTextures[0]
+            //         //         : m_RVOSettings.videoTextures[3];
+            //         }
+            //         else if (currentTech == Tech.Opti)
+            //         {
+            //             target = m_RVOSettings.sceneName == "nba"
+            //                 ? videos.Find("2")
+            //                 : m_RVOSettings.sceneName == "stu"
+            //                 ? videos.Find("5")
+            //                 : m_RVOSettings.currentTaskIdx <= 8
+            //                 ? videos.Find("2")
+            //                 : videos.Find("5");
+            //             //     rawImage.texture = m_RVOSettings.sceneName == "nba"
+            //             //         ? m_RVOSettings.videoTextures[1]
+            //             //         : m_RVOSettings.sceneName == "stu"
+            //             //         ? m_RVOSettings.videoTextures[4]
+            //             //         : m_RVOSettings.currentTaskIdx <= 8
+            //             //         ? m_RVOSettings.videoTextures[1]
+            //             //         : m_RVOSettings.videoTextures[4];
+            //         }
+            //         else //(currentTech == Tech.Ours)
+            //         {
+            //             target = m_RVOSettings.sceneName == "nba"
+            //                 ? videos.Find("3")
+            //                 : m_RVOSettings.sceneName == "stu"
+            //                 ? videos.Find("6")
+            //                 : m_RVOSettings.currentTaskIdx <= 8
+            //                 ? videos.Find("3")
+            //                 : videos.Find("6");
+            //             //     rawImage.texture = m_RVOSettings.sceneName == "nba"
+            //             //         ? m_RVOSettings.videoTextures[2]
+            //             //         : m_RVOSettings.sceneName == "stu"
+            //             //         ? m_RVOSettings.videoTextures[5]
+            //             //         : m_RVOSettings.currentTaskIdx <= 8
+            //             //         ? m_RVOSettings.videoTextures[2]
+            //             //         : m_RVOSettings.videoTextures[5];
+            //         }
+            //         if (target == null) return;
 
-                    target.gameObject.SetActive(true);
-                    var rect = target.GetComponent<RectTransform>();
-                    if (i == 0) rect.anchoredPosition = new Vector2(-40f, -38f);
-                    else if(i == 1) rect.anchoredPosition = new Vector2(0f, -38f);
-                    else if(i == 2) rect.anchoredPosition = new Vector2(40f, -38f);
-                }
-            }
-            else 
-            {
+            //         target.gameObject.SetActive(true);
+            //         var rect = target.GetComponent<RectTransform>();
+            //         if (i == 0) rect.anchoredPosition = new Vector2(-40f, -38f);
+            //         else if(i == 1) rect.anchoredPosition = new Vector2(0f, -38f);
+            //         else if(i == 2) rect.anchoredPosition = new Vector2(40f, -38f);
+            //     }
+            // }
+            // else 
+            // {
                 // activate all texts
                 foreach(Transform child in panel)
                 {
@@ -280,7 +280,7 @@ public class UIControl : MonoBehaviour
                     m_RVOSettings.sceneStarted = true;
                     m_RVOSettings.sceneFinished = true;
                 }
-            }
+            // }
         }
     }
 }

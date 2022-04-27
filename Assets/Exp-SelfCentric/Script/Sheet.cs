@@ -87,7 +87,7 @@ class SheetReader
 
         string WriteRange = sheetName + "!A1";
         var values = new List<IList<object>> {
-            new List<object> { "TaskIdx", "Tech", "TrackIdx", "Task Type", "Q", "Corrected A", "Time", "User Ans"},
+            new List<object> { "TaskIdx", "Tech", "TrackIdx", "Task Type", "Q", "Corrected A", "Time", "User Ans", "Mental Load"},
         };
         for(int i = 0, len = tasks.Count; i < len; ++i)
         {
@@ -102,7 +102,8 @@ class SheetReader
                     task.Q, 
                     task.A, 
                     "", 
-                    "" }
+                    "" ,
+                    ""}
             );
             if(i%3 == 2)
             {

@@ -1411,7 +1411,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ATTRACTION_CONSTANT: 10
   REPULSION_CONSTANT: 100
-  MOVEMENT_SPEED: 4
+  MOVEMENT_SPEED: 10
   debug: 0
 --- !u!1 &1124511748
 GameObject:
