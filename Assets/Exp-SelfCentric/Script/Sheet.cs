@@ -195,7 +195,7 @@ class SheetReader
 
     public void SetAns(string sheetName, int taskIdx, float time)
     {
-        string WriteRange = sheetName + "!G" + (taskIdx+2);
+        string WriteRange = sheetName + "!G" + (taskIdx+2 + taskIdx / 3);
         var valueRange = new ValueRange
         {
             Values = new List<IList<object>> {

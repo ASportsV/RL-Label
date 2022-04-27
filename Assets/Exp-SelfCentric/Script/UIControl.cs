@@ -176,39 +176,48 @@ public class UIControl : MonoBehaviour
                 videos.gameObject.SetActive(true);
                 // set the sources
                 var rawImages = videos.GetComponentsInChildren<RawImage>();
+                // deactivate all
+                foreach(var rawImage in rawImages)
+                {
+                    rawImage.gameObject.SetActive(false);
+                }
+
                 for(int i = 0; i < 3; ++i)
                 {
                     var currentTech = m_RVOSettings.techOrder[i];
-                    var rawImage = rawImages[i];
+                    
+                    // var rawImage = rawImages[i];
                     if(currentTech == Tech.No)
                     {
-                        rawImage.texture = m_RVOSettings.sceneName == "nba"
-                            ? m_RVOSettings.videoTextures[0]
-                            : m_RVOSettings.sceneName == "stu"
-                            ? m_RVOSettings.videoTextures[3]
-                            : m_RVOSettings.currentTaskIdx <= 8
-                            ? m_RVOSettings.videoTextures[0]
-                            : m_RVOSettings.videoTextures[3];
+                        var target = m_RVOSettings.sceneName == "nba"
+                            ? videos.Find("")
+                    //     rawImage.texture = 
+                    //         ? m_RVOSettings.videoTextures[0]
+                    //         : m_RVOSettings.sceneName == "stu"
+                    //         ? m_RVOSettings.videoTextures[3]
+                    //         : m_RVOSettings.currentTaskIdx <= 8
+                    //         ? m_RVOSettings.videoTextures[0]
+                    //         : m_RVOSettings.videoTextures[3];
                     }
                     else if (currentTech == Tech.Opti)
                     {
-                        rawImage.texture = m_RVOSettings.sceneName == "nba"
-                            ? m_RVOSettings.videoTextures[1]
-                            : m_RVOSettings.sceneName == "stu"
-                            ? m_RVOSettings.videoTextures[4]
-                            : m_RVOSettings.currentTaskIdx <= 8
-                            ? m_RVOSettings.videoTextures[1]
-                            : m_RVOSettings.videoTextures[4];
-                    }
+                    //     rawImage.texture = m_RVOSettings.sceneName == "nba"
+                    //         ? m_RVOSettings.videoTextures[1]
+                    //         : m_RVOSettings.sceneName == "stu"
+                    //         ? m_RVOSettings.videoTextures[4]
+                    //         : m_RVOSettings.currentTaskIdx <= 8
+                    //         ? m_RVOSettings.videoTextures[1]
+                    //         : m_RVOSettings.videoTextures[4];
+                    // }
                     else if(currentTech == Tech.Ours)
                     {
-                        rawImage.texture = m_RVOSettings.sceneName == "nba"
-                            ? m_RVOSettings.videoTextures[2]
-                            : m_RVOSettings.sceneName == "stu"
-                            ? m_RVOSettings.videoTextures[5]
-                            : m_RVOSettings.currentTaskIdx <= 8
-                            ? m_RVOSettings.videoTextures[2]
-                            : m_RVOSettings.videoTextures[5];
+                    //     rawImage.texture = m_RVOSettings.sceneName == "nba"
+                    //         ? m_RVOSettings.videoTextures[2]
+                    //         : m_RVOSettings.sceneName == "stu"
+                    //         ? m_RVOSettings.videoTextures[5]
+                    //         : m_RVOSettings.currentTaskIdx <= 8
+                    //         ? m_RVOSettings.videoTextures[2]
+                    //         : m_RVOSettings.videoTextures[5];
                     }
                 }
             }
