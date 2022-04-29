@@ -370,7 +370,7 @@ public class RVOLabelAgent : Agent
 
     void OBWorldSM(VectorSensor sensor)
     {
-        // 16 = (2 + 3 + 2) * 2 + 2
+        // 16 = (2 + 3 + 2) * 2
         float maxLabelSpeed = m_RVOSettings.maxLabelSpeed;
         Vector3 scaleSpeed = new Vector3(maxLabelSpeed + m_RVOSettings.playerSpeedX, 0, maxLabelSpeed + m_RVOSettings.playerSppedZ);
 
@@ -422,6 +422,7 @@ public class RVOLabelAgent : Agent
             List<float> playerOBs = new List<float>();
             if(other.name == "player")
             {
+                // 1 + 2 + 3 + 2 + 2
                 playerOBs.Add(1);
                 // 2_relative pos
                 Vector3 playerRelativePos = m_label.PlayerLabel.transform.parent.transform.InverseTransformPoint(other.position) - agentPos; //m_label.cam.WorldToViewportPoint(player.position) - posInViewport;
