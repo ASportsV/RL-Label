@@ -228,8 +228,9 @@ public class RVOLabelAgent : Agent
                 Label labelAgent = other.GetComponentInChildren<Label>();
                 Vector3 labelRelativePos = m_label.cam.WorldToViewportPoint(labelAgent.transform.position) - posInViewport;
                 // 2 relative pos
-                playerOBs.Add(labelRelativePos.x / m_RVOSettings.courtX);
-                playerOBs.Add(labelRelativePos.z / m_RVOSettings.courtZ);
+                playerOBs.Add(labelRelativePos.x);
+                playerOBs.Add(labelRelativePos.y);
+                playerOBs.Add(labelRelativePos.z / scaleZInCam);
                 // 3 forward
                 playerOBs.Add(labelAgent.m_Panel.forward.x);
                 playerOBs.Add(labelAgent.m_Panel.forward.y);
