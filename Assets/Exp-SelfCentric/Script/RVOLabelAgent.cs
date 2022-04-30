@@ -213,7 +213,8 @@ public class RVOLabelAgent : Agent
                 playerOBs.Add(other.forward.y);
                 playerOBs.Add(other.forward.z);
                 // 2_relative vel
-                Vector3 playerRelativeVel = other.GetComponentInParent<RVOplayer>().velocity - m_label.velocity;
+                var rvoPlayer = other.GetComponentInParent<RVOplayer>();
+                Vector3 playerRelativeVel = (rvoPlayer ? rvoPlayer.velocity : Vector3.zero) - m_label.velocity;
                 playerOBs.Add(playerRelativeVel.x / scaleSpeed.x);
                 playerOBs.Add(playerRelativeVel.z / scaleSpeed.z);
                 // endpoint
