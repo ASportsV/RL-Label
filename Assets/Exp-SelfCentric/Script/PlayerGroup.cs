@@ -104,7 +104,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
         LoadDataset();
         EnvironmentReset();
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
     }
 
     private void EnvironmentReset()

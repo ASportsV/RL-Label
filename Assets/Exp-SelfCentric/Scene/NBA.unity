@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12729394, g: 0.1341429, b: 0.121147014, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -161,7 +161,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 154469688}
   m_LocalRotation: {x: 0.38268346, y: 0, z: 0, w: 0.9238795}
-  m_LocalPosition: {x: 0, y: 15, z: -18}
+  m_LocalPosition: {x: 0, y: 13, z: -13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1368,8 +1368,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ATTRACTION_CONSTANT: 10
-  REPULSION_CONSTANT: 100
-  MOVEMENT_SPEED: 4
+  REPULSION_CONSTANT: 0.1
+  MOVEMENT_SPEED: 5
   debug: 0
 --- !u!1 &1124511748
 GameObject:
@@ -1544,13 +1544,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5849866393272827402}
     m_Modifications:
+    - target: {fileID: 264394335077912, guid: e55793818665742889c4a60d44db389a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 264394476537609, guid: e55793818665742889c4a60d44db389a, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 264395606896995, guid: e55793818665742889c4a60d44db389a, type: 3}
       propertyPath: m_Name
       value: Canvas_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 264395606896995, guid: e55793818665742889c4a60d44db389a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 264395606897000, guid: e55793818665742889c4a60d44db389a, type: 3}
       propertyPath: m_PresetInfoIsWorld
@@ -1918,7 +1926,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2088034914147222496
 Transform:
   m_ObjectHideFlags: 0
@@ -3798,6 +3806,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 5862741345297493364, guid: 2616169720b7147b4a84c2fb00bb239f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5862741345297493365, guid: 2616169720b7147b4a84c2fb00bb239f,
         type: 3}
