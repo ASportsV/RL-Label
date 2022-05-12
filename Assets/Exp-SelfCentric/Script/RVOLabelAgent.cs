@@ -221,8 +221,8 @@ public class RVOLabelAgent : Agent
                 // endpoint
                 Label labelAgent = other.parent.GetComponentInChildren<Label>();
                 Vector3 labelRelativePos = m_label.cam.WorldToViewportPoint(labelAgent.transform.position) - posInViewport;
-                playerOBs.Add(labelRelativePos.x / m_RVOSettings.courtX);
-                playerOBs.Add(labelRelativePos.z / m_RVOSettings.courtZ);
+                playerOBs.Add(labelRelativePos.x);
+                playerOBs.Add(labelRelativePos.y);
             }
             else
             {
@@ -243,8 +243,8 @@ public class RVOLabelAgent : Agent
                 playerOBs.Add(labelRelativeVel.z / scaleSpeed.z);
                 // endpoint
                 Vector3 playerRelativePos = m_label.cam.WorldToViewportPoint(labelAgent.PlayerLabel.player.position) - posInViewport;
-                playerOBs.Add(playerRelativePos.x / m_RVOSettings.courtX);
-                playerOBs.Add(playerRelativePos.z / m_RVOSettings.courtZ);
+                playerOBs.Add(playerRelativePos.x);
+                playerOBs.Add(playerRelativePos.y);
             }
             bSensor.AppendObservation(playerOBs.ToArray());
         }

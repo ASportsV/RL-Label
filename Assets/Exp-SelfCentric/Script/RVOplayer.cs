@@ -25,18 +25,18 @@ public class RVOplayer : MonoBehaviour
             .GetComponent<TMPro.TextMeshProUGUI>();
         text.text = sid.ToString(); // transform.GetSiblingIndex().ToString(); //sid.ToString();
         
-        text = transform.Find(string.Format("{0}/TopCanvas/Text", root))
-            .GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = sid.ToString(); // transform.GetSiblingIndex().ToString();
-        text = transform.Find(string.Format("{0}/FrontCanvas/Text", root))
-           .GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = sid.ToString(); // transform.GetSiblingIndex().ToString();
-        text = transform.Find(string.Format("{0}/LeftCanvas/Text", root))
-           .GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = sid.ToString(); // transform.GetSiblingIndex().ToString();
-        text = transform.Find(string.Format("{0}/RightCanvas/Text", root))
-           .GetComponent<TMPro.TextMeshProUGUI>();
-        text.text = sid.ToString(); // transform.GetSiblingIndex().ToString();
+        //text = transform.Find(string.Format("{0}/TopCanvas/Text", root))
+        //    .GetComponent<TMPro.TextMeshProUGUI>();
+        //text.text = sid.ToString(); // transform.GetSiblingIndex().ToString();
+        //text = transform.Find(string.Format("{0}/FrontCanvas/Text", root))
+        //   .GetComponent<TMPro.TextMeshProUGUI>();
+        //text.text = sid.ToString(); // transform.GetSiblingIndex().ToString();
+        //text = transform.Find(string.Format("{0}/LeftCanvas/Text", root))
+        //   .GetComponent<TMPro.TextMeshProUGUI>();
+        //text.text = sid.ToString(); // transform.GetSiblingIndex().ToString();
+        //text = transform.Find(string.Format("{0}/RightCanvas/Text", root))
+        //   .GetComponent<TMPro.TextMeshProUGUI>();
+        //text.text = sid.ToString(); // transform.GetSiblingIndex().ToString();
     }
 
     // @todo

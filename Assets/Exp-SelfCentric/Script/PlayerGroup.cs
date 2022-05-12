@@ -257,7 +257,15 @@ public abstract class PlayerGroup : MonoBehaviour
         GameObject toInstantiate = isAgent
             ? useBaseline ? playerLabel_baseline_prefab : playerLabel_prefab_rl
             : playerLabel_prefab;
+
         GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
+        if (m_RVOSettings.small)
+        {
+            var bbox = playerObj.transform.Find("label/panel").GetComponent<BoxCollider>();
+            bbox.size = new Vector3(0.9f, 0.5f, 0.0001f);
+            var rect = playerObj.transform.Find("label/panel/Player_info").GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(1f, 0.6f);
+        }
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = sid + "_PlayerLabel";
         playerObj.SetActive(true);
@@ -272,14 +280,14 @@ public abstract class PlayerGroup : MonoBehaviour
         label.localPosition = new Vector3(0f, m_RVOSettings.labelY, 0f);
 
         // label data
-        var cell = label.Find("panel/Player_info/q11").GetComponent<TMPro.TextMeshProUGUI>();
-        cell.text = agentSetting.point[0].ToString();
-        cell = label.Find("panel/Player_info/q12").GetComponent<TMPro.TextMeshProUGUI>();
-        cell.text = agentSetting.point[1].ToString();
-        cell = label.Find("panel/Player_info/q21").GetComponent<TMPro.TextMeshProUGUI>();
-        cell.text = agentSetting.point[2].ToString();
-        cell = label.Find("panel/Player_info/q22").GetComponent<TMPro.TextMeshProUGUI>();
-        cell.text = agentSetting.point[3].ToString();
+        //var cell = label.Find("panel/Player_info/q11").GetComponent<TMPro.TextMeshProUGUI>();
+        //cell.text = agentSetting.point[0].ToString();
+        //cell = label.Find("panel/Player_info/q12").GetComponent<TMPro.TextMeshProUGUI>();
+        //cell.text = agentSetting.point[1].ToString();
+        //cell = label.Find("panel/Player_info/q21").GetComponent<TMPro.TextMeshProUGUI>();
+        //cell.text = agentSetting.point[2].ToString();
+        //cell = label.Find("panel/Player_info/q22").GetComponent<TMPro.TextMeshProUGUI>();
+        //cell.text = agentSetting.point[3].ToString();
 
         if (useBaseline && isAgent)
         {
