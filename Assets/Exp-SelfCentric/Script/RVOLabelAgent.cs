@@ -472,8 +472,9 @@ public class RVOLabelAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        if (m_RVOSettings.obW) OBWorldSM(sensor);
-        else OBViewportSM(sensor);
+        //if (m_RVOSettings.obW) OBWorldSM(sensor);
+        //else 
+        OBViewportSM(sensor);
     }
 
     /*-----------------------Action-----------------------*/
