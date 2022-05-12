@@ -309,7 +309,7 @@ public abstract class PlayerGroup : MonoBehaviour
             SaveMetricToJson();
             Academy.Instance.StatsRecorder.Add("_test/_track_end", currentScene);
         }
-        LoadTrack(currentScene);
+        LoadTrack(getNextTrack());
     }
 
     protected virtual void Clean()
