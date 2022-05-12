@@ -34,6 +34,7 @@ public abstract class PlayerGroup : MonoBehaviour
     protected RVOSettings m_RVOSettings;
     // player + label
     public GameObject playerLabel_prefab_rl;
+    public GameObject playerLabel_prefab_rl_sm;
     public GameObject playerLabel_prefab;
     public Sprite redLabel;
     public Sprite blueLabel;
@@ -226,7 +227,9 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         int sid = student.id;
         var pos = student.positions[0];
-        GameObject toInstantiate = isAgent ? playerLabel_prefab_rl : playerLabel_prefab;
+        GameObject toInstantiate = isAgent 
+            ? m_RVOSettings.smallLabel ? playerLabel_prefab_rl_sm : playerLabel_prefab_rl 
+            : playerLabel_prefab;
         GameObject playerObj = Instantiate(toInstantiate, pos, Quaternion.identity);
         playerObj.transform.SetParent(gameObject.transform, false);
         playerObj.name = sid + "_PlayerLabel";

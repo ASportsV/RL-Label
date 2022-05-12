@@ -344,7 +344,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: f1a62673119a60c4489174a88d98a268,
+    type: 3}
+  playerLabel_prefab_rl_sm: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   playerLabel_prefab: {fileID: 4009644357339790710, guid: e7ac4602bdec36e46a398f07af11620d,
     type: 3}
@@ -526,7 +528,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: f1a62673119a60c4489174a88d98a268,
+    type: 3}
+  playerLabel_prefab_rl_sm: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   playerLabel_prefab: {fileID: 4009644357339790710, guid: e7ac4602bdec36e46a398f07af11620d,
     type: 3}
@@ -708,7 +712,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: f1a62673119a60c4489174a88d98a268,
+    type: 3}
+  playerLabel_prefab_rl_sm: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   playerLabel_prefab: {fileID: 4009644357339790710, guid: e7ac4602bdec36e46a398f07af11620d,
     type: 3}
@@ -957,7 +963,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: f1a62673119a60c4489174a88d98a268,
+    type: 3}
+  playerLabel_prefab_rl_sm: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   playerLabel_prefab: {fileID: 4009644357339790710, guid: e7ac4602bdec36e46a398f07af11620d,
     type: 3}
@@ -1139,7 +1147,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: f1a62673119a60c4489174a88d98a268,
+    type: 3}
+  playerLabel_prefab_rl_sm: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   playerLabel_prefab: {fileID: 4009644357339790710, guid: e7ac4602bdec36e46a398f07af11620d,
     type: 3}
@@ -1321,7 +1331,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: f1a62673119a60c4489174a88d98a268,
+    type: 3}
+  playerLabel_prefab_rl_sm: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   playerLabel_prefab: {fileID: 4009644357339790710, guid: e7ac4602bdec36e46a398f07af11620d,
     type: 3}
@@ -1348,7 +1360,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: f1a62673119a60c4489174a88d98a268,
+    type: 3}
+  playerLabel_prefab_rl_sm: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   playerLabel_prefab: {fileID: 4009644357339790710, guid: e7ac4602bdec36e46a398f07af11620d,
     type: 3}
@@ -1530,7 +1544,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7af3edb0e7b9d2b44ba305d935bf1345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
+  playerLabel_prefab_rl: {fileID: 4009644357339790710, guid: f1a62673119a60c4489174a88d98a268,
+    type: 3}
+  playerLabel_prefab_rl_sm: {fileID: 4009644357339790710, guid: 8e311f7e7c25cda458833648c29259a3,
     type: 3}
   playerLabel_prefab: {fileID: 4009644357339790710, guid: e7ac4602bdec36e46a398f07af11620d,
     type: 3}
