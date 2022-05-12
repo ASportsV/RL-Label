@@ -42,7 +42,7 @@ public abstract class PlayerGroup : MonoBehaviour
         get { return _currentStep; }
         set {
             _currentStep = value;
-            transform.parent.Find("Canvas_2/Panel/Slider").GetComponent<Slider>().value = totalStep != 0 ? ((float)_currentStep / (float)totalStep) : 0;
+            //transform.parent.Find("Canvas_2/Panel/Slider").GetComponent<Slider>().value = totalStep != 0 ? ((float)_currentStep / (float)totalStep) : 0;
         }
     }
     public int currentScene;
