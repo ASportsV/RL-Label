@@ -117,15 +117,8 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         string fileName = Path.Combine(Application.streamingAssetsPath, dataFileName);
         string pos_data;
-#if UNITY_EDITOR || !UNITY_ANDROID
         StreamReader r = new StreamReader(fileName);
         pos_data = r.ReadToEnd();
-#else
-    // streamingAssets are compressed in android (not readable with File).
-        WWW reader = new WWW (fileName);
-        while (!reader.isDone) {}
-        pos_data = reader.text;
-#endif
         string[] records = pos_data.Split('\n');
 
         List<Dictionary<int, List<Vector3>>> tracks = new List<Dictionary<int, List<Vector3>>>();
