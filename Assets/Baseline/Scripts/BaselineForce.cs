@@ -80,9 +80,9 @@ public class BaselineForce : MonoBehaviour
         double proximity = 0.00000001 + CalcDistance(x.Location, y.Location); // [1, +Inf 
 
         // Coulomb's Law: F = k(Qq/r^2)
-        double force = -(REPULSION_CONSTANT / Math.Pow(5 * proximity, 2));
+        double force = -(REPULSION_CONSTANT / Math.Pow(1 * proximity, 2));
         double angle = GetBearingAngle(x.Location, y.Location);
-        //Debug.Log("To " + x.sid  +" from " + y.sid + ": force " + force.ToString() + ", dist " + proximity);
+        //Debug.Log("To " + x.sid + " from " + y.sid + ": force " + force.ToString() + ", dist " + proximity);
         return new Vector(force, angle);
     }
 
@@ -109,7 +109,7 @@ public class BaselineForce : MonoBehaviour
                         netForce += f2;
                     }
                 }
-
+                //Debug.Log("Total force:" + netForce);
                 label.totalForce = netForce;
             }
         }

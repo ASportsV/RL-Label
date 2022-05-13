@@ -100,6 +100,7 @@ public class LabelNode
 
             nextPosition = (currentPosition) + totalForce * dumping;
 
+        //Debug.Log("Diff pos:" + totalForce * dumping);
         Vector2 nextPos2 = nextPosition.ToPoint();
         Vector3 nextPos3 = new Vector3(nextPos2.x, currentPos3.y, nextPos2.y);
         return viewplaneCollider.transform.TransformPoint(nextPos3);
