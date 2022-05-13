@@ -13,17 +13,17 @@ public class STUPlayersGroup : PlayerGroup
     protected override void LoadParameters()
     {
         m_RVOSettings.testingTrack = new Queue<int>(new[] { 4, 8, 16, 25, 12, 10 });
-        string fileName = Path.Combine(Application.streamingAssetsPath, "STU_tasks_reorder.json");
-        string json;
-#if UNITY_EDITOR || !UNITY_ANDROID
-        StreamReader r = new StreamReader(fileName);
-        json = r.ReadToEnd();
-#else
-        WWW reader = new WWW (fileName);
-        while (!reader.isDone) {}
-        json = reader.text;  
-#endif
-        m_RVOSettings.tasks = JsonUtility.FromJson<TaskList>(json).tasks;
+//        string fileName = Path.Combine(Application.streamingAssetsPath, "STU_tasks_reorder.json");
+//        string json;
+//#if UNITY_EDITOR || !UNITY_ANDROID
+//        StreamReader r = new StreamReader(fileName);
+//        json = r.ReadToEnd();
+//#else
+//        WWW reader = new WWW (fileName);
+//        while (!reader.isDone) {}
+//        json = reader.text;  
+//#endif
+        //m_RVOSettings.tasks = JsonUtility.FromJson<TaskList>(json).tasks;
 
         var rnd = new System.Random();
         trainingTrack = new Queue<int>(Enumerable.Range(0, scenes.Count)
@@ -31,8 +31,8 @@ public class STUPlayersGroup : PlayerGroup
             .OrderBy(item => rnd.Next())
             .ToList());
 
-        m_RVOSettings.xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.2f);
-        m_RVOSettings.moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 1f);
+        m_RVOSettings.xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.5f);
+        m_RVOSettings.moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 1.5f);
         m_RVOSettings.moveSmooth = Academy.Instance.EnvironmentParameters.GetWithDefault("moveSmooth", 0.005f);
         m_RVOSettings.maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 4f);
     }

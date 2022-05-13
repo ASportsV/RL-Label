@@ -69,23 +69,23 @@ public class RVOSettings : MonoBehaviour
     //internal bool sceneStarted = false;
     //internal bool shouldRate = true;
 
-    internal List<Task> _tasks;
-    internal List<Task> tasks {
-        get { return _tasks; }
-        set {
-            _tasks = value;
-            // new sheet
-            //srd.AddNewSheet(sheetName, techOrders, _tasks);
-        }
-    }
+    //internal List<Task> _tasks;
+    //internal List<Task> tasks {
+    //    get { return _tasks; }
+    //    set {
+    //        _tasks = value;
+    //        // new sheet
+    //        //srd.AddNewSheet(sheetName, techOrders, _tasks);
+    //    }
+    //}
 
-    List<Tech> techOrders = new List<Tech>();
+    //List<Tech> techOrders = new List<Tech>();
     //public Texture[] videoTextures = new Texture[6];
-    int _currentTaskIdx = 0;
-    internal int currentTaskIdx { get { return _currentTaskIdx; } }
-    public Task CurrentTask => tasks[currentTaskIdx];
-    internal Tech CurrentTech => techOrders[currentTaskIdx];
-    internal Tech[] techOrder;
+    //int _currentTaskIdx = 0;
+    //internal int currentTaskIdx { get { return _currentTaskIdx; } }
+    //public Task CurrentTask => tasks[currentTaskIdx];
+    internal Tech[] techOrder = new[] { Tech.Ours, Tech.Opti, Tech.No };
+    internal Tech CurrentTech => techOrder[0];
 
     string _sceneName;
     internal string sceneName {
@@ -106,11 +106,10 @@ public class RVOSettings : MonoBehaviour
         courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
         //srd = new SheetReader();
 
-        techOrder = new[] { Tech.Ours, Tech.Opti,  Tech.No };
-        for (int i = 0; i < 6; ++i)
-        {
-            techOrders.AddRange(techOrder);
-        }
+        //for (int i = 0; i < 6; ++i)
+        //{
+        //    techOrders.AddRange(techOrder);
+        //}
     }
 
     public void FinishACourt()
@@ -123,16 +122,16 @@ public class RVOSettings : MonoBehaviour
         }
     }
 
-    public void NextTask(bool round = false)
-    {
-        this._currentTaskIdx += 1;
-        // in the setting view
-        if(round)  {
-            this._currentTaskIdx = this._currentTaskIdx % 18;
-            return;
-        }
+    //public void NextTask(bool round = false)
+    //{
+    //    this._currentTaskIdx += 1;
+    //    // in the setting view
+    //    if(round)  {
+    //        this._currentTaskIdx = this._currentTaskIdx % 18;
+    //        return;
+    //    }
         
-        if (this._currentTaskIdx >= tasks.Count) this._currentTaskIdx = -1;
-    }
+    //    if (this._currentTaskIdx >= tasks.Count) this._currentTaskIdx = -1;
+    //}
 
 }

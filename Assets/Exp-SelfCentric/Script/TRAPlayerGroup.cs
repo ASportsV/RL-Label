@@ -13,17 +13,17 @@ public class TRAPlayerGroup : PlayerGroup
     protected override void LoadParameters()
     {
         m_RVOSettings.testingTrack = new Queue<int>(new[] { 0, 1, 2, 3, 4, 5 });
-        string fileName = Path.Combine(Application.streamingAssetsPath, "TRA_tasks_reorder.json");
-        string json;
-#if UNITY_EDITOR || !UNITY_ANDROID
-        StreamReader r = new StreamReader(fileName);
-        json = r.ReadToEnd();
-#else
-        WWW reader = new WWW (fileName);
-        while (!reader.isDone) {}
-        json = reader.text;  
-#endif
-        m_RVOSettings.tasks = JsonUtility.FromJson<TaskList>(json).tasks;
+//        string fileName = Path.Combine(Application.streamingAssetsPath, "TRA_tasks_reorder.json");
+//        string json;
+//#if UNITY_EDITOR || !UNITY_ANDROID
+//        StreamReader r = new StreamReader(fileName);
+//        json = r.ReadToEnd();
+//#else
+//        WWW reader = new WWW (fileName);
+//        while (!reader.isDone) {}
+//        json = reader.text;  
+//#endif
+//        m_RVOSettings.tasks = JsonUtility.FromJson<TaskList>(json).tasks;
 
         var rnd = new System.Random();
         trainingTrack = new Queue<int>(Enumerable.Range(0, scenes.Count)

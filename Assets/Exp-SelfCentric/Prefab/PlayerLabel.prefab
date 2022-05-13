@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3933635731914576204
 Transform:
   m_ObjectHideFlags: 0
@@ -70,6 +70,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: Untagged
+      objectReference: {fileID: 0}
+    - target: {fileID: 306209330557256023, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 746582646195559359, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -131,6 +136,16 @@ PrefabInstance:
       propertyPath: m_RaysPerDirection
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1370314358518729745, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1960322110530793552, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2254527845119027484, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
       propertyPath: m_Layer
@@ -140,6 +155,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: label
+      objectReference: {fileID: 0}
+    - target: {fileID: 3014700977594259588, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3389930725043084977, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3417699027278855939, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}
@@ -240,6 +265,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_FontData.m_Alignment
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7000988605233000957, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7792152964531674506, guid: 98b591507de72954099c958f0452b9fd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7865552096013063794, guid: 98b591507de72954099c958f0452b9fd,
         type: 3}

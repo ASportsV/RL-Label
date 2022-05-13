@@ -197,7 +197,7 @@ public abstract class PlayerGroup : MonoBehaviour
         Clean();
         currentScene = sceneIdx;
         currentStep = 0;
-        numOfAgent = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("num_agents", 10);
+        numOfAgent = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("num_agents", 20);
         var players = scenes[currentScene];
 
         int agentIdx = Random.Range(0, players.Count());
@@ -252,8 +252,7 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         int sid = student.id;
         var pos = student.positions[0];
-        var agentSetting = m_RVOSettings.CurrentTask.setting.Find(t => t.id == sid);
-        isAgent = true; //agentSetting.isAgent;
+        //isAgent = true;
         GameObject toInstantiate = isAgent
             ? useBaseline ? playerLabel_baseline_prefab : playerLabel_prefab_rl
             : playerLabel_prefab;
@@ -279,16 +278,6 @@ public abstract class PlayerGroup : MonoBehaviour
         Transform label = playerObj.gameObject.transform.Find("label");
         label.localPosition = new Vector3(0f, m_RVOSettings.labelY, 0f);
 
-        // label data
-        //var cell = label.Find("panel/Player_info/q11").GetComponent<TMPro.TextMeshProUGUI>();
-        //cell.text = agentSetting.point[0].ToString();
-        //cell = label.Find("panel/Player_info/q12").GetComponent<TMPro.TextMeshProUGUI>();
-        //cell.text = agentSetting.point[1].ToString();
-        //cell = label.Find("panel/Player_info/q21").GetComponent<TMPro.TextMeshProUGUI>();
-        //cell.text = agentSetting.point[2].ToString();
-        //cell = label.Find("panel/Player_info/q22").GetComponent<TMPro.TextMeshProUGUI>();
-        //cell.text = agentSetting.point[3].ToString();
-
         if (useBaseline && isAgent)
         {
             playerObj.GetComponentInChildren<LabelIdHandler>().sId = sid;
@@ -297,10 +286,9 @@ public abstract class PlayerGroup : MonoBehaviour
         // set color
         var iamge = label.Find("panel/Player_info").GetComponent<Image>();
         //iamge.sprite = (sid % 2 == 0) ? blueLabel : redLabel;
-        iamge.sprite = agentSetting.color == "blue" ? blueLabel : redLabel;
+        iamge.sprite = isAgent ? blueLabel : redLabel;
 
-        //if (sid % 2 != 0)
-        if (agentSetting.color == "red")
+        if (!isAgent)
         {
             Color color = new Color(239f / 255f, 83f / 255f, 80f / 255f);
             var cubeRenderer = player.player.GetComponent<Renderer>();
