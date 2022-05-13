@@ -453,7 +453,6 @@ public class RVOLabelAgent : Agent
         float moveSmooth = m_RVOSettings.moveSmooth;
         float moveUnit = m_RVOSettings.moveUnit;
         float maxLabelSpeed = m_RVOSettings.maxLabelSpeed;
-        float xzDistThres = m_RVOSettings.xzDistThres;
 
         float moveZ = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
         
@@ -488,12 +487,17 @@ public class RVOLabelAgent : Agent
             Mathf.Clamp(m_label.m_Rbody.velocity.z, -maxLabelSpeed, maxLabelSpeed)
         );
 
+    }
+
+    private void FixedUpdate()
+    {
+        float xzDistThres = m_RVOSettings.xzDistThres;
         float distToTarget = transform.position.z - m_label.PlayerLabel.transform.position.z;
         if (Mathf.Abs(distToTarget) > xzDistThres)
         {
             transform.position = new Vector3(
-                transform.position.x, 
-                transform.position.y, 
+                transform.position.x,
+                transform.position.y,
                 m_label.PlayerLabel.transform.position.z + (distToTarget > 0 ? xzDistThres : -xzDistThres)
             );
             m_label.m_Rbody.velocity = new Vector3(m_label.m_Rbody.velocity.x, 0f, 0f);
@@ -503,8 +507,8 @@ public class RVOLabelAgent : Agent
         if (Mathf.Abs(distToTarget) > xzDistThres)
         {
             transform.position = new Vector3(
-                m_label.PlayerLabel.transform.position.x + (distToTarget > 0 ? xzDistThres : -xzDistThres), 
-                transform.position.y, 
+                m_label.PlayerLabel.transform.position.x + (distToTarget > 0 ? xzDistThres : -xzDistThres),
+                transform.position.y,
                 transform.position.z
             );
             m_label.m_Rbody.velocity = new Vector3(0f, 0f, m_label.m_Rbody.velocity.z);
