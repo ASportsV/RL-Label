@@ -148,6 +148,7 @@ public class BaselineForce : MonoBehaviour
         }
 
         GameObject parallelToCam = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        parallelToCam.transform.localScale = 3 * Vector3.one;
         parallelToCam.GetComponent<MeshRenderer>().enabled = debug;
         parallelToCam.transform.position =
                 Camera.main.transform.position + Camera.main.transform.forward;
