@@ -28,10 +28,10 @@ public class NBAPlayerGroup : PlayerGroup
         var rnd = new System.Random();
         trainingTrack = new Queue<int>(Enumerable.Range(0, scenes.Count)
             .Where(i => !m_RVOSettings.testingTrack.Contains(i))
-            .OrderBy(item => rnd.Next())
+            //.OrderBy(item => rnd.Next())
             .ToList());
 
-        m_RVOSettings.xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.3f);
+        m_RVOSettings.xzDistThres = Academy.Instance.EnvironmentParameters.GetWithDefault("xzDistThres", 1.2f);
         m_RVOSettings.moveUnit = Academy.Instance.EnvironmentParameters.GetWithDefault("moveUnit", 3f);
         m_RVOSettings.moveSmooth = Academy.Instance.EnvironmentParameters.GetWithDefault("moveSmooth", 0.005f);
         m_RVOSettings.maxLabelSpeed = Academy.Instance.EnvironmentParameters.GetWithDefault("maxLabelSpeed", 4f);
