@@ -64,6 +64,8 @@ public class RVOSettings : MonoBehaviour
     int finished = 0;
     int courtCount = 8;
 
+    public GameObject playerGroup;
+
     // UI
     //internal bool sceneFinished = false;
     //internal bool sceneStarted = false;
@@ -101,8 +103,8 @@ public class RVOSettings : MonoBehaviour
         obW = Academy.Instance.EnvironmentParameters.GetWithDefault("ob_w", 0f) == 1.0f;
         small = Academy.Instance.EnvironmentParameters.GetWithDefault("small", 1f) == 1f;
         labelY = small ? 1.9f : 2.8f;
-        evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 0f) == 1.0f;
-        evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 0f) == 1.0f;
+        evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 1f) == 1.0f;
+        evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 1f) == 1.0f;
         courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
         //srd = new SheetReader();
 
@@ -110,6 +112,11 @@ public class RVOSettings : MonoBehaviour
         //{
         //    techOrders.AddRange(techOrder);
         //}
+    }
+
+    private void Start()
+    {
+        playerGroup.SetActive(true);
     }
 
     public void FinishACourt()
