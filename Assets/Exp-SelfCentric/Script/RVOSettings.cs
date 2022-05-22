@@ -87,7 +87,8 @@ public class RVOSettings : MonoBehaviour
     //internal int currentTaskIdx { get { return _currentTaskIdx; } }
     //public Task CurrentTask => tasks[currentTaskIdx];
     internal Tech[] techOrder = new[] { Tech.Ours, Tech.Opti, Tech.No };
-    internal Tech CurrentTech => techOrder[0];
+    internal int techIdx = 1;
+    internal Tech CurrentTech => techOrder[techIdx];
 
     string _sceneName;
     internal string sceneName {
@@ -105,13 +106,8 @@ public class RVOSettings : MonoBehaviour
         labelY = small ? 1.9f : 2.8f;
         evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 1f) == 1.0f;
         evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 1f) == 1.0f;
+        techIdx = (int) Academy.Instance.EnvironmentParameters.GetWithDefault("_tech_idx", 1f);
         courtCount = gameObject.scene.GetRootGameObjects().Count(go => go.activeSelf) - 2;
-        //srd = new SheetReader();
-
-        //for (int i = 0; i < 6; ++i)
-        //{
-        //    techOrders.AddRange(techOrder);
-        //}
     }
 
     private void Start()

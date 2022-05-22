@@ -16,7 +16,9 @@ public class BaselineForce : MonoBehaviour
     public bool debug = false;
     private bool init = false;
 
-    void Update()
+
+    private void FixedUpdate()
+ 
     {
         if (!init)
         {
@@ -24,11 +26,11 @@ public class BaselineForce : MonoBehaviour
         }
         UpdateViewPlane();
         UpdateForces();
-        foreach (var l in labelNodes)
-        {
-            l.UpdateSphere(debug);
-            l.MoveTowardsNewPos(MOVEMENT_SPEED);
-        }
+        //foreach (var l in labelNodes)
+        //{
+        //    l.UpdateSphere(debug);
+        //    l.MoveTowardsNewPos(MOVEMENT_SPEED);
+        //}
     }
 
     public static double GetBearingAngle(Vector2 start, Vector2 end)
@@ -123,10 +125,10 @@ public class BaselineForce : MonoBehaviour
         init = true;
     }
 
-    public void AddLabel(GameObject lG, GameObject l, bool isAgent)
+    public void AddLabel(GameObject playerLabel, GameObject l, bool isAgent)
     {
-        GameObject player = lG.transform.Find("player").gameObject;
-        RVOplayer m_player = lG.GetComponent<RVOplayer>();
+        GameObject player = playerLabel.transform.Find("player").gameObject;
+        RVOplayer m_player = playerLabel.GetComponent<RVOplayer>();
         LabelNode nodeP = new LabelNode
             ("player_" + m_player.sid, player.GetComponentInChildren<Collider>(), viewplaneCollider);
 
@@ -138,6 +140,10 @@ public class BaselineForce : MonoBehaviour
             ("label_" + m_player.sid, l.GetComponentInChildren<Collider>(), viewplaneCollider, nodeP, sphere, isAgent);
         nodeL.label = l;
         labelNodes.Add(nodeL);
+
+        //
+        var vlAgent = l.GetComponent<BaselineAgent>();
+        vlAgent.labelNode = nodeL;
     }
 
     private Collider GetViewplaneCollider()

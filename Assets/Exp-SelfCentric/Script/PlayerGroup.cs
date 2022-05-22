@@ -65,7 +65,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     // baseline
     protected bool useBaseline => m_RVOSettings.CurrentTech == Tech.Opti;
-    public BaselineForce b;
+    public BaselineForce baseline;
 
     abstract protected (int, int, int, float, float) parseRecord(string record);
     abstract protected void LoadParameters();
@@ -216,7 +216,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
         if (useBaseline)
         {
-            b.InitFrom(labelGroups, labels, isAgents);
+            baseline.InitFrom(labelGroups, labels, isAgents);
         }
     }
 
@@ -263,7 +263,7 @@ public abstract class PlayerGroup : MonoBehaviour
         playerObj.SetActive(true);
 
         RVOplayer player = playerObj.GetComponent<RVOplayer>();
-        player.Init(sid, (!isAgent && useBaseline) ? "player" : root, student.positions, student.velocities);
+        player.Init(sid, root, student.positions, student.velocities);
         m_playerMap[sid] = player;
         // add to set
         if (isAgent) agentSet.Add(sid);
@@ -295,6 +295,7 @@ public abstract class PlayerGroup : MonoBehaviour
     {
         if (m_RVOSettings.evaluate && m_RVOSettings.evaluate_metrics)
         {
+            Debug.Log("TrackFinished save met and send end");
             SaveMetricToJson();
             Academy.Instance.StatsRecorder.Add("_test/_track_end", currentScene);
         }
@@ -303,7 +304,7 @@ public abstract class PlayerGroup : MonoBehaviour
 
     protected virtual void Clean()
     {
-        b.CleanUp();
+        baseline.CleanUp();
         // remove all existing
         foreach (var entry in m_playerMap)
         {
@@ -336,13 +337,30 @@ public abstract class PlayerGroup : MonoBehaviour
         {
             var occluded = new HashSet<string>();
             var intersected = new HashSet<string>();
-
             foreach (var student in players.Where(s => i >= s.startStep && i < (s.startStep + s.totalStep)))
             {
                 var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<Label>();
+                int idx = (i - student.startStep) * 2;
+                if(idx < labelAgent.occludedObjectOverTime.Count && idx < labelAgent.intersectionsOverTime.Count)
+                {
+                    occluded.UnionWith(labelAgent.occludedObjectOverTime[idx]);
+                    intersected.UnionWith(labelAgent.intersectionsOverTime[idx]);
+                }
+            }
+            accumulatedOcclusion.Add(occluded);
+            accumulatedIntersection.Add(intersected);
 
-                occluded.UnionWith(labelAgent.occludedObjectOverTime[i - student.startStep]);
-                intersected.UnionWith(labelAgent.intersectionsOverTime[i - student.startStep]);
+            occluded = new HashSet<string>();
+            intersected = new HashSet<string>();
+            foreach (var student in players.Where(s => i >= s.startStep && i < (s.startStep + s.totalStep)))
+            {
+                var labelAgent = m_playerMap[student.id].gameObject.GetComponentInChildren<Label>();
+                int idx = (i - student.startStep) * 2 + 1;
+                if (idx < labelAgent.occludedObjectOverTime.Count && idx < labelAgent.intersectionsOverTime.Count)
+                {
+                    occluded.UnionWith(labelAgent.occludedObjectOverTime[idx]);
+                    intersected.UnionWith(labelAgent.intersectionsOverTime[idx]);
+                }
             }
             accumulatedOcclusion.Add(occluded);
             accumulatedIntersection.Add(intersected);

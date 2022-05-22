@@ -83,7 +83,6 @@ public class LabelNode
             to = GetNextPos(),
             dir = (to-from).normalized,
             newPos = label.transform.position + (STEP * dir);
-        Debug.Log("Diff pos " + STEP * dir);
         return closest ? plane.GetComponent<Collider>().ClosestPoint(newPos) : newPos;
         /*
         UpdatePlane();
@@ -126,12 +125,13 @@ public class LabelNode
         get { return player; }
         set { player = value; }
     }
-    public void MoveTowardsNewPos(float movementSpeed)
+
+    public Vector3 MoveTowardsNewPos(float movementSpeed)
     {
-        if(!isAgent) return;
+        if(!isAgent) return Vector3.zero;
         Vector3 targetPos = GetNextPosFinal(),
             oldPos = label.transform.position;
         float step = movementSpeed * Time.deltaTime;
-        label.transform.position = Vector3.MoveTowards(oldPos, targetPos, step);
+        return Vector3.MoveTowards(oldPos, targetPos, step);
     }
 }
