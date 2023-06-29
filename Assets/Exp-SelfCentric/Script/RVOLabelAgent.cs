@@ -511,9 +511,18 @@ public class RVOLabelAgent : Agent
             AddReward(-rwd.rew_x);
         }
 
+        float moveY = Mathf.Clamp(actionBuffers.ContinuousActions[2], -1f, 1f);
+        if(Mathf.Abs(moveY) > moveSmooth) {
+            AddReward(rwd.rew_x);
+            m_label.m_Rbody.AddForce(new Vector3(0f, moveUnit * moveY, 0f), ForceMode.VelocityChange);
+        } else {
+            AddReward(-rwd.rew_x);
+        }
+
         m_label.m_Rbody.velocity = new Vector3(
             Mathf.Clamp(m_label.m_Rbody.velocity.x, -maxLabelSpeed, maxLabelSpeed),
-            m_label.m_Rbody.velocity.y,
+            // m_label.m_Rbody.velocity.y,
+            Mathf.Clamp(m_label.m_Rbody.velocity.y, -maxLabelSpeed, maxLabelSpeed),
             Mathf.Clamp(m_label.m_Rbody.velocity.z, -maxLabelSpeed, maxLabelSpeed)
         );
 
@@ -530,7 +539,7 @@ public class RVOLabelAgent : Agent
                 transform.position.y,
                 m_label.PlayerLabel.transform.position.z + (distToTarget > 0 ? xzDistThres : -xzDistThres)
             );
-            m_label.m_Rbody.velocity = new Vector3(m_label.m_Rbody.velocity.x, 0f, 0f);
+            m_label.m_Rbody.velocity = new Vector3(m_label.m_Rbody.velocity.x, m_label.m_Rbody.velocity.y, 0f);
         }
 
         distToTarget = transform.position.x - m_label.PlayerLabel.transform.position.x;
@@ -541,7 +550,25 @@ public class RVOLabelAgent : Agent
                 transform.position.y,
                 transform.position.z
             );
-            m_label.m_Rbody.velocity = new Vector3(0f, 0f, m_label.m_Rbody.velocity.z);
+            m_label.m_Rbody.velocity = new Vector3(0f, m_label.m_Rbody.velocity.y, m_label.m_Rbody.velocity.z);
+        }
+
+        // should between [0.5, xzDistThres]
+        distToTarget = transform.position.y - m_label.PlayerLabel.transform.position.y;
+        if(distToTarget > xzDistThres)
+        {
+            transform.position = new Vector3(
+                transform.position.x,
+                m_label.PlayerLabel.transform.position.y + xzDistThres,
+                transform.position.z
+            );
+            m_label.m_Rbody.velocity = new Vector3(m_label.m_Rbody.velocity.x, 0, m_label.m_Rbody.velocity.z);
+        } else if (distToTarget < 0.5f) {
+            transform.position = new Vector3(
+                transform.position.x,
+                m_label.PlayerLabel.transform.position.y + 0.5f,
+                transform.position.z
+            );
         }
     }
 

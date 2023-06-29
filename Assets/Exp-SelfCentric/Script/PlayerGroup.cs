@@ -75,7 +75,7 @@ public abstract class PlayerGroup : MonoBehaviour
         Academy.Instance.OnEnvironmentReset += EnvironmentReset;
 
         bool onlyTestMC = Academy.Instance.EnvironmentParameters.GetWithDefault("onlyTestMC", 0.0f) == 1.0f;
-        bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 0.0f) == 1.0f;
+        bool movingCam = Academy.Instance.EnvironmentParameters.GetWithDefault("movingCam", 1.0f) == 1.0f;
 
         GameObject camGo = transform.parent.Find("Camera").gameObject;
         if (onlyTestMC ? (m_RVOSettings.evaluate && movingCam) : movingCam)

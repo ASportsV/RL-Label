@@ -36,7 +36,7 @@ public class RVOSettings : MonoBehaviour
     private void Awake()
     {
         obW = Academy.Instance.EnvironmentParameters.GetWithDefault("ob_w", 0f) == 1.0f;
-        smallLabel = Academy.Instance.EnvironmentParameters.GetWithDefault("small", 1f) == 1.0f;
+        smallLabel = Academy.Instance.EnvironmentParameters.GetWithDefault("small", 0f) == 1.0f;
         labelY = smallLabel ? 1.9f : 2.8f;
         evaluate = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_mode", 0f) == 1.0f;
         evaluate_metrics = Academy.Instance.EnvironmentParameters.GetWithDefault("_test_metrics", 0f) == 1.0f;
